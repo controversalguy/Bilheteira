@@ -31,9 +31,9 @@ public class ThreadServer extends Thread {
             Msg msg = (Msg) ois.readObject();
             System.out.println("Client Message "+msg.getMsg());
         } catch (SocketException e) {
-            System.out.println("Erro no Socket");;
+            System.out.println("Erro no Socket");
         } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
+            System.out.println("Classe Não encontrada");
         } catch (IOException e){
             System.out.println("Erro em stream");
         }
