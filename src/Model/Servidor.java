@@ -36,34 +36,42 @@ public class Servidor {
             NetworkInterface ni = NetworkInterface.getByInetAddress(InetAddress.getLocalHost());
             ms.joinGroup(sa, ni);
 
-            ThreadServer ts = new ThreadServer(ms, portClients);
-            ts.start();
-
-            System.out.println("Welcome to the chat!");
-            Scanner sc = new Scanner(System.in);
-
-            HeartBeat hb = new HeartBeat(ms);
+            HeartBeat hb = new HeartBeat(portClients,ipgroup,portServers,ms);
             hb.start();
 
-            while (true) {
-                String msg = sc.nextLine();
-                Msg myMessage = new Msg(msg);
-                if(myMessage.getMsg().equals("exit"))
-                    break;
+            ListenHeartBeat lhb = new ListenHeartBeat(ms);
+            lhb.start();
+
+            ThreadServer ts;
+            int count = 0;
+            DatagramSocket ds = new DatagramSocket(portClients);
+            ServerSocket ss = new ServerSocket(0);
+            while(true){
+                DatagramPacket dp = new DatagramPacket(new byte[256], 256);
+                ds.receive(dp);
+
+                ByteArrayInputStream bais = new ByteArrayInputStream(dp.getData());
+                ObjectInputStream ois = new ObjectInputStream(bais);
+
+                Msg msg = (Msg) ois.readObject();
+                System.out.println("Client Message " + msg.getMsg());
 
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 ObjectOutputStream oos = new ObjectOutputStream(baos);
-                oos.writeObject(myMessage);
-                byte[] myMessageBytes = baos.toByteArray();
 
-                DatagramPacket dp = new DatagramPacket(
-                        myMessageBytes, myMessageBytes.length,
-                        ipgroup, portServers
-                );
-
-                ms.send(dp);
+                System.out.println("Port: "+ss.getLocalPort());
+                Msg msgTCP = new Msg("Olá",ss.getLocalPort());
+                oos.writeUnshared(msgTCP);
+                byte[] noCache = baos.toByteArray();
+                dp.setData(noCache, 0,noCache.length);
+                ds.send(dp);
+                Socket socketCli= ss.accept();
+                ts = new ThreadServer(ms, portClients,ss,socketCli);
+                ts.start();
+                if(count == 2)
+                    break;
+                count++;
             }
-
             ms.leaveGroup(sa, ni);
             ms.close();
             ts.join();
@@ -76,6 +84,8 @@ public class Servidor {
         } catch (InterruptedException e) {
             System.out.println("InterrupcaoException");
         } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
 

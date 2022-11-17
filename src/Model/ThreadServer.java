@@ -1,41 +1,42 @@
 package Model;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.MulticastSocket;
-import java.net.SocketException;
+import java.io.*;
+import java.net.*;
 
 public class ThreadServer extends Thread {
-    MulticastSocket ms ;
+    MulticastSocket ms;
     int portClientes;
-    public ThreadServer(MulticastSocket ms, int portClients) {
+    Socket socketCli;
+    ServerSocket ss;
+    public ThreadServer(MulticastSocket ms, int portClients,ServerSocket ss,Socket socketCli) {
         this.ms = ms;
         this.portClientes = portClients;
+        this.socketCli = socketCli;
     }
 
     @Override
     public void run() {
-        //Msg msg;
-        try {
-            DatagramSocket ds = new DatagramSocket(portClientes);
-            DatagramPacket dp = new DatagramPacket(new byte[256],256);
+            try {
 
-            ds.receive(dp);
-
-            ByteArrayInputStream bais = new ByteArrayInputStream(dp.getData());
-            ObjectInputStream ois = new ObjectInputStream(bais);
-
-            Msg msg = (Msg) ois.readObject();
-            System.out.println("Client Message "+msg.getMsg());
-        } catch (SocketException e) {
-            System.out.println("Erro no Socket");
-        } catch (ClassNotFoundException e) {
-            System.out.println("Classe Não encontrada");
-        } catch (IOException e){
-            System.out.println("Erro em stream");
+                InputStream is = socketCli.getInputStream();
+                OutputStream os = socketCli.getOutputStream();
+                ObjectInputStream oisSocket = new ObjectInputStream(is);
+                ObjectOutputStream oosSocket = new ObjectOutputStream(os);
+                while (true){
+                    Msg msgSocket = (Msg) oisSocket.readObject();
+                    System.out.println(msgSocket.getMsg());
+                    if(msgSocket.getMsg().equals("Olá")){
+                        msgSocket.setMsg("Tudo bem?");
+                        oosSocket.writeUnshared(msgSocket);
+                    }else if(msgSocket.getMsg().equals("Receba")){
+                        msgSocket.setMsg("Receba mesmo");
+                        oosSocket.writeUnshared(msgSocket);
+                    }
+                }
+            } catch (ClassNotFoundException e) {
+                System.out.println("Classe Não encontrada");
+            } catch (IOException e) {
+                System.out.println("Erro em stream");
+            }
         }
-    }
 }

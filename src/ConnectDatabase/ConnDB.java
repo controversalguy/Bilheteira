@@ -11,7 +11,7 @@ public class ConnDB
 
     public ConnDB(String database_dir) throws SQLException
     {
-        DATABASE_URL = database_dir; //"jdbc:sqlite:mydb.db";
+        DATABASE_URL = database_dir;
         dbConn = DriverManager.getConnection(DATABASE_URL);
     }
 
