@@ -54,7 +54,7 @@ public class Servidor {
                 ObjectInputStream ois = new ObjectInputStream(bais);
 
                 Msg msg = (Msg) ois.readObject();
-                System.out.println("Client Message " + msg.getMsg());
+                System.out.println("Client Connected[" + msg.getMsg()+"]");
 
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 ObjectOutputStream oos = new ObjectOutputStream(baos);

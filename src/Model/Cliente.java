@@ -42,7 +42,7 @@ public class Cliente {
             Scanner sc = new Scanner(System.in);
             while (true){
                 msgTCP.setMsg(sc.nextLine());
-                //System.out.println(msgTCP.getMsg());
+                System.out.println(msgTCP.getMsg());
                 oosTCP.writeUnshared(msgTCP);
                 msgTCP = (Msg) oisTCP.readObject();
                 if(msgTCP.getMsg().equals("Tudo bem?"))

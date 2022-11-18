@@ -25,13 +25,7 @@ public class ThreadServer extends Thread {
                 while (true){
                     Msg msgSocket = (Msg) oisSocket.readObject();
                     System.out.println(msgSocket.getMsg());
-                    if(msgSocket.getMsg().equals("Olá")){
-                        msgSocket.setMsg("Tudo bem?");
-                        oosSocket.writeUnshared(msgSocket);
-                    }else if(msgSocket.getMsg().equals("Receba")){
-                        msgSocket.setMsg("Receba mesmo");
-                        oosSocket.writeUnshared(msgSocket);
-                    }
+                    oosSocket.writeUnshared(msgSocket);
                 }
             } catch (ClassNotFoundException e) {
                 System.out.println("Classe Não encontrada");

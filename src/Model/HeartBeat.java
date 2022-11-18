@@ -17,6 +17,7 @@ public class HeartBeat extends Thread  {
         this.portClients = portClients;
         this.ipgroup = ipgroup;
         this.portServers = portServers;
+        this.ms = ms;
     }
 
     @Override
@@ -28,23 +29,17 @@ public class HeartBeat extends Thread  {
             Msg myMessage = new Msg(msg, portClients);
             if(myMessage.getMsg().equals("exit"))
                 break;
-
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ObjectOutputStream oos;
             try {
-                oos = new ObjectOutputStream(baos);
-                oos.writeUnshared(myMessage);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ObjectOutputStream oos = new ObjectOutputStream(baos);
+            oos.writeUnshared(myMessage);
+
             byte[] myMessageBytes = baos.toByteArray();
 
             DatagramPacket dp = new DatagramPacket(
                     myMessageBytes, myMessageBytes.length,
                     ipgroup, portServers
             );
-
-            try {
                 ms.send(dp);
             } catch (IOException e) {
                 throw new RuntimeException(e);
