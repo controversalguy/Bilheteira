@@ -2,22 +2,19 @@ package Model;
 
 import java.io.*;
 import java.net.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
-public class ThreadServer extends Thread {
+public class ComunicaTCP extends Thread {
     MulticastSocket ms;
-    int portClientes;
     Socket socketCli;
-    ServerSocket ss;
-    public ThreadServer(MulticastSocket ms, int portClients,ServerSocket ss,Socket socketCli) {
+    public ComunicaTCP(MulticastSocket ms, Socket socketCli) {
         this.ms = ms;
-        this.portClientes = portClients;
         this.socketCli = socketCli;
     }
 
     @Override
     public void run() {
             try {
-
                 InputStream is = socketCli.getInputStream();
                 OutputStream os = socketCli.getOutputStream();
                 ObjectInputStream oisSocket = new ObjectInputStream(is);

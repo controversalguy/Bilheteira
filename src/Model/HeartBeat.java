@@ -6,42 +6,53 @@ import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
-import java.util.Scanner;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class HeartBeat extends Thread  {
-    int portClients;
+    int portTCP;
     InetAddress ipgroup;
     int portServers;
     MulticastSocket ms;
-    public HeartBeat(int portClients, InetAddress ipgroup, int portServers, MulticastSocket ms){
-        this.portClients = portClients;
+    String ipServer;
+    AtomicInteger ligacoesTCP;
+
+    public HeartBeat(int portTCP, InetAddress ipgroup, int portServers, MulticastSocket ms, String ipServer, AtomicInteger ligacoesTCP){
+        this.portTCP = portTCP;
         this.ipgroup = ipgroup;
         this.portServers = portServers;
         this.ms = ms;
+        this.ipServer = ipServer;
+        this.ligacoesTCP = ligacoesTCP;
     }
 
     @Override
     public void run() {
-        System.out.println("Welcome to the chat!");
-        Scanner sc = new Scanner(System.in);
+        System.out.println("Welcome to the chat!["+portTCP+"]");
         while (true) {
-            String msg = sc.nextLine();
-            Msg myMessage = new Msg(msg, portClients);
-            if(myMessage.getMsg().equals("exit"))
-                break;
             try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ObjectOutputStream oos = new ObjectOutputStream(baos);
-            oos.writeUnshared(myMessage);
+               // System.out.println("ligacoesTCP: "+ligacoesTCP);
 
-            byte[] myMessageBytes = baos.toByteArray();
+                Msg myMessage = new Msg(ipServer,portTCP);
+                myMessage.setLigacoesTCP(ligacoesTCP.get()); // manda inteiro para não crashar
+                                                            // usamos Atomic Integer pois é independente de sincronização
 
-            DatagramPacket dp = new DatagramPacket(
-                    myMessageBytes, myMessageBytes.length,
-                    ipgroup, portServers
-            );
+                //ligacoesTCP
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                ObjectOutputStream oos = new ObjectOutputStream(baos);
+                oos.writeUnshared(myMessage);
+
+                byte[] myMessageBytes = baos.toByteArray();
+
+                DatagramPacket dp = new DatagramPacket(
+                        myMessageBytes, myMessageBytes.length,
+                        ipgroup, portServers
+                );
                 ms.send(dp);
-            } catch (IOException e) {
+
+                sleep(3000); //mudar para 10 TODO
+            } catch ( IOException e) {
+                throw new RuntimeException(e);
+            } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
         }

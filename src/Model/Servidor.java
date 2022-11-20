@@ -5,7 +5,9 @@ import ConnectDatabase.ConnDB;
 import java.io.*;
 import java.net.*;
 import java.sql.SQLException;
-import java.util.Scanner;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReentrantLock;
 
 
 public class Servidor {
@@ -16,6 +18,9 @@ public class Servidor {
     static String dBName; // TODO dbName+path
     static final String MULTICAST_IP = "239.39.39.39";
 
+    static final AtomicInteger ligacoesTCP = new AtomicInteger(0);
+
+    //TODO threads num ArrayList
     public static void main(String[] args) {
 
         if (args.length != 2) {
@@ -23,6 +28,9 @@ public class Servidor {
             return;
         }
 
+        HashMap<Integer,String> listaServidores = new HashMap<>();
+
+        // TODO VALIDAÇÕES
         portClients = Integer.parseInt(args[0]);
         dBName = args[1];
         MulticastSocket ms;
@@ -36,37 +44,60 @@ public class Servidor {
             NetworkInterface ni = NetworkInterface.getByInetAddress(InetAddress.getLocalHost());
             ms.joinGroup(sa, ni);
 
-            HeartBeat hb = new HeartBeat(portClients,ipgroup,portServers,ms);
+            ServerSocket ss = new ServerSocket(0);
+            int portServer = ss.getLocalPort();
+
+            String ipServer = InetAddress.getByName("localhost").getHostAddress();
+
+            HeartBeat hb = new HeartBeat(portServer,ipgroup,portServers,ms,ipServer, ligacoesTCP);
             hb.start();
 
-            ListenHeartBeat lhb = new ListenHeartBeat(ms);
+            ListenHeartBeat lhb = new ListenHeartBeat(ms, listaServidores);
             lhb.start();
 
-            ThreadServer ts;
+            ComunicaTCP ts;
             int count = 0;
             DatagramSocket ds = new DatagramSocket(portClients);
-            ServerSocket ss = new ServerSocket(0);
+
             while(true){
-                DatagramPacket dp = new DatagramPacket(new byte[256], 256);
+                DatagramPacket dp = new DatagramPacket(new byte[256], 256); // recebe nome
                 ds.receive(dp);
 
                 ByteArrayInputStream bais = new ByteArrayInputStream(dp.getData());
                 ObjectInputStream ois = new ObjectInputStream(bais);
 
                 Msg msg = (Msg) ois.readObject();
-                System.out.println("Client Connected[" + msg.getMsg()+"]");
+                System.out.println("Client Connected[" + msg.getIp()+"]");
 
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                ObjectOutputStream oos = new ObjectOutputStream(baos);
+                Msg msgTCP = new Msg();
+                msgTCP.setLastPort(false);
+                
+                Iterator<Integer> portos = listaServidores.keySet().iterator();
+                System.out.println(listaServidores);
+                while (portos.hasNext()){
+                    Integer i = portos.next();
+                    System.out.println("Porto: " +i);
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    ObjectOutputStream oos = new ObjectOutputStream(baos);
 
-                System.out.println("Port: "+ss.getLocalPort());
-                Msg msgTCP = new Msg("Olá",ss.getLocalPort());
-                oos.writeUnshared(msgTCP);
-                byte[] noCache = baos.toByteArray();
-                dp.setData(noCache, 0,noCache.length);
-                ds.send(dp);
-                Socket socketCli= ss.accept();
-                ts = new ThreadServer(ms, portClients,ss,socketCli);
+                    msgTCP.setPortoServer(i);
+                    msgTCP.setIp(listaServidores.get(i));
+                    if(!portos.hasNext()){
+                        msgTCP.setLastPort(true);
+                    }
+
+                    System.out.println("Port: "+msgTCP.getPortoServer() + " Ip: "+msgTCP.getIp()+ "LigacoesTCP: " + ligacoesTCP);
+                    // Msg msgTCP = new Msg("Ola Sou Servidor",ss.getLocalPort());
+
+                    oos.writeUnshared(msgTCP);
+                    byte[] noCache = baos.toByteArray();
+                    dp.setData(noCache, 0,noCache.length);
+                    ds.send(dp);
+                }
+
+                Socket socketCli = ss.accept();
+                ligacoesTCP.getAndIncrement();
+                ts = new ComunicaTCP(ms,socketCli);
                 ts.start();
                 if(count == 2)
                     break;
