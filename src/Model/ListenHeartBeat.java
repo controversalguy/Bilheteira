@@ -5,8 +5,7 @@ import java.io.*;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ListenHeartBeat extends Thread{
@@ -41,19 +40,26 @@ public class ListenHeartBeat extends Thread{
             Msg msg;
             try {
                 msg = (Msg) ois.readObject();
-
                 synchronized (listaServidores) {
                     Informacoes info = new Informacoes(msg.getPortoServer(),msg.getIp(),msg.getLigacoesTCP());
                     if(!listaServidores.contains(info))
                         listaServidores.add(info);
-                    //listaServidores.put(msg.getPortoServer(),msg.getIp());
+                    else { // se já existir
+                        //System.out.println("EXISTE BABY");
+                        listaServidores.set(listaServidores.lastIndexOf(info),info);
+                        //System.out.println("Info existente: "+ info);
+                    }
+                    Comparator<Informacoes> compare = new InformacoesComparator();
+                    listaServidores.sort(compare);
+                    //System.out.println("Lista Ordenada " + listaServidores);
                 }
-                System.out.println("Ligações TCP ativas: " + msg.getLigacoesTCP());
+
+               // System.out.println("Ligações TCP ativas: " + msg.getLigacoesTCP());
             } catch (IOException | ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
 
-            System.out.println("Ip: " + msg.getIp()+ "Porto: " + msg.getPortoServer());
+           // System.out.println("Ip: " + msg.getIp()+ "Porto: " + msg.getPortoServer());
             //System.out.println(listaServidores);
         }
 

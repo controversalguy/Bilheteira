@@ -6,25 +6,30 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class ComunicaTCP extends Thread {
     MulticastSocket ms;
-    Socket socketCli;
+    ServerSocket ss;
     AtomicInteger ligacoesTCP;
-    
-    public ComunicaTCP(MulticastSocket ms, Socket socketCli,AtomicInteger ligacoesTCP) {
+
+    public ComunicaTCP(MulticastSocket ms, ServerSocket ss,AtomicInteger ligacoesTCP) {
         this.ms = ms;
-        this.socketCli = socketCli;
+        this.ss = ss;
         this.ligacoesTCP = ligacoesTCP;
     }
 
     @Override
     public void run() {
-            try {
+        Socket socketCli = null;
+        try {
+                //System.out.println("Fico a espera");
+                socketCli = ss.accept();
+                //System.out.println("BOTA LUMEEEEEEEEEEE");
+                ligacoesTCP.getAndIncrement();
                 InputStream is = socketCli.getInputStream();
                 OutputStream os = socketCli.getOutputStream();
                 ObjectInputStream oisSocket = new ObjectInputStream(is);
                 ObjectOutputStream oosSocket = new ObjectOutputStream(os);
                 while (true){
                     Msg msgSocket = (Msg) oisSocket.readObject();
-                    System.out.println(msgSocket.getMsg());
+                    System.out.println("E"+msgSocket.getMsg());
                     oosSocket.writeUnshared(msgSocket);
                 }
             } catch (ClassNotFoundException e) {

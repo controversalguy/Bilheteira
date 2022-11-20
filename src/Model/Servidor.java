@@ -56,11 +56,13 @@ public class Servidor {
             ListenHeartBeat lhb = new ListenHeartBeat(ms, listaServidores);
             lhb.start();
 
-            ComunicaTCP ts;
+            ComunicaTCP ts = null;
             int count = 0;
             DatagramSocket ds = new DatagramSocket(portClients);
 
             while(true){
+                if(ss.isClosed())
+                    break;
                 DatagramPacket dp = new DatagramPacket(new byte[256], 256); // recebe nome
                 ds.receive(dp);
 
@@ -73,21 +75,22 @@ public class Servidor {
                 Msg msgTCP = new Msg();
                 msgTCP.setLastPort(false);
 
-                Iterator<Informacoes> portos = listaServidores.iterator();
-                System.out.println(listaServidores);
-                while (portos.hasNext()){
-                    Informacoes i = portos.next();
-                    System.out.println("Porto: " +i);
+                Iterator<Informacoes> iterator = listaServidores.iterator();
+                while (iterator.hasNext()){
+                    Informacoes info = iterator.next();
+                    System.out.println("Info: "+info);
+                   // System.out.println("Porto: " +info);
                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
                     ObjectOutputStream oos = new ObjectOutputStream(baos);
 
-                    msgTCP.setPortoServer(i.getPorto());
-                    msgTCP.setIp(i.getIp());
-                    if(!portos.hasNext()){
+                    msgTCP.setPortoServer(info.getPorto());
+                    msgTCP.setIp(info.getIp());
+                    if(!iterator.hasNext()){
                         msgTCP.setLastPort(true);
                     }
 
-                    System.out.println("Port: "+msgTCP.getPortoServer() + " Ip: "+msgTCP.getIp()+ "LigacoesTCP: " + ligacoesTCP);
+                    //System.out.println("Port: "+info.getPorto()+ " Ip: "+info.getIp()+ "LigacoesTCP: " + info.getLigacoes());
+                    msgTCP.setLigacoesTCP(info.getLigacoes());
                     // Msg msgTCP = new Msg("Ola Sou Servidor",ss.getLocalPort());
 
                     oos.writeUnshared(msgTCP);
@@ -96,14 +99,13 @@ public class Servidor {
                     ds.send(dp);
                 }
 
-                Socket socketCli = ss.accept();
-                ligacoesTCP.getAndIncrement();
-                ts = new ComunicaTCP(ms,socketCli,ligacoesTCP);
+                ts = new ComunicaTCP(ms,ss,ligacoesTCP);
                 ts.start();
-                if(count == 2)
+                if(count == 20)
                     break;
                 count++;
             }
+            ss.close();
             ms.leaveGroup(sa, ni);
             ms.close();
             ts.join();
@@ -120,7 +122,7 @@ public class Servidor {
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
-
+        System.out.println("QUERO FORA");
     }
 }
 

@@ -38,23 +38,23 @@ public class Cliente {
                 ByteArrayInputStream bais = new ByteArrayInputStream(dp.getData());
                 ObjectInputStream ois = new ObjectInputStream(bais);
                 msgTCP = (Msg) ois.readObject();
-
                 listaServidores.add(new Informacoes(msgTCP.getPortoServer(),msgTCP.getIp(),msgTCP.getLigacoesTCP()));
 
                 if(msgTCP.isLastPort())
                     break;
             }
+            ds.close();
             System.out.println(listaServidores);
             Iterator<Informacoes> it = listaServidores.iterator();
             Informacoes info = it.next();
-            System.out.println("Edu é gay: " + info.getPorto());
+            System.out.println("Porto do next: " + info.getPorto());
             Socket sClient = new Socket("localhost", info.getPorto());
             System.out.println("Connectei-me ao Servidor...["+info.getPorto()+"]");
             InputStream is = sClient.getInputStream();
             OutputStream os = sClient.getOutputStream();
             ObjectOutputStream oosTCP = new ObjectOutputStream(os);
             ObjectInputStream oisTCP = new ObjectInputStream(is);
-            msgTCP.setMsg("Connectei ");
+            msgTCP.setMsg("Connectei-me ao Servidor...["+info.getPorto()+"]");
             oosTCP.writeUnshared(msgTCP);
             Scanner sc = new Scanner(System.in);
             while (true) {
