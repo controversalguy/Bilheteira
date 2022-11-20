@@ -29,7 +29,7 @@ public class Cliente {
             ds.send(dp);
             Msg msgTCP;
 
-            HashMap<Integer,String> listaServidores = new HashMap<>();
+            ArrayList<Informacoes> listaServidores = new ArrayList<>();
 
             while(true){
 
@@ -39,16 +39,17 @@ public class Cliente {
                 ObjectInputStream ois = new ObjectInputStream(bais);
                 msgTCP = (Msg) ois.readObject();
 
-                listaServidores.put(msgTCP.getPortoServer(),msgTCP.getIp());
+                listaServidores.add(new Informacoes(msgTCP.getPortoServer(),msgTCP.getIp(),msgTCP.getLigacoesTCP()));
 
                 if(msgTCP.isLastPort())
                     break;
             }
-
-            Iterator<Integer> portos = listaServidores.keySet().iterator();
-            int portoTCP = portos.next();
-            Socket sClient = new Socket("localhost", portoTCP);
-            System.out.println("Connectei-me ao Servidor...["+portoTCP+"]");
+            System.out.println(listaServidores);
+            Iterator<Informacoes> it = listaServidores.iterator();
+            Informacoes info = it.next();
+            System.out.println("Edu é gay: " + info.getPorto());
+            Socket sClient = new Socket("localhost", info.getPorto());
+            System.out.println("Connectei-me ao Servidor...["+info.getPorto()+"]");
             InputStream is = sClient.getInputStream();
             OutputStream os = sClient.getOutputStream();
             ObjectOutputStream oosTCP = new ObjectOutputStream(os);
@@ -64,11 +65,11 @@ public class Cliente {
                 if (msgTCP.getMsg().equals("Tudo bem?"))
                     System.out.println("Claro né");
             }
-
         } catch (UnknownHostException | ClassNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
+
     }
 }

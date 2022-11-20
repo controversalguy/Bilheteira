@@ -7,9 +7,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ComunicaTCP extends Thread {
     MulticastSocket ms;
     Socket socketCli;
-    public ComunicaTCP(MulticastSocket ms, Socket socketCli) {
+    AtomicInteger ligacoesTCP;
+    
+    public ComunicaTCP(MulticastSocket ms, Socket socketCli,AtomicInteger ligacoesTCP) {
         this.ms = ms;
         this.socketCli = socketCli;
+        this.ligacoesTCP = ligacoesTCP;
     }
 
     @Override
@@ -27,7 +30,12 @@ public class ComunicaTCP extends Thread {
             } catch (ClassNotFoundException e) {
                 System.out.println("Classe Não encontrada");
             } catch (IOException e) {
-                System.out.println("Erro em stream");
+                try {
+                    socketCli.close();
+                    ligacoesTCP.getAndDecrement();
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
             }
         }
 }

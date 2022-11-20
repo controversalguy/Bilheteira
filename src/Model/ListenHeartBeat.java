@@ -1,5 +1,6 @@
 package Model;
 
+import javax.imageio.metadata.IIOMetadataNode;
 import java.io.*;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
@@ -10,9 +11,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class ListenHeartBeat extends Thread{
     private MulticastSocket ms;
-    HashMap<Integer,String> listaServidores;
+    ArrayList<Informacoes> listaServidores;
+    //HashMap<Integer,String> listaServidores;
 
-    public ListenHeartBeat(MulticastSocket ms, HashMap<Integer,String> listaServidores) {
+    public ListenHeartBeat(MulticastSocket ms, ArrayList<Informacoes> listaServidores) {
         this.ms = ms;
         this.listaServidores = listaServidores;
     }
@@ -41,8 +43,10 @@ public class ListenHeartBeat extends Thread{
                 msg = (Msg) ois.readObject();
 
                 synchronized (listaServidores) {
-                    listaServidores.put(msg.getPortoServer(),msg.getIp());
-                    //listaServidores.add(msg.getPortoServer());
+                    Informacoes info = new Informacoes(msg.getPortoServer(),msg.getIp(),msg.getLigacoesTCP());
+                    if(!listaServidores.contains(info))
+                        listaServidores.add(info);
+                    //listaServidores.put(msg.getPortoServer(),msg.getIp());
                 }
                 System.out.println("Ligações TCP ativas: " + msg.getLigacoesTCP());
             } catch (IOException | ClassNotFoundException e) {

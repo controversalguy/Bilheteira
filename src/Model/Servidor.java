@@ -28,7 +28,8 @@ public class Servidor {
             return;
         }
 
-        HashMap<Integer,String> listaServidores = new HashMap<>();
+        //HashMap<Integer,String> listaServidores = new HashMap<>();
+        ArrayList<Informacoes> listaServidores  = new ArrayList<>();
 
         // TODO VALIDAÇÕES
         portClients = Integer.parseInt(args[0]);
@@ -71,17 +72,17 @@ public class Servidor {
 
                 Msg msgTCP = new Msg();
                 msgTCP.setLastPort(false);
-                
-                Iterator<Integer> portos = listaServidores.keySet().iterator();
+
+                Iterator<Informacoes> portos = listaServidores.iterator();
                 System.out.println(listaServidores);
                 while (portos.hasNext()){
-                    Integer i = portos.next();
+                    Informacoes i = portos.next();
                     System.out.println("Porto: " +i);
                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
                     ObjectOutputStream oos = new ObjectOutputStream(baos);
 
-                    msgTCP.setPortoServer(i);
-                    msgTCP.setIp(listaServidores.get(i));
+                    msgTCP.setPortoServer(i.getPorto());
+                    msgTCP.setIp(i.getIp());
                     if(!portos.hasNext()){
                         msgTCP.setLastPort(true);
                     }
@@ -97,7 +98,7 @@ public class Servidor {
 
                 Socket socketCli = ss.accept();
                 ligacoesTCP.getAndIncrement();
-                ts = new ComunicaTCP(ms,socketCli);
+                ts = new ComunicaTCP(ms,socketCli,ligacoesTCP);
                 ts.start();
                 if(count == 2)
                     break;
