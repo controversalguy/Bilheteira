@@ -6,21 +6,20 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class ComunicaTCP extends Thread {
     MulticastSocket ms;
-    ServerSocket ss;
+    Socket socketCli;
     AtomicInteger ligacoesTCP;
 
-    public ComunicaTCP(MulticastSocket ms, ServerSocket ss,AtomicInteger ligacoesTCP) {
+    public ComunicaTCP(MulticastSocket ms, Socket socketCli,AtomicInteger ligacoesTCP) {
         this.ms = ms;
-        this.ss = ss;
+        this.socketCli = socketCli;
         this.ligacoesTCP = ligacoesTCP;
     }
 
     @Override
     public void run() {
-        Socket socketCli = null;
         try {
                 //System.out.println("Fico a espera");
-                socketCli = ss.accept();
+                //socketCli = ss.accept();
                 //System.out.println("BOTA LUMEEEEEEEEEEE");
                 ligacoesTCP.getAndIncrement();
                 InputStream is = socketCli.getInputStream();
