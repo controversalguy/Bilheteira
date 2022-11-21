@@ -7,9 +7,10 @@ import java.util.*;
 public class Cliente {
     static String strIpServer;
     static int portServer;
+    static ArrayList<Informacoes> listaServidores;
 
-    public static void main(String[] args) {
-        if(args.length != 2)
+    public static void main(String[] args) throws IOException, InterruptedException {
+        if (args.length != 2)
             return;
         strIpServer = args[0];
         portServer = Integer.parseInt(args[1]);
@@ -29,47 +30,28 @@ public class Cliente {
             ds.send(dp);
             Msg msgTCP;
 
-            ArrayList<Informacoes> listaServidores = new ArrayList<>();
+            listaServidores = new ArrayList<>();
 
-            while(true){
+            while (true) {
 
                 ds.receive(dp);
 
                 ByteArrayInputStream bais = new ByteArrayInputStream(dp.getData());
                 ObjectInputStream ois = new ObjectInputStream(bais);
                 msgTCP = (Msg) ois.readObject();
-                listaServidores.add(new Informacoes(msgTCP.getPortoServer(),msgTCP.getIp(),msgTCP.getLigacoesTCP()));
+                listaServidores.add(new Informacoes(msgTCP.getPortoServer(), msgTCP.getIp(), msgTCP.getLigacoesTCP()));
 
-                if(msgTCP.isLastPort())
+                if (msgTCP.isLastPort())
                     break;
             }
+
             ds.close();
             System.out.println(listaServidores);
-            Iterator<Informacoes> it = listaServidores.iterator();
-            Informacoes info = it.next();
-            System.out.println("Porto do next: " + info.getPorto());
-            Socket sClient = new Socket("localhost", info.getPorto());
-            System.out.println("Connectei-me ao Servidor...["+info.getPorto()+"]");
-            InputStream is = sClient.getInputStream();
-            OutputStream os = sClient.getOutputStream();
-            ObjectOutputStream oosTCP = new ObjectOutputStream(os);
-            ObjectInputStream oisTCP = new ObjectInputStream(is);
-            msgTCP.setMsg("Connectei-me ao Servidor...["+info.getPorto()+"]");
-            oosTCP.writeUnshared(msgTCP);
-            Scanner sc = new Scanner(System.in);
-            while (true) {
-                msgTCP.setMsg(sc.nextLine());
-                System.out.println(msgTCP.getMsg());
-                oosTCP.writeUnshared(msgTCP);
-                msgTCP = (Msg) oisTCP.readObject();
-                if (msgTCP.getMsg().equals("Tudo bem?"))
-                    System.out.println("Claro né");
-            }
+            ServerSearch ss = new ServerSearch(listaServidores);
+            ss.start();
+            ss.join();
         } catch (UnknownHostException | ClassNotFoundException e) {
             e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
-
     }
 }

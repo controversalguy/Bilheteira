@@ -27,7 +27,7 @@ public class Servidor {
             System.out.println("Argumentos inválidos {<PORT> <DBPATH> -> <9021><D:\\uni\\3ano\\1semestre\\PD\\BilheteiraGit\\DataBase>}");
             return;
         }
-
+        ArrayList<Thread> allThreads = new ArrayList<>();
         //HashMap<Integer,String> listaServidores = new HashMap<>();
         ArrayList<Informacoes> listaServidores  = new ArrayList<>();
 
@@ -52,27 +52,32 @@ public class Servidor {
 
             HeartBeat hb = new HeartBeat(portServer,ipgroup,portServers,ms,ipServer, ligacoesTCP);
             hb.start();
+            allThreads.add(hb);
 
             ListenHeartBeat lhb = new ListenHeartBeat(ms, listaServidores);
             lhb.start();
-
+            allThreads.add(lhb);
             ComunicaTCP ts;
             DatagramSocket ds = new DatagramSocket(portClients);
             ListenUDP lUDP = new ListenUDP(ds,listaServidores);
             lUDP.start();
+            allThreads.add(lUDP);
             //Scanner sc = new Scanner(System.in);
             while (true){
                 Socket sCli = ss.accept();
                 ts = new ComunicaTCP(ms,sCli,ligacoesTCP);
                 ts.start();
-
+                allThreads.add(ts);
             }
 
-            /*ss.close();
+            /*for (Thread t : allThreads) {
+                t.join();
+            }
+
+            ss.close(); TODO
             ms.leaveGroup(sa, ni);
             ms.close();
-            ts.join();
-            hb.join();*/
+            */
 
         } catch (UnknownHostException e) {
             System.out.println("Desconhecido Host");
