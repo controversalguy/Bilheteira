@@ -1,12 +1,10 @@
 package Model;
 
-import javax.imageio.metadata.IIOMetadataNode;
 import java.io.*;
 import java.net.DatagramPacket;
-import java.net.InetAddress;
 import java.net.MulticastSocket;
+import java.net.Socket;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class ListenHeartBeat extends Thread{
     private MulticastSocket ms;
@@ -37,11 +35,12 @@ public class ListenHeartBeat extends Thread{
                 throw new RuntimeException(e);
             }
 
-            Msg msg;
+            //Msg msg;
+            Informacoes info;
             try {
-                msg = (Msg) ois.readObject();
+                info = (Informacoes) ois.readObject();
                 synchronized (listaServidores) {
-                    Informacoes info = new Informacoes(msg.getPortoServer(),msg.getIp(),msg.getLigacoesTCP());
+                    //Informacoes info = new Informacoes(msg.getPortoServer(),msg.getIp(),msg.getLigacoesTCP());
                     if(!listaServidores.contains(info))
                         listaServidores.add(info);
                     else { // se já existir
@@ -51,6 +50,7 @@ public class ListenHeartBeat extends Thread{
                     }
                     Comparator<Informacoes> compare = new InformacoesComparator();
                     listaServidores.sort(compare);
+
                     //System.out.println("Lista Ordenada " + listaServidores);
                 }
 
@@ -58,9 +58,6 @@ public class ListenHeartBeat extends Thread{
             } catch (IOException | ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
-
-           // System.out.println("Ip: " + msg.getIp()+ "Porto: " + msg.getPortoServer());
-            //System.out.println(listaServidores);
         }
 
     }

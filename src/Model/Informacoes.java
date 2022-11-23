@@ -1,18 +1,32 @@
 package Model;
 
+import java.io.Serial;
+import java.io.Serializable;
+import java.util.Calendar;
 import java.util.Objects;
 
-public class Informacoes {
+public class Informacoes implements Serializable {
+    @Serial
+    static final long serialVersionUID = 1L;
+
     protected Integer porto;
     protected String ip;
     protected int ligacoes;
     protected float versaoBd;
 
+    protected String currentTime;
 
     public Informacoes(Integer porto, String ip, int ligacoes) {
         this.porto = porto;
         this.ip = ip;
         this.ligacoes = ligacoes;
+    }
+
+    public Informacoes(Integer porto, String ip, int ligacoes, String currentTime) {
+        this.porto = porto;
+        this.ip = ip;
+        this.ligacoes = ligacoes;
+        this.currentTime = currentTime;
     }
 
     public Informacoes(Integer porto, String ip, int ligacoes, float versaoBd) {
@@ -54,9 +68,17 @@ public class Informacoes {
         this.versaoBd = versaoBd;
     }
 
+    public String getCurrentTime() {
+        return currentTime;
+    }
+
+    public void setCurrentTime(String currentTime) {
+        this.currentTime = currentTime;
+    }
+
     @Override
     public String toString() {
-        return "Porto " + porto +" Ip: "+ ip +" LigacoesTCP: "+ ligacoes ;
+        return "Porto " + porto +" Ip: "+ ip +" LigacoesTCP: "+ ligacoes + " Hora: "+ currentTime;
     }
 
     @Override

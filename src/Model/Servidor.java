@@ -5,6 +5,8 @@ import ConnectDatabase.ConnDB;
 import java.io.*;
 import java.net.*;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
@@ -62,6 +64,10 @@ public class Servidor {
             ListenUDP lUDP = new ListenUDP(ds,listaServidores);
             lUDP.start();
             allThreads.add(lUDP);
+
+            RemoveServidores rs = new RemoveServidores(ms, ipgroup, portServer, ipServer, listaServidores);
+            rs.start();
+            allThreads.add(rs);
             //Scanner sc = new Scanner(System.in);
             while (true){
                 Socket sCli = ss.accept();
@@ -88,5 +94,34 @@ public class Servidor {
         }
         System.out.println("QUERO FORA");
     }
+
+    public static void atualiza(MulticastSocket ms, InetAddress ipgroup, int portTCP, String ipServer) {
+        try{
+            LocalDateTime now = LocalDateTime.now();
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            String currentTime = now.format(dateTimeFormatter);
+
+            Informacoes info = new Informacoes(portTCP, ipServer, ligacoesTCP.get(), currentTime);
+            // manda inteiro para não crashar // usamos Atomic Integer pois é independente de sincronização
+
+            //ligacoesTCP
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ObjectOutputStream oos = new ObjectOutputStream(baos);
+            oos.writeUnshared(info);
+
+            byte[] myMessageBytes = baos.toByteArray();
+
+            DatagramPacket dp = new DatagramPacket(
+                    myMessageBytes, myMessageBytes.length,
+                    ipgroup, portServers
+            );
+            ms.send(dp);
+
+            System.out.println("Enviei atualizado!");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }
 

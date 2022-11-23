@@ -3,9 +3,13 @@ package Model;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.net.DatagramPacket;
-import java.net.InetAddress;
-import java.net.MulticastSocket;
+import java.net.*;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class HeartBeat extends Thread  {
@@ -30,16 +34,17 @@ public class HeartBeat extends Thread  {
         System.out.println("Welcome to the chat!["+portTCP+"]");
         while (true) {
             try {
-               // System.out.println("ligacoesTCP: "+ligacoesTCP);
+                LocalDateTime now = LocalDateTime.now();
+                DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                String currentTime = now.format(dateTimeFormatter);
 
-                Msg myMessage = new Msg(ipServer,portTCP);
-                myMessage.setLigacoesTCP(ligacoesTCP.get()); // manda inteiro para não crashar
-                                                            // usamos Atomic Integer pois é independente de sincronização
+                Informacoes info = new Informacoes(portTCP, ipServer, ligacoesTCP.get(), currentTime);
+                // manda inteiro para não crashar // usamos Atomic Integer pois é independente de sincronização
 
                 //ligacoesTCP
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 ObjectOutputStream oos = new ObjectOutputStream(baos);
-                oos.writeUnshared(myMessage);
+                oos.writeUnshared(info);
 
                 byte[] myMessageBytes = baos.toByteArray();
 
