@@ -9,10 +9,14 @@ public class ConnDB
     private String DATABASE_URL;
     private Connection dbConn;
 
+    private int versao;
+
     public ConnDB(String database_dir) throws SQLException
     {
         DATABASE_URL = database_dir;
         dbConn = DriverManager.getConnection(DATABASE_URL);
+        versao = 1;
+        clear();
     }
 
     public void close() throws SQLException
@@ -70,6 +74,29 @@ public class ConnDB
         statement.executeUpdate(sqlQuery);
         statement.close();
     }
+
+    public void clear() throws SQLException
+    {
+        Statement statement = dbConn.createStatement();
+        String sqlQuery = "DELETE FROM espetaculo";
+        statement.executeUpdate(sqlQuery);
+        statement.close();
+
+        //Getting the connection
+        /*System.out.println("Connection established......");
+        ResultSet rs = dbConn.getMetaData().getTables(null, null, null, null);        while (rs.next()) {
+            System.out.println(rs.getString("TABLE_NAME"));
+        }*/
+    }
+
+    public int getVersao() {
+        return versao;
+    }
+
+    public void setVersao(int versao) {
+        this.versao = versao;
+    }
+
 
     /*public static void main(String[] args)
     {

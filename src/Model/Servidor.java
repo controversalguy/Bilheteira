@@ -9,7 +9,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.ReentrantLock;
+
+import static java.lang.Thread.sleep;
 
 
 public class Servidor {
@@ -39,7 +40,7 @@ public class Servidor {
         MulticastSocket ms;
 
         try {
-            ConnDB connDB = new ConnDB(dBName);
+            ConnDB connDB = null;
 
             ms = new MulticastSocket(portServers);
             InetAddress ipgroup = InetAddress.getByName(MULTICAST_IP);
@@ -52,13 +53,16 @@ public class Servidor {
 
             String ipServer = InetAddress.getByName("localhost").getHostAddress();
 
+            ListenHeartBeat lhb = new ListenHeartBeat(ms, listaServidores);
+            lhb.start();
+            allThreads.add(lhb);
+
+            connDB = faseDeArranque(listaServidores, connDB);
+
             HeartBeat hb = new HeartBeat(portServer,ipgroup,portServers,ms,ipServer, ligacoesTCP);
             hb.start();
             allThreads.add(hb);
 
-            ListenHeartBeat lhb = new ListenHeartBeat(ms, listaServidores);
-            lhb.start();
-            allThreads.add(lhb);
             ComunicaTCP ts;
             DatagramSocket ds = new DatagramSocket(portClients);
             ListenUDP lUDP = new ListenUDP(ds,listaServidores);
@@ -89,10 +93,26 @@ public class Servidor {
             System.out.println("Desconhecido Host");
         } catch (IOException e) {
             System.out.println("Desconhecido");
-        }  catch (SQLException e) {
-            throw new RuntimeException(e);
         }
         System.out.println("QUERO FORA");
+    }
+
+    private static ConnDB faseDeArranque(ArrayList<Informacoes> listaServidores, ConnDB connDB) {
+        try {
+            sleep(2000); //TODO passar para 30 segundos
+
+            if(listaServidores.isEmpty()){
+                connDB = new ConnDB(dBName);
+
+            }
+
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return connDB;
     }
 
     public static void atualiza(MulticastSocket ms, InetAddress ipgroup, int portTCP, String ipServer) {
