@@ -20,8 +20,8 @@ public class Servidor {
     static String DATASE_DIR = "./DataBase/";
     static String dBName; // TODO dbName+path
     static final String MULTICAST_IP = "239.39.39.39";
-
     static final AtomicInteger ligacoesTCP = new AtomicInteger(0);
+    static int portServer;
 
     //TODO threads num ArrayList
     public static void main(String[] args) {
@@ -49,7 +49,7 @@ public class Servidor {
             ms.joinGroup(sa, ni);
 
             ServerSocket ss = new ServerSocket(0);
-            int portServer = ss.getLocalPort();
+            portServer = ss.getLocalPort();
 
             String ipServer = InetAddress.getByName("localhost").getHostAddress();
 
@@ -102,7 +102,44 @@ public class Servidor {
             sleep(2000); //TODO passar para 30 segundos
 
             if(listaServidores.isEmpty()){
-                connDB = new ConnDB(dBName);
+                try{
+                    connDB = new ConnDB("Servidor"+ portServer+".db");
+                    connDB.criaTabelas();
+                }catch (SQLException e){
+                    File file = new File("mydb.db");
+                    file.delete();
+
+                    System.out.println("[ERRO] A criar Base de Dados...");
+
+                    connDB = new ConnDB("Servidor"+ portServer+".db");
+                    connDB.criaTabelas();
+                    return connDB;
+                }
+
+               // connDB = new ConnDB("jdbc:sqlite:Database/mydb.db",dBName);
+            }else{
+                int vMaior = 1;
+                Iterator <Informacoes> it = listaServidores.iterator();
+                System.out.println(listaServidores);
+                for (int i = 0; i< listaServidores.size();i++){
+                    System.out.println(listaServidores.get(i).getVersaoBd());
+                    if(listaServidores.get(i).getVersaoBd()>vMaior){
+                        vMaior = i; // posicao do Servidor que tem maior versao
+                    }
+                }
+
+                System.out.println("vMaior: "+ vMaior);
+                if(listaServidores.get(vMaior).getVersaoBd() > 1){
+                    // copiar database
+                    try {
+                        connDB = new ConnDB("Servidor"+ listaServidores.get(vMaior).getPorto()+".db" );
+                        connDB.copia("Servidor"+portServer+".db");
+                    }catch (SQLException e){
+                        e.printStackTrace();
+                    }
+
+                }
+
 
             }
 

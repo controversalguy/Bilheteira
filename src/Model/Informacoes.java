@@ -12,7 +12,7 @@ public class Informacoes implements Serializable {
     protected Integer porto;
     protected String ip;
     protected int ligacoes;
-    protected float versaoBd;
+    protected int versaoBd;
 
     protected String currentTime;
 
@@ -29,7 +29,7 @@ public class Informacoes implements Serializable {
         this.currentTime = currentTime;
     }
 
-    public Informacoes(Integer porto, String ip, int ligacoes, float versaoBd) {
+    public Informacoes(Integer porto, String ip, int ligacoes, int versaoBd) {
         this.porto = porto;
         this.ip = ip;
         this.ligacoes = ligacoes;
@@ -60,11 +60,11 @@ public class Informacoes implements Serializable {
         this.ligacoes = ligacoes;
     }
 
-    public float getVersaoBd() {
+    public int getVersaoBd() {
         return versaoBd;
     }
 
-    public void setVersaoBd(float versaoBd) {
+    public void setVersaoBd(int versaoBd) {
         this.versaoBd = versaoBd;
     }
 
