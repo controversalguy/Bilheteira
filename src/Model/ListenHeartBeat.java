@@ -54,7 +54,6 @@ public class ListenHeartBeat extends Thread{
 
                     //System.out.println("Lista Ordenada " + listaServidores);
                 }
-
                // System.out.println("Ligações TCP ativas: " + msg.getLigacoesTCP());
             } catch (IOException | ClassNotFoundException e) {
                 throw new RuntimeException(e);

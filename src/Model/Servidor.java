@@ -105,6 +105,7 @@ public class Servidor {
 
                     connDB = new ConnDB(dBName);
                     connDB.criaTabelas();
+                    //connDB.insertUser();
 
                     //connDB.criaTabelas();
 
@@ -123,22 +124,67 @@ public class Servidor {
             }else{
                 connDB = new ConnDB(dBName);
                 connDB.criaTabelas();
+                connDB.decrementaVersao();
 
                 int posMaior = -1;
-                Iterator <Informacoes> it = listaServidores.iterator();
-                System.out.println(listaServidores);
+                System.out.println("Lista de Servidores: " +listaServidores);
                 for (int i = 0; i< listaServidores.size();i++){
                     System.out.println(listaServidores.get(i).getVersaoBd());
                     if(listaServidores.get(i).getVersaoBd()>connDB.getVersao().get()){
                         posMaior = i; // posicao do Servidor que tem maior versao
-
                     }
                 }
 
                 if(posMaior > - 1){
+                    Socket servidorTemp = null;
+                    try {
+                        servidorTemp = new Socket("localhost",listaServidores.get(posMaior).getPorto());
+                        System.out.println("recebaaaa");
+
+                        InputStream is = servidorTemp.getInputStream();
+                        OutputStream os = servidorTemp.getOutputStream();
+                        ObjectOutputStream oosTCP = new ObjectOutputStream(os);
+                        ObjectInputStream oisTCP = new ObjectInputStream(is);
+                        Msg msgTCP = new Msg();
+                        msgTCP.setMsg("CloneBD");
+                        oosTCP.writeUnshared(msgTCP);
+
+//                        FileInputStream fis = new FileInputStream(dBName);
+//                        int nBytes;
+//                        do{
+//                            byte[] bufferClient = new byte[4000];
+//                            nBytes = fis.read(bufferClient);
+//                            System.out.println("NBytes Lidos" + nBytes);
+//                            oosTCP.writeUnshared(bufferClient);
+//                        }while(nBytes >= 0);
+
+
+                        FileOutputStream fos = new FileOutputStream(dBName);
+
+                        Msg msg;
+                        do{
+
+                           //nBytes = is.read(msgBuffer);
+                            try {
+                                msg = (Msg) oisTCP.readObject();
+                            } catch (ClassNotFoundException e) {
+                                throw new RuntimeException(e);
+                            }
+
+                            fos.write(msg.getMsgBuffer(), 0, msg.getMsgSize());
+                            //System.out.println(msg.getMsgSize() + " " + Arrays.toString(msg.getMsgBuffer()));
+
+                        }while(!msg.isLastPacket());
+
+                    } catch (IOException e) {
+                        System.out.println("Não consegui aceder ao Socket do Servidor: " + servidorTemp.getPort() );
+                    }
 
                 }
-                System.out.println("vMaior: "+ posMaior);
+
+
+
+                /*System.out.println("vMaior: "+ posMaior);
                 if(listaServidores.get(posMaior).getVersaoBd() > 1){
                     // copiar database
                     try {
@@ -147,7 +193,7 @@ public class Servidor {
                     }catch (SQLException e){
                         e.printStackTrace();
                     }
-                }
+                }*/
             }
 
         } catch (InterruptedException e) {

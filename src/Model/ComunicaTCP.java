@@ -28,6 +28,33 @@ public class ComunicaTCP extends Thread {
                 ObjectOutputStream oosSocket = new ObjectOutputStream(os);
                 while (true){
                     Msg msgSocket = (Msg) oisSocket.readObject();
+
+                    if(msgSocket.getMsg().equals("CloneBD")) {
+
+                        System.out.println("Queres micar é?");
+
+                        FileInputStream fis = new FileInputStream("mydb.db");
+                        byte[] bufferClient = new byte[4000];
+                        int nBytes;
+                        do{
+                            nBytes = fis.read(bufferClient);
+                            Msg msg = new Msg();
+                            msg.setMsgBuffer(bufferClient);
+                            msg.setMsgSize(nBytes);
+                            if(nBytes == -1){
+                                msg.setMsgBuffer(new byte[4000]);
+                                msg.setMsgSize(0);
+                                msg.setLastPacket(true);
+                            }else
+                                msg.setLastPacket(false);
+                            oosSocket.reset();
+                            oosSocket.writeUnshared(msg);
+                            //System.out.println("NBytes Lidos" + nBytes);
+                            //out.write(bufferClient);
+                        }while(nBytes != -1);
+
+                    }
+
                     System.out.println("E"+msgSocket.getMsg());
                     oosSocket.writeUnshared(msgSocket);
                 }

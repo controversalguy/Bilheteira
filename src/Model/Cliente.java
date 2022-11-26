@@ -41,7 +41,7 @@ public class Cliente {
                 msgTCP = (Msg) ois.readObject();
                 listaServidores.add(new Informacoes(msgTCP.getPortoServer(), msgTCP.getIp(), msgTCP.getLigacoesTCP()));
 
-                if (msgTCP.isLastPort())
+                if (msgTCP.isLastPacket())
                     break;
             }
 

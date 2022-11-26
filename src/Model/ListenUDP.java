@@ -27,7 +27,7 @@ public class ListenUDP extends Thread {
                 System.out.println("Client Connected[" + msg.getIp()+"]");
 
                 Msg msgTCP = new Msg();
-                msgTCP.setLastPort(false);
+                msgTCP.setLastPacket(false);
 
                 Iterator<Informacoes> iterator = listaServidores.iterator();
                 while (iterator.hasNext()){
@@ -40,7 +40,7 @@ public class ListenUDP extends Thread {
                     msgTCP.setPortoServer(info.getPorto());
                     msgTCP.setIp(info.getIp());
                     if(!iterator.hasNext()){
-                        msgTCP.setLastPort(true);
+                        msgTCP.setLastPacket(true);
                     }
 
                     //System.out.println("Port: "+info.getPorto()+ " Ip: "+info.getIp()+ "LigacoesTCP: " + info.getLigacoes());

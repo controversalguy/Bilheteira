@@ -129,7 +129,7 @@ public class ConnDB
     {
         Statement statement = dbConn.createStatement();
 
-        String sqlQuery = "INSERT INTO users VALUES (NULL,'" + name + "','" + birthdate + "')";
+        String sqlQuery = "INSERT INTO utilizador VALUES (NULL,'" + name + "','" + birthdate + "')";
         statement.executeUpdate(sqlQuery);
         statement.close();
     }
@@ -173,6 +173,10 @@ public class ConnDB
 
     public void incrementaVersao() {
         versaoDB.getAndIncrement();
+    }
+
+    public void decrementaVersao() {
+        versaoDB.getAndDecrement();
     }
 
     public String getDbName() {

@@ -2,7 +2,6 @@ package Model;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class Msg implements Serializable {
     @Serial
@@ -24,11 +23,27 @@ public class Msg implements Serializable {
         this.portoServer = portoServer;
     }
 
-    public void setLastPort(boolean lastPort) {
-        this.lastPort = lastPort;
+    public byte[] getMsgBuffer() {
+        return msgBuffer;
     }
-    public boolean isLastPort() {
-        return lastPort;
+
+    public void setMsgBuffer(byte[] msgBuffer) {
+        this.msgBuffer = msgBuffer;
+    }
+
+    public int getMsgSize() {
+        return msgSize;
+    }
+
+    public void setMsgSize(int msgSize) {
+        this.msgSize = msgSize;
+    }
+
+    public void setLastPacket(boolean lastPacket) {
+        this.lastPacket = lastPacket;
+    }
+    public boolean isLastPacket() {
+        return lastPacket;
     }
 
     public String getMsg() {
