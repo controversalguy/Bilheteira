@@ -74,7 +74,7 @@ public class Servidor {
             //Scanner sc = new Scanner(System.in);
             while (true){
                 Socket sCli = ss.accept();
-                ts = new ComunicaTCP(ms,sCli,ligacoesTCP);
+                ts = new ComunicaTCP(ms,sCli,ligacoesTCP, dBName);
                 ts.start();
                 allThreads.add(ts);
             }
@@ -124,7 +124,7 @@ public class Servidor {
             }else{
                 connDB = new ConnDB(dBName);
                 connDB.criaTabelas();
-                connDB.decrementaVersao();
+                connDB.decrementaVersao(); //TODO eliminar
 
                 int posMaior = -1;
                 System.out.println("Lista de Servidores: " +listaServidores);
@@ -177,6 +177,9 @@ public class Servidor {
 
                     } catch (IOException e) {
                         System.out.println("Não consegui aceder ao Socket do Servidor: " + servidorTemp.getPort() );
+                    } finally {
+                        connDB.incrementaVersao();
+                        servidorTemp.close();
                     }
 
                 }
@@ -197,7 +200,7 @@ public class Servidor {
 
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
-        } catch (SQLException e) {
+        } catch (SQLException | IOException e) {
             throw new RuntimeException(e);
         }
 

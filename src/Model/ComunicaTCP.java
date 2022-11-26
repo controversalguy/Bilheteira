@@ -9,10 +9,13 @@ public class ComunicaTCP extends Thread {
     Socket socketCli;
     AtomicInteger ligacoesTCP;
 
-    public ComunicaTCP(MulticastSocket ms, Socket socketCli,AtomicInteger ligacoesTCP) {
+    String dbName;
+
+    public ComunicaTCP(MulticastSocket ms, Socket socketCli,AtomicInteger ligacoesTCP, String dbName) {
         this.ms = ms;
         this.socketCli = socketCli;
         this.ligacoesTCP = ligacoesTCP;
+        this.dbName = dbName;
     }
 
     @Override
@@ -33,7 +36,7 @@ public class ComunicaTCP extends Thread {
 
                         System.out.println("Queres micar é?");
 
-                        FileInputStream fis = new FileInputStream("mydb.db");
+                        FileInputStream fis = new FileInputStream(dbName);
                         byte[] bufferClient = new byte[4000];
                         int nBytes;
                         do{
@@ -53,10 +56,10 @@ public class ComunicaTCP extends Thread {
                             //out.write(bufferClient);
                         }while(nBytes != -1);
 
+                    } else {
+                        System.out.println("E" + msgSocket.getMsg());
+                        oosSocket.writeUnshared(msgSocket);
                     }
-
-                    System.out.println("E"+msgSocket.getMsg());
-                    oosSocket.writeUnshared(msgSocket);
                 }
             } catch (ClassNotFoundException e) {
                 System.out.println("Classe Não encontrada");
