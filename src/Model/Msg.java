@@ -7,14 +7,13 @@ public class Msg implements Serializable {
     @Serial
     static final long serialVersionUID = 1L;
 
-    protected String msg;
-    protected int portoServer;
-    protected boolean disponibilidade;
-    protected float dbVersao;
-    protected int nTCPAtivas;
-    protected String ip;
-    protected boolean lastPort;
-    protected int ligacoesTCP;
+    private String msg;
+    private int portoServer;
+    private String ip;
+    private boolean lastPacket;
+    private int ligacoesTCP;
+    private byte[] msgBuffer;
+    private int msgSize;
 
     public Msg(){ }
 

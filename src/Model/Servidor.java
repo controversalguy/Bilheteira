@@ -129,8 +129,7 @@ public class Servidor {
                 int posMaior = -1;
                 System.out.println("Lista de Servidores: " +listaServidores);
                 for (int i = 0; i< listaServidores.size();i++){
-                    System.out.println(listaServidores.get(i).getVersaoBd());
-                    if(listaServidores.get(i).getVersaoBd()>connDB.getVersao().get()){
+                    if(listaServidores.get(i).getVersaoBd() > connDB.getVersao().get()){
                         posMaior = i; // posicao do Servidor que tem maior versao
                     }
                 }
