@@ -1,20 +1,24 @@
 package ConnectDatabase;
 
 import java.sql.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ConnDB
 { // formato da data muito importante para nao dar erro
     // YYYY-MM-dd HH:mm:ss.sss
     private String DATABASE_URL;
     private Connection dbConn;
-
     private int versao;
+    private String dbName;
 
-    public ConnDB(String dBName) throws SQLException
-    {
-        DATABASE_URL = "jdbc:sqlite:" +dBName;
+    static AtomicInteger versaoDB;
+
+    public ConnDB(String dBName) throws SQLException {//
+        this.dbName = dBName;
+        DATABASE_URL =  "jdbc:sqlite:" + dBName;
+        System.out.println(DATABASE_URL);
         dbConn = DriverManager.getConnection(DATABASE_URL);
-        versao = 10;
+        versaoDB = new AtomicInteger(1);
         //clear();
     }
 
@@ -41,7 +45,7 @@ public class ConnDB
         try {
             Statement statement = dbConn.createStatement();
 
-            String sqlQueryEspetaculo = "CREATE TABLE espetaculo" +
+            String sqlQueryEspetaculo = "CREATE TABLE IF NOT EXISTS espetaculo" +
                     "(id INTEGER NOT NULL," +
                     "descricao TEXT NOT NULL," +
                     "tipo TEXT NOT NULL," +
@@ -53,25 +57,25 @@ public class ConnDB
                     "classificacao_etaria TEXT NOT NULL," +
                     "visivel INTEGER NOT NULL)";
 
-            String sqlQueryLugar = "CREATE TABLE lugar" +
+            String sqlQueryLugar = "CREATE TABLE IF NOT EXISTS lugar" +
                     "(id INTEGER NOT NULL," +
                     "fila TEXT NOT NULL," +
                     "assento TEXT NOT NULL," +
                     "preco REAL NOT NULL," +
                     "espetaculo_id INTEGER NOT NULL)";
 
-            String sqlQueryReserva = "CREATE TABLE reserva" +
+            String sqlQueryReserva = "CREATE TABLE IF NOT EXISTS reserva" +
                     "(id INTEGER NOT NULL," +
                     "data_hora TEXT NOT NULL," +
                     "pago INTEGER NOT NULL," +
                     "id_utilizador INTEGER NOT NULL," +
                     "id_espetaculo INTEGER NOT NULL)";
 
-            String sqlQueryReserva_lugar = "CREATE TABLE reserva_lugar" +
+            String sqlQueryReserva_lugar = "CREATE TABLE IF NOT EXISTS reserva_lugar" +
                     "(id_reserva INTEGER NOT NULL," +
                     "id_lugar INTEGER NOT NULL)";
 
-            String sqlQueryUtilizador = "CREATE TABLE utilizador" +
+            String sqlQueryUtilizador = "CREATE TABLE IF NOT EXISTS utilizador" +
                     "(id INTEGER NOT NULL," +
                     "username TEXT NOT NULL," +
                     "nome TEXT NOT NULL," +
@@ -163,12 +167,16 @@ public class ConnDB
         }*/
     }
 
-    public int getVersao() {
-        return versao;
+    public AtomicInteger getVersao() {
+        return versaoDB;
     }
 
-    public void setVersao(int versao) {
-        this.versao = versao;
+    public void incrementaVersao() {
+        versaoDB.getAndIncrement();
+    }
+
+    public String getDbName() {
+        return dbName;
     }
 
 

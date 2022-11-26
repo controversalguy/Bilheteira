@@ -17,10 +17,10 @@ public class Servidor {
 
     static final int portServers = 4004;
     static int portClients;
-    static String DATASE_DIR = "./DataBase/";
     static String dBName; // TODO dbName+path
     static final String MULTICAST_IP = "239.39.39.39";
     static final AtomicInteger ligacoesTCP = new AtomicInteger(0);
+
     static int portServer;
 
     //TODO threads num ArrayList
@@ -40,8 +40,7 @@ public class Servidor {
         MulticastSocket ms;
 
         try {
-            ConnDB connDB = null;
-
+            ConnDB connDB;
             ms = new MulticastSocket(portServers);
             InetAddress ipgroup = InetAddress.getByName(MULTICAST_IP);
             SocketAddress sa = new InetSocketAddress(ipgroup, portServers);
@@ -57,9 +56,9 @@ public class Servidor {
             lhb.start();
             allThreads.add(lhb);
 
-            connDB = faseDeArranque(listaServidores, connDB);
+            connDB = faseDeArranque(listaServidores);
 
-            HeartBeat hb = new HeartBeat(portServer,ipgroup,portServers,ms,ipServer, ligacoesTCP);
+            HeartBeat hb = new HeartBeat(portServer,ipgroup,portServers,ms,ipServer, ligacoesTCP,connDB.getVersao(),connDB.getDbName());
             hb.start();
             allThreads.add(hb);
 
@@ -69,7 +68,7 @@ public class Servidor {
             lUDP.start();
             allThreads.add(lUDP);
 
-            RemoveServidores rs = new RemoveServidores(ms, ipgroup, portServer, ipServer, listaServidores);
+            RemoveServidores rs = new RemoveServidores(ms, ipgroup, portServer, ipServer, listaServidores,connDB);
             rs.start();
             allThreads.add(rs);
             //Scanner sc = new Scanner(System.in);
@@ -97,50 +96,58 @@ public class Servidor {
         System.out.println("QUERO FORA");
     }
 
-    private static ConnDB faseDeArranque(ArrayList<Informacoes> listaServidores, ConnDB connDB) {
+    private static ConnDB faseDeArranque(ArrayList<Informacoes> listaServidores) {
+        ConnDB connDB = null;
         try {
             sleep(2000); //TODO passar para 30 segundos
 
             if(listaServidores.isEmpty()){
-                try{
-                    connDB = new ConnDB("Servidor"+ portServer+".db");
+
+                    connDB = new ConnDB(dBName);
                     connDB.criaTabelas();
-                }catch (SQLException e){
-                    File file = new File("mydb.db");
+
+                    //connDB.criaTabelas();
+
+                /*catch (SQLException e){
+                    File file = new File("Servidor"+ portServer+".db");
                     file.delete();
 
                     System.out.println("[ERRO] A criar Base de Dados...");
 
-                    connDB = new ConnDB("Servidor"+ portServer+".db");
+                    connDB = new ConnDB("jdbc:sqlite:Servidor"+ portServer+".db");
                     connDB.criaTabelas();
                     return connDB;
-                }
+                }*/
 
                // connDB = new ConnDB("jdbc:sqlite:Database/mydb.db",dBName);
             }else{
-                int vMaior = 1;
+                connDB = new ConnDB(dBName);
+                connDB.criaTabelas();
+
+                int posMaior = -1;
                 Iterator <Informacoes> it = listaServidores.iterator();
                 System.out.println(listaServidores);
                 for (int i = 0; i< listaServidores.size();i++){
                     System.out.println(listaServidores.get(i).getVersaoBd());
-                    if(listaServidores.get(i).getVersaoBd()>vMaior){
-                        vMaior = i; // posicao do Servidor que tem maior versao
+                    if(listaServidores.get(i).getVersaoBd()>connDB.getVersao().get()){
+                        posMaior = i; // posicao do Servidor que tem maior versao
+
                     }
                 }
 
-                System.out.println("vMaior: "+ vMaior);
-                if(listaServidores.get(vMaior).getVersaoBd() > 1){
+                if(posMaior > - 1){
+
+                }
+                System.out.println("vMaior: "+ posMaior);
+                if(listaServidores.get(posMaior).getVersaoBd() > 1){
                     // copiar database
                     try {
-                        connDB = new ConnDB("Servidor"+ listaServidores.get(vMaior).getPorto()+".db" );
+                        connDB = new ConnDB(listaServidores.get(posMaior).getDbName());
                         connDB.copia("Servidor"+portServer+".db");
                     }catch (SQLException e){
                         e.printStackTrace();
                     }
-
                 }
-
-
             }
 
         } catch (InterruptedException e) {
@@ -152,13 +159,14 @@ public class Servidor {
         return connDB;
     }
 
-    public static void atualiza(MulticastSocket ms, InetAddress ipgroup, int portTCP, String ipServer) {
+    public static void atualiza(MulticastSocket ms, InetAddress ipgroup, int portTCP, String ipServer, ConnDB connDB) {
         try{
             LocalDateTime now = LocalDateTime.now();
             DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
             String currentTime = now.format(dateTimeFormatter);
 
-            Informacoes info = new Informacoes(portTCP, ipServer, ligacoesTCP.get(), currentTime);
+            Informacoes info = new Informacoes(portTCP, ipServer, ligacoesTCP.get(), currentTime, connDB.getVersao().get());
+            info.setDbName(connDB.getDbName());
             // manda inteiro para não crashar // usamos Atomic Integer pois é independente de sincronização
 
             //ligacoesTCP

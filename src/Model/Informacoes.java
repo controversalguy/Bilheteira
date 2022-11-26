@@ -2,7 +2,6 @@ package Model;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.Calendar;
 import java.util.Objects;
 
 public class Informacoes implements Serializable {
@@ -16,24 +15,25 @@ public class Informacoes implements Serializable {
 
     protected String currentTime;
 
-    public Informacoes(Integer porto, String ip, int ligacoes) {
-        this.porto = porto;
-        this.ip = ip;
-        this.ligacoes = ligacoes;
-    }
-
-    public Informacoes(Integer porto, String ip, int ligacoes, String currentTime) {
+    protected String dbName;
+    public Informacoes(Integer porto, String ip, int ligacoes,String currentTime) {
         this.porto = porto;
         this.ip = ip;
         this.ligacoes = ligacoes;
         this.currentTime = currentTime;
     }
 
-    public Informacoes(Integer porto, String ip, int ligacoes, int versaoBd) {
+    public Informacoes(Integer porto, String ip, int ligacoes, String currentTime, int versaoBd) {
         this.porto = porto;
         this.ip = ip;
         this.ligacoes = ligacoes;
+        this.currentTime = currentTime;
         this.versaoBd = versaoBd;
+    }
+    public Informacoes(Integer porto, String ip, int ligacoes) {
+        this.porto = porto;
+        this.ip = ip;
+        this.ligacoes = ligacoes;
     }
 
     public Integer getPorto() {
@@ -76,9 +76,16 @@ public class Informacoes implements Serializable {
         this.currentTime = currentTime;
     }
 
+    public void setDbName(String dbName) {
+        this.dbName = dbName;
+    }
+
+    public String getDbName() {
+        return dbName;
+    }
     @Override
     public String toString() {
-        return "Porto " + porto +" Ip: "+ ip +" LigacoesTCP: "+ ligacoes + " Hora: "+ currentTime;
+        return "Porto:" + porto +" Ip:"+ ip +" LigacoesTCP:"+ ligacoes + " Hora:"+ currentTime + " versaoDB:" + versaoBd + " dbName:" + dbName;
     }
 
     @Override
@@ -93,4 +100,5 @@ public class Informacoes implements Serializable {
     public int hashCode() {
         return Objects.hash(porto);
     }
+
 }

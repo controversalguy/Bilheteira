@@ -1,5 +1,7 @@
 package Model;
 
+import ConnectDatabase.ConnDB;
+
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.time.LocalDateTime;
@@ -15,13 +17,16 @@ public class RemoveServidores extends Thread{
     String ipServer;
     ArrayList<Informacoes> listaServidores;
 
+    ConnDB connDB;
 
-    public RemoveServidores(MulticastSocket ms, InetAddress ipgroup, int portTCP, String ipServer, ArrayList<Informacoes> listaServidores) {
+
+    public RemoveServidores(MulticastSocket ms, InetAddress ipgroup, int portTCP, String ipServer, ArrayList<Informacoes> listaServidores, ConnDB connDB) {
         this.ms = ms;
         this.ipgroup = ipgroup;
         this.portTCP = portTCP;
         this.ipServer = ipServer;
         this.listaServidores = listaServidores;
+        this.connDB = connDB;
     }
 
     @Override
@@ -44,7 +49,7 @@ public class RemoveServidores extends Thread{
                     if(seconds > 10){ // MUDAR PARA 35 TODO
                         System.out.println("Servidor Desconectou-se [" + info.getPorto() + "]");
                         it.remove();
-                        Servidor.atualiza(ms, ipgroup, portTCP, ipServer);
+                        Servidor.atualiza(ms, ipgroup, portTCP, ipServer,connDB);
                         System.out.println(listaServidores);
                     }
                 }

@@ -19,7 +19,7 @@ public class ListenHeartBeat extends Thread{
     @Override
     public void run() {
         while(true) {
-            DatagramPacket dp = new DatagramPacket(new byte[256], 256);
+            DatagramPacket dp = new DatagramPacket(new byte[4000], 4000);
 
             try {
                 ms.receive(dp);
@@ -37,6 +37,7 @@ public class ListenHeartBeat extends Thread{
 
             //Msg msg;
             Informacoes info;
+
             try {
                 info = (Informacoes) ois.readObject();
                 synchronized (listaServidores) {
