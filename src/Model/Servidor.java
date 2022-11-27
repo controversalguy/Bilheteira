@@ -13,94 +13,104 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.lang.Thread.sleep;
 
+enum tiposErro {
+    // TODO FAZER DEPOiS
+}
 
 public class Servidor {
-
-    static final int portServers = 4004;
-    static int portClients;
+    static ArrayList<Thread> allThreads;
+    static ArrayList<Informacoes> listaServidores;
+    static ArrayList<ObjectOutputStream> listaOos;
+    static MulticastSocket ms;
+    static ServerSocket ss;
+    static ConnDB connDB;
+    static InetAddress ipgroup;
+    static SocketAddress sa;
+    static NetworkInterface ni;
     static String dBName; // TODO dbName+path
+    static int portServer;
+    static int portClients;
+    static final int portServers = 4004;
     static final String MULTICAST_IP = "239.39.39.39";
     static final AtomicInteger ligacoesTCP = new AtomicInteger(0);
     static final AtomicBoolean disponivel = new AtomicBoolean(true);
-    static int portServer;
+    static final AtomicBoolean threadCorre = new AtomicBoolean(true);
 
-    //TODO threads num ArrayList
-    public static void main(String[] args) {
+    public Servidor(String args0, String args1) {
+        portClients = Integer.parseInt(args0);
+        dBName = args1;
+        allThreads = new ArrayList<>();
+        listaServidores = new ArrayList<>();
+        listaOos = new ArrayList<>();
+    }
+
+    public static void main(String[] args) throws IOException, InterruptedException {
 
         if (args.length != 2) {
-            System.out.println("Argumentos inválidos {<PORT> <DBPATH> -> <9021><D:\\uni\\3ano\\1semestre\\PD\\BilheteiraGit\\DataBase>}");
+            System.out.println("Argumentos inválidos {<PORT> <DBPATH>}");
             return;
         }
-        ArrayList<Thread> allThreads = new ArrayList<>();
-        //HashMap<Integer,String> listaServidores = new HashMap<>();
-        ArrayList<Informacoes> listaServidores  = new ArrayList<>();
-        ArrayList<ObjectOutputStream> listaOos  = new ArrayList<>();
-
-        // TODO VALIDAÇÕES
-        portClients = Integer.parseInt(args[0]);
-        dBName = args[1];
-        MulticastSocket ms;
+        new Servidor(args[0], args[1]);
 
         try {
-            ConnDB connDB;
             ms = new MulticastSocket(portServers);
-            InetAddress ipgroup = InetAddress.getByName(MULTICAST_IP);
-            SocketAddress sa = new InetSocketAddress(ipgroup, portServers);
-            NetworkInterface ni = NetworkInterface.getByInetAddress(InetAddress.getLocalHost());
+            ipgroup = InetAddress.getByName(MULTICAST_IP);
+            sa = new InetSocketAddress(ipgroup, portServers);
+            ni = NetworkInterface.getByInetAddress(InetAddress.getLocalHost());
             ms.joinGroup(sa, ni);
 
-            ServerSocket ss = new ServerSocket(0);
+            ss = new ServerSocket(0);
             portServer = ss.getLocalPort();
 
             String ipServer = InetAddress.getByName("localhost").getHostAddress();
 
-            ListenHeartBeat lhb = new ListenHeartBeat(ms, listaServidores);
+            ListenHeartBeat lhb = new ListenHeartBeat(ms, listaServidores, threadCorre);
             lhb.start();
             allThreads.add(lhb);
 
             connDB = faseDeArranque(listaServidores);
 
-            AtualizaServidor as = new AtualizaServidor(listaServidores, ms, ipgroup, portServer, ipServer, connDB, disponivel, listaOos);
+            AtualizaServidor as = new AtualizaServidor(listaServidores, ms, ipgroup, portServer, ipServer, connDB, disponivel, listaOos, threadCorre);
             as.start();
             allThreads.add(as);
 
-            HeartBeat hb = new HeartBeat(portServer,ipgroup,portServers,ms,ipServer, ligacoesTCP,connDB.getVersao(),connDB.getDbName(),disponivel);
+            HeartBeat hb = new HeartBeat(portServer, ipgroup, portServers, ms, ipServer, ligacoesTCP, connDB.getVersao(), connDB.getDbName(), disponivel, threadCorre);
             hb.start();
             allThreads.add(hb);
 
-            ComunicaTCP ts;
             DatagramSocket ds = new DatagramSocket(portClients);
-            ListenUDP lUDP = new ListenUDP(ds,listaServidores);
+            ListenUDP lUDP = new ListenUDP(ds, listaServidores, threadCorre);
             lUDP.start();
             allThreads.add(lUDP);
 
-            RemoveServidores rs = new RemoveServidores(ms, ipgroup, portServer, ipServer, listaServidores,connDB);
+            RemoveServidores rs = new RemoveServidores(ms, ipgroup, portServer, ipServer, listaServidores, connDB, threadCorre);
             rs.start();
             allThreads.add(rs);
-            //Scanner sc = new Scanner(System.in);
-            while (true){
+
+            while (true) {
                 Socket sCli = ss.accept();
-                ts = new ComunicaTCP(ms,sCli,ligacoesTCP, dBName, disponivel,listaOos,ipgroup,portServer,ipServer,connDB);
+                ComunicaTCP ts = new ComunicaTCP(ms, sCli, ligacoesTCP, dBName, disponivel, listaOos, ipgroup, portServer, ipServer, connDB, threadCorre);
                 ts.start();
                 allThreads.add(ts);
-                //System.out.println(listaClientes);
-            }
 
-            /*for (Thread t : allThreads) {
-                t.join();
             }
-
-            ss.close(); TODO
-            ms.leaveGroup(sa, ni);
-            ms.close();
-            */
 
         } catch (UnknownHostException e) {
             System.out.println("Desconhecido Host");
+
         } catch (IOException e) {
             System.out.println("Desconhecido");
+
+        } finally {
+            System.out.println("[INFO] A encerrar sessão...");
+            threadCorre.getAndSet(false);
+            for (Thread t : allThreads) {
+                t.join();
+            }
+            ss.close();
+            ms.leaveGroup(sa, ni);
+            ms.close();
         }
-        System.out.println("QUERO FORA");
     }
 
     private static ConnDB faseDeArranque(ArrayList<Informacoes> listaServidores) {
@@ -108,46 +118,30 @@ public class Servidor {
         try {
             sleep(4000); //TODO passar para 30 segundos
 
-            if(listaServidores.isEmpty()){
+            if (listaServidores.isEmpty()) {
 
                 connDB = new ConnDB(dBName);
                 connDB.criaTabelas();
-                //connDB.insertUser();
 
-                //connDB.criaTabelas();
-
-                /*catch (SQLException e){
-                    File file = new File("Servidor"+ portServer+".db");
-                    file.delete();
-
-                    System.out.println("[ERRO] A criar Base de Dados...");
-
-                    connDB = new ConnDB("jdbc:sqlite:Servidor"+ portServer+".db");
-                    connDB.criaTabelas();
-                    return connDB;
-                }*/
-
-                // connDB = new ConnDB("jdbc:sqlite:Database/mydb.db",dBName);
-            }else{
+            } else {
                 connDB = new ConnDB(dBName);
                 connDB.criaTabelas();
-                System.out.println("SERVIDOR FASE DE ARRANQUE: " +connDB.getVersao());
-                //System.out.println("Lista de Servidores: " +listaServidores);
+                System.out.println("SERVIDOR FASE DE ARRANQUE: " + connDB.getVersao());
 
                 int valMaior = connDB.getVersao().get();
                 int posMaior = -1;
                 for (int i = 0; i < listaServidores.size(); i++) {
                     if (listaServidores.get(i).getVersaoBd() > valMaior) {
                         valMaior = listaServidores.get(i).getVersaoBd();
-                        posMaior = i;// posicao do Servidor que tem maior versao
+                        posMaior = i; // posicao do Servidor que tem maior versao
                     }
                 }
 
-                if(posMaior > -1){
+                if (posMaior > -1) {
                     Socket servidorTemp = null;
                     try {
-                        servidorTemp = new Socket("localhost",listaServidores.get(posMaior).getPorto());
-                        System.out.println("Conectou-se por TCP ao Servidor [" + servidorTemp.getPort()+ "]");
+                        servidorTemp = new Socket("localhost", listaServidores.get(posMaior).getPorto());
+                        System.out.println("Conectou-se por TCP ao Servidor [" + servidorTemp.getPort() + "]");
 
                         InputStream is = servidorTemp.getInputStream();
                         OutputStream os = servidorTemp.getOutputStream();
@@ -157,22 +151,11 @@ public class Servidor {
                         msgTCP.setMsg("CloneBD");
                         oosTCP.writeUnshared(msgTCP);
 
-//                        FileInputStream fis = new FileInputStream(dBName);
-//                        int nBytes;
-//                        do{
-//                            byte[] bufferClient = new byte[4000];
-//                            nBytes = fis.read(bufferClient);
-//                            System.out.println("NBytes Lidos" + nBytes);
-//                            oosTCP.writeUnshared(bufferClient);
-//                        }while(nBytes >= 0);
-
-
                         FileOutputStream fos = new FileOutputStream(dBName);
 
                         Msg msg;
-                        do{
+                        do {
 
-                            //nBytes = is.read(msgBuffer);
                             try {
                                 msg = (Msg) oisTCP.readObject();
                             } catch (ClassNotFoundException e) {
@@ -180,45 +163,28 @@ public class Servidor {
                             }
 
                             fos.write(msg.getMsgBuffer(), 0, msg.getMsgSize());
-                            //System.out.println(msg.getMsgSize() + " " + Arrays.toString(msg.getMsgBuffer()));
 
-                        }while(!msg.isLastPacket());
+                        } while (!msg.isLastPacket());
 
                     } catch (IOException e) {
-                        System.out.println("Não consegui aceder ao Socket do Servidor: " + servidorTemp.getPort() );
+                        System.out.println("Não consegui aceder ao Socket do Servidor: " + servidorTemp.getPort());
                     } finally {
                         connDB.incrementaVersao();
                         System.out.println("Versao" + connDB.getVersao());
                         servidorTemp.close();
                     }
-
                 }
-
-
-
-                /*System.out.println("vMaior: "+ posMaior);
-                if(listaServidores.get(posMaior).getVersaoBd() > 1){
-                    // copiar database
-                    try {
-                        connDB = new ConnDB(listaServidores.get(posMaior).getDbName());
-                        connDB.copia("Servidor"+portServer+".db");
-                    }catch (SQLException e){
-                        e.printStackTrace();
-                    }
-                }*/
             }
-
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         } catch (SQLException | IOException e) {
             throw new RuntimeException(e);
         }
-
         return connDB;
     }
 
     public static void atualiza(MulticastSocket ms, InetAddress ipgroup, int portTCP, String ipServer, ConnDB connDB) {
-        try{
+        try {
             LocalDateTime now = LocalDateTime.now();
             DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
             String currentTime = now.format(dateTimeFormatter);
@@ -226,7 +192,6 @@ public class Servidor {
             Informacoes info = new Informacoes(portTCP, ipServer, ligacoesTCP.get(), currentTime, connDB.getVersao().get(), disponivel.get());
             info.setDbName(connDB.getDbName());
             // manda inteiro para não crashar // usamos Atomic Integer pois é independente de sincronização
-
             //ligacoesTCP
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ObjectOutputStream oos = new ObjectOutputStream(baos);
@@ -246,4 +211,3 @@ public class Servidor {
     }
 
 }
-

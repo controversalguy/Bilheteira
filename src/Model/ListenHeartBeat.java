@@ -5,20 +5,22 @@ import java.net.DatagramPacket;
 import java.net.MulticastSocket;
 import java.net.Socket;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ListenHeartBeat extends Thread{
     private MulticastSocket ms;
     ArrayList<Informacoes> listaServidores;
     //HashMap<Integer,String> listaServidores;
-
-    public ListenHeartBeat(MulticastSocket ms, ArrayList<Informacoes> listaServidores) {
+    static AtomicBoolean threadCorre;
+    public ListenHeartBeat(MulticastSocket ms, ArrayList<Informacoes> listaServidores,AtomicBoolean threadCorre) {
         this.ms = ms;
         this.listaServidores = listaServidores;
+        this.threadCorre = threadCorre;
     }
 
     @Override
     public void run() {
-        while(true) {
+        while(threadCorre.get()) {
             DatagramPacket dp = new DatagramPacket(new byte[4000], 4000);
 
             try {
@@ -59,7 +61,7 @@ public class ListenHeartBeat extends Thread{
                 throw new RuntimeException(e);
             }
         }
-
+        System.out.println("[INFO] ListenHeartBeat terminado com sucesso!");
     }
 }
 

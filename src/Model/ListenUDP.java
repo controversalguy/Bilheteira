@@ -5,17 +5,22 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ListenUDP extends Thread {
     DatagramSocket ds;
     ArrayList<Informacoes> listaServidores;
-    public ListenUDP(DatagramSocket ds , ArrayList<Informacoes> listaServidores){
+    AtomicBoolean threadCorre;
+
+    public ListenUDP(DatagramSocket ds , ArrayList<Informacoes> listaServidores, AtomicBoolean threadCorre){
         this.ds = ds;
         this.listaServidores = listaServidores;
+        this.threadCorre = threadCorre;
     }
+
     @Override
     public void run() {
-        while (true){
+        while (threadCorre.get()){
             try{
                 DatagramPacket dp = new DatagramPacket(new byte[256], 256); // recebe nome
                 ds.receive(dp);
@@ -58,6 +63,7 @@ public class ListenUDP extends Thread {
                 throw new RuntimeException(e);
             }
         }
+        System.out.println("[INFO] ListenUDP terminado com sucesso!");
 
         }
 }

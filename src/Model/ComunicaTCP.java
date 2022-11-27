@@ -23,8 +23,9 @@ public class ComunicaTCP extends Thread {
     int portTCP;
     String ipServer;
     ConnDB connDB;
+    AtomicBoolean threadCorre;
     public ComunicaTCP(MulticastSocket ms, Socket socketCli, AtomicInteger ligacoesTCP, String dbName, AtomicBoolean disponivel, ArrayList<ObjectOutputStream> listaOos,
-                       InetAddress ipgroup, int portTCP, String ipServer, ConnDB connDB) {
+                       InetAddress ipgroup, int portTCP, String ipServer, ConnDB connDB,AtomicBoolean threadCorre) {
         this.ms = ms;
         this.socketCli = socketCli;
         this.ligacoesTCP = ligacoesTCP;
@@ -35,6 +36,7 @@ public class ComunicaTCP extends Thread {
         this.portTCP = portTCP;
         this.ipServer = ipServer;
         this.connDB = connDB;
+        this.threadCorre = threadCorre;
     }
 
     @Override
@@ -46,7 +48,7 @@ public class ComunicaTCP extends Thread {
                 OutputStream os = socketCli.getOutputStream();
                 ObjectInputStream oisSocket = new ObjectInputStream(is);
                 ObjectOutputStream oos = new ObjectOutputStream(os);
-                while (true){
+                while (threadCorre.get()){
                     Msg msgSocket = (Msg) oisSocket.readObject();
 
                     if(msgSocket.getMsg().equals("CloneBD")) {
@@ -93,7 +95,6 @@ public class ComunicaTCP extends Thread {
                     throw new RuntimeException(ex);
                 }
             }
-        }
-
-
+        System.out.println("[INFO] ComunicaTCP terminado com sucesso!");
+    }
 }

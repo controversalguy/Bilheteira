@@ -9,6 +9,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class RemoveServidores extends Thread{
     MulticastSocket ms;
@@ -16,23 +17,25 @@ public class RemoveServidores extends Thread{
     int portTCP;
     String ipServer;
     ArrayList<Informacoes> listaServidores;
+    AtomicBoolean threadCorre;
 
     ConnDB connDB;
 
 
-    public RemoveServidores(MulticastSocket ms, InetAddress ipgroup, int portTCP, String ipServer, ArrayList<Informacoes> listaServidores, ConnDB connDB) {
+    public RemoveServidores(MulticastSocket ms, InetAddress ipgroup, int portTCP, String ipServer, ArrayList<Informacoes> listaServidores, ConnDB connDB, AtomicBoolean threadCorre) {
         this.ms = ms;
         this.ipgroup = ipgroup;
         this.portTCP = portTCP;
         this.ipServer = ipServer;
         this.listaServidores = listaServidores;
         this.connDB = connDB;
+        this.threadCorre = threadCorre;
     }
 
     @Override
     public void run() {
 
-        while (true) {
+        while (threadCorre.get()) {
 
             LocalDateTime now = LocalDateTime.now();
 
@@ -56,5 +59,6 @@ public class RemoveServidores extends Thread{
             }
 
         }
+        System.out.println("[INFO] RemoveServidores terminado com sucesso!");
     }
 }

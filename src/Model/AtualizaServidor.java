@@ -20,8 +20,9 @@ public class AtualizaServidor extends Thread {
     int portTCP;
     String ipServer;
     ArrayList<ObjectOutputStream> listOos;
+    AtomicBoolean threadCorre;
     public AtualizaServidor(ArrayList<Informacoes> listaServidores, MulticastSocket ms, InetAddress ipgroup, int portTCP, String ipServer,
-                            ConnDB connDB, AtomicBoolean disponivel, ArrayList<ObjectOutputStream> listOos) {
+                            ConnDB connDB, AtomicBoolean disponivel, ArrayList<ObjectOutputStream> listOos,AtomicBoolean threadCorre) {
         this.listaServidores = listaServidores;
         this.connDB = connDB;
         this.disponivel = disponivel;
@@ -30,11 +31,12 @@ public class AtualizaServidor extends Thread {
         this.portTCP = portTCP;
         this.ipServer = ipServer;
         this.listOos = listOos;
+        this.threadCorre = threadCorre;
     }
 
     @Override
     public void run() {
-        while (true) {
+        while (threadCorre.get()) {
             synchronized (listaServidores) {
                 int valMaior = connDB.getVersao().get();
                 int posMaior = -1;
@@ -45,15 +47,19 @@ public class AtualizaServidor extends Thread {
                     }
                 }
 
-                if (posMaior > -1) { // é o maior
+                if (posMaior > -1) {
                     System.out.println("ENTREI -1");
                     disponivel.getAndSet(false);
                     Servidor.atualiza(ms, ipgroup, portTCP, ipServer, connDB);
-                    for (ObjectOutputStream os: listOos) {enviaListaServidoresAtualizada(os);}
+                    for (ObjectOutputStream os: listOos) {
+                        enviaListaServidoresAtualizada(os);
+                    }
+                    
                 }
             }
             disponivel.getAndSet(true);
         }
+        System.out.println("[INFO] AtualizaServidor terminado com sucesso!");
     }
 
     void enviaListaServidoresAtualizada(ObjectOutputStream oos) {

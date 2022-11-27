@@ -11,18 +11,18 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class HeartBeat extends Thread  {
-    String dbName;
-    AtomicInteger versaoDB;
-    int portTCP;
-    InetAddress ipgroup;
-    int portServers;
-    MulticastSocket ms;
-    String ipServer;
-    AtomicInteger ligacoesTCP;
-    AtomicBoolean disponivel;
-
+    private String dbName;
+    private AtomicInteger versaoDB;
+    private int portTCP;
+    private InetAddress ipgroup;
+    private int portServers;
+    private MulticastSocket ms;
+    private String ipServer;
+    private AtomicInteger ligacoesTCP;
+    private AtomicBoolean disponivel;
+    private AtomicBoolean threadCorre;
     public HeartBeat(int portTCP, InetAddress ipgroup, int portServers, MulticastSocket ms,
-                     String ipServer, AtomicInteger ligacoesTCP, AtomicInteger versao, String dbName, AtomicBoolean disponivel){
+                     String ipServer, AtomicInteger ligacoesTCP, AtomicInteger versao, String dbName, AtomicBoolean disponivel, AtomicBoolean threadCorre){
         this.portTCP = portTCP;
         this.ipgroup = ipgroup;
         this.portServers = portServers;
@@ -32,12 +32,13 @@ public class HeartBeat extends Thread  {
         this.versaoDB = versao;
         this.dbName = dbName;
         this.disponivel = disponivel;
+        this.threadCorre = threadCorre;
     }
 
     @Override
     public void run() {
         System.out.println("Welcome to the chat!["+portTCP+"]");
-        while (true) {
+        while (threadCorre.get()) {
             try {
 
                 LocalDateTime now = LocalDateTime.now();
@@ -68,5 +69,6 @@ public class HeartBeat extends Thread  {
                 throw new RuntimeException(e);
             }
         }
+        System.out.println("[INFO] HeartBeat terminado com sucesso!");
     }
 }
