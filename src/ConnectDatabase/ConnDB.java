@@ -8,10 +8,8 @@ public class ConnDB
     // YYYY-MM-dd HH:mm:ss.sss
     private String DATABASE_URL;
     private Connection dbConn;
-    private int versao;
     private String dbName;
-
-    static AtomicInteger versaoDB;
+    private static AtomicInteger versaoDB;
 
     public ConnDB(String dBName) throws SQLException {//
         this.dbName = dBName;

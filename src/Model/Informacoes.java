@@ -7,15 +7,13 @@ import java.util.Objects;
 public class Informacoes implements Serializable {
     @Serial
     static final long serialVersionUID = 1L;
-
-    protected Integer porto;
-    protected String ip;
-    protected int ligacoes;
-    protected int versaoBd;
-
-    protected String currentTime;
-
-    protected String dbName;
+    private Integer porto;
+    private String ip;
+    private int ligacoes;
+    private int versaoBd;
+    private boolean disponivel;
+    private String currentTime;
+    private String dbName;
     public Informacoes(Integer porto, String ip, int ligacoes,String currentTime) {
         this.porto = porto;
         this.ip = ip;
@@ -23,13 +21,15 @@ public class Informacoes implements Serializable {
         this.currentTime = currentTime;
     }
 
-    public Informacoes(Integer porto, String ip, int ligacoes, String currentTime, int versaoBd) {
+    public Informacoes(Integer porto, String ip, int ligacoes, String currentTime, int versaoBd, boolean disponivel) {
         this.porto = porto;
         this.ip = ip;
         this.ligacoes = ligacoes;
         this.currentTime = currentTime;
         this.versaoBd = versaoBd;
+        this.disponivel = disponivel;
     }
+
     public Informacoes(Integer porto, String ip, int ligacoes) {
         this.porto = porto;
         this.ip = ip;
@@ -50,6 +50,13 @@ public class Informacoes implements Serializable {
 
     public void setIp(String ip) {
         this.ip = ip;
+    }
+    public boolean isDisponivel() {
+        return disponivel;
+    }
+
+    public void setDisponivel(boolean disponivel) {
+        this.disponivel = disponivel;
     }
 
     public int getLigacoes() {
@@ -85,7 +92,8 @@ public class Informacoes implements Serializable {
     }
     @Override
     public String toString() {
-        return "Porto:" + porto +" Ip:"+ ip +" LigacoesTCP:"+ ligacoes + " Hora:"+ currentTime + " versaoDB:" + versaoBd + " dbName:" + dbName;
+        return "Porto:" + porto +" Ip:"+ ip +" LigacoesTCP:"+ ligacoes + " Hora:"+ currentTime + " versaoDB:" + versaoBd +
+                " dbName:" + dbName + " disponivel:" + disponivel;
     }
 
     @Override

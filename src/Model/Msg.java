@@ -2,11 +2,12 @@ package Model;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.net.Socket;
+import java.util.ArrayList;
 
 public class Msg implements Serializable {
     @Serial
     static final long serialVersionUID = 1L;
-
     private String msg;
     private int portoServer;
     private String ip;
@@ -14,14 +15,20 @@ public class Msg implements Serializable {
     private int ligacoesTCP;
     private byte[] msgBuffer;
     private int msgSize;
-
+    private  ArrayList<Socket> listaClientes;
     public Msg(){ }
 
     public Msg(String ipServer , Integer portoServer){
         this.ip = ipServer;
         this.portoServer = portoServer;
     }
+    public ArrayList<Socket> getListaClientes() {
+        return listaClientes;
+    }
 
+    public void setListaClientes(ArrayList<Socket> listaClientes) {
+        this.listaClientes = listaClientes;
+    }
     public byte[] getMsgBuffer() {
         return msgBuffer;
     }
@@ -73,5 +80,10 @@ public class Msg implements Serializable {
 
     public void setLigacoesTCP(int ligacoesTCP) {
         this.ligacoesTCP = ligacoesTCP;
+    }
+
+    @Override
+    public String toString() {
+        return "porto: " + portoServer + " ip: " + ip + " ligacoesTCP: " + ligacoesTCP ;
     }
 }

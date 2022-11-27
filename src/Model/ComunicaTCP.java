@@ -1,21 +1,40 @@
 package Model;
 
+import ConnectDatabase.ConnDB;
+import com.sun.jdi.ArrayReference;
+
 import java.io.*;
 import java.net.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReferenceArray;
 
 public class ComunicaTCP extends Thread {
     MulticastSocket ms;
     Socket socketCli;
     AtomicInteger ligacoesTCP;
-
     String dbName;
 
-    public ComunicaTCP(MulticastSocket ms, Socket socketCli,AtomicInteger ligacoesTCP, String dbName) {
+    ArrayList<ObjectOutputStream> listaOos;
+    AtomicBoolean disponivel;
+    InetAddress ipgroup;
+    int portTCP;
+    String ipServer;
+    ConnDB connDB;
+    public ComunicaTCP(MulticastSocket ms, Socket socketCli, AtomicInteger ligacoesTCP, String dbName, AtomicBoolean disponivel, ArrayList<ObjectOutputStream> listaOos,
+                       InetAddress ipgroup, int portTCP, String ipServer, ConnDB connDB) {
         this.ms = ms;
         this.socketCli = socketCli;
         this.ligacoesTCP = ligacoesTCP;
         this.dbName = dbName;
+        this.disponivel = disponivel;
+        this.listaOos = listaOos;
+        this.ipgroup = ipgroup;
+        this.portTCP = portTCP;
+        this.ipServer = ipServer;
+        this.connDB = connDB;
     }
 
     @Override
@@ -28,14 +47,14 @@ public class ComunicaTCP extends Thread {
                 InputStream is = socketCli.getInputStream();
                 OutputStream os = socketCli.getOutputStream();
                 ObjectInputStream oisSocket = new ObjectInputStream(is);
-                ObjectOutputStream oosSocket = new ObjectOutputStream(os);
+                ObjectOutputStream oos = new ObjectOutputStream(os);
                 while (true){
                     Msg msgSocket = (Msg) oisSocket.readObject();
 
                     if(msgSocket.getMsg().equals("CloneBD")) {
 
-                        System.out.println("Queres micar é?");
-
+                        System.out.println("[INFO] A clonar DataBase...");
+                        disponivel.getAndSet(false);
                         FileInputStream fis = new FileInputStream(dbName);
                         byte[] bufferClient = new byte[4000];
                         int nBytes;
@@ -50,15 +69,21 @@ public class ComunicaTCP extends Thread {
                                 msg.setLastPacket(true);
                             }else
                                 msg.setLastPacket(false);
-                            oosSocket.reset();
-                            oosSocket.writeUnshared(msg);
+                            oos.reset();
+                            oos.writeUnshared(msg);
                             //System.out.println("NBytes Lidos" + nBytes);
                             //out.write(bufferClient);
                         }while(nBytes != -1);
 
                     } else {
+                        synchronized (listaOos) {
+                            if (!listaOos.contains(oos)) {
+                                System.out.println("SE O DIZES");
+                                listaOos.add(oos);
+                                Servidor.atualiza(ms, ipgroup, portTCP, ipServer, connDB);
+                            }
+                        }
                         System.out.println("E" + msgSocket.getMsg());
-                        oosSocket.writeUnshared(msgSocket);
                     }
                 }
             } catch (ClassNotFoundException e) {

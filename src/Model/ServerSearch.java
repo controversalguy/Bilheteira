@@ -1,5 +1,6 @@
 package Model;
 
+import javax.management.relation.InvalidRoleInfoException;
 import java.io.*;
 import java.net.ConnectException;
 import java.net.Socket;
@@ -48,15 +49,30 @@ public class ServerSearch extends Thread {
             ObjectInputStream oisTCP = new ObjectInputStream(is);
             msgTCP.setMsg("Connectei-me ao Servidor...[" + sClient.getPort() + "]");
             oosTCP.writeUnshared(msgTCP);
-            Scanner sc = new Scanner(System.in);
-            while (true) {
-                msgTCP.setMsg(sc.nextLine());
+            //Scanner sc = new Scanner(System.in);
+            //while (true) {
+                /*msgTCP.setMsg(sc.nextLine());
                 System.out.println(msgTCP.getMsg());
-                oosTCP.writeUnshared(msgTCP);
-                msgTCP = (Msg) oisTCP.readObject();
-                if (msgTCP.getMsg().equals("Tudo bem?"))
-                    System.out.println("Claro né");
-            }
+                oosTCP.writeUnshared(msgTCP);*/
+                //msgTCP = (Msg) oisTCP.readObject();
+                // (msgTCP.getMsg().equals("Tudo bem?"))
+                //System.out.println(msgTCP.getMsg());
+                while (true) {
+                    //sc.nextLine();
+                    msgTCP = (Msg) oisTCP.readObject();
+
+                    System.out.println("ClienteMSG: " + msgTCP.toString());
+                    Informacoes info1 = new Informacoes(msgTCP.getPortoServer(),msgTCP.getIp(),msgTCP.getLigacoesTCP());
+                    if(!listaServidores.contains(info1))
+                        listaServidores.add(info1);
+                    else
+                        listaServidores.set(listaServidores.lastIndexOf(info1),info1);
+                    //System.out.println(msgTCP.getMsg());
+
+                    //if (info1.isLastPacket())
+                      //  break;
+                }
+            //}
         } catch (UnknownHostException | ClassNotFoundException e) {
             e.printStackTrace();
         } catch(SocketException e){

@@ -52,7 +52,7 @@ public class ListenHeartBeat extends Thread{
                     Comparator<Informacoes> compare = new InformacoesComparator();
                     listaServidores.sort(compare);
 
-                    //System.out.println("Lista Ordenada " + listaServidores);
+                    //System.out.println("ListenHeartBeat: " + listaServidores);
                 }
                // System.out.println("Ligações TCP ativas: " + msg.getLigacoesTCP());
             } catch (IOException | ClassNotFoundException e) {

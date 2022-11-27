@@ -7,6 +7,7 @@ import java.net.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class HeartBeat extends Thread  {
@@ -18,9 +19,10 @@ public class HeartBeat extends Thread  {
     MulticastSocket ms;
     String ipServer;
     AtomicInteger ligacoesTCP;
+    AtomicBoolean disponivel;
 
     public HeartBeat(int portTCP, InetAddress ipgroup, int portServers, MulticastSocket ms,
-                     String ipServer, AtomicInteger ligacoesTCP, AtomicInteger versao, String dbName){
+                     String ipServer, AtomicInteger ligacoesTCP, AtomicInteger versao, String dbName, AtomicBoolean disponivel){
         this.portTCP = portTCP;
         this.ipgroup = ipgroup;
         this.portServers = portServers;
@@ -29,6 +31,7 @@ public class HeartBeat extends Thread  {
         this.ligacoesTCP = ligacoesTCP;
         this.versaoDB = versao;
         this.dbName = dbName;
+        this.disponivel = disponivel;
     }
 
     @Override
@@ -44,7 +47,7 @@ public class HeartBeat extends Thread  {
                 Informacoes info = new Informacoes(portTCP, ipServer, ligacoesTCP.get(),currentTime);
                 info.setVersaoBd(versaoDB.get());
                 info.setDbName(dbName);
-                System.out.println(info);
+                info.setDisponivel(disponivel.get());
                 // manda inteiro para não crashar // usamos Atomic Integer pois é independente de sincronização
                 //ligacoesTCP
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
