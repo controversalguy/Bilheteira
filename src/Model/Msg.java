@@ -9,6 +9,7 @@ public class Msg implements Serializable {
     @Serial
     static final long serialVersionUID = 1L;
     private String msg;
+    private int versaoBdAtualizada;
     private int portoServer;
     private String ip;
     private boolean lastPacket;
@@ -16,6 +17,7 @@ public class Msg implements Serializable {
     private byte[] msgBuffer;
     private int msgSize;
     private  ArrayList<Socket> listaClientes;
+
     public Msg(){ }
 
     public Msg(String ipServer , Integer portoServer){
@@ -24,6 +26,14 @@ public class Msg implements Serializable {
     }
     public ArrayList<Socket> getListaClientes() {
         return listaClientes;
+    }
+
+    public int getVersaoBdAtualizada() {
+        return versaoBdAtualizada;
+    }
+
+    public void setVersaoBdAtualizada(int versaoBdAtualizada) {
+        this.versaoBdAtualizada = versaoBdAtualizada;
     }
 
     public void setListaClientes(ArrayList<Socket> listaClientes) {

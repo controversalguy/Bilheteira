@@ -205,7 +205,7 @@ public class Servidor {
                         DatagramSocket ds = new DatagramSocket(0);
                         info.setPortoUDPAtualiza(ds.getLocalPort());
                         info.setVersaoBdAtualiza(valMaior);
-                        AtualizaUDP aUDP = new AtualizaUDP(ds.getLocalPort(),threadCorre);
+                        AtualizaUDP aUDP = new AtualizaUDP(ds,threadCorre);
                         aUDP.start();
                         allThreads.add(aUDP);
                     }

@@ -113,8 +113,8 @@ public class Informacoes implements Serializable {
     @Override
     public String toString() {
         return "Porto:" + porto +" Ip:"+ ip +" LigacoesTCP:"+ ligacoes + " Hora:"+ currentTime + " versaoDB:" + versaoBd +
-                " dbName:" + dbName + " disponivel:" + disponivel + "msgAtualiza: "+ msgAtualiza
-                + "portoUDPAtualiza: " + portoUDPAtualiza +" versaoBdAtualiza: " + versaoBdAtualiza;
+                " dbName:" + dbName + " disponivel:" + disponivel + " msgAtualiza: "+ msgAtualiza
+                + " portoUDPAtualiza: " + portoUDPAtualiza +" versaoBdAtualiza: " + versaoBdAtualiza;
     }
 
     @Override

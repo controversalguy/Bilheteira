@@ -1,9 +1,7 @@
 package Model;
 
 import java.io.*;
-import java.net.DatagramPacket;
-import java.net.MulticastSocket;
-import java.net.Socket;
+import java.net.*;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -44,7 +42,7 @@ public class ListenHeartBeat extends Thread{
                 info = (Informacoes) ois.readObject();
                 synchronized (listaServidores) {
                     //Informacoes info = new Informacoes(msg.getPortoServer(),msg.getIp(),msg.getLigacoesTCP());
-                    if(!listaServidores.contains(info))
+                    if(!listaServidores.contains(info) && info.isDisponivel())
                         listaServidores.add(info);
                     else { // se já existir
                         //System.out.println("EXISTE BABY");
@@ -57,14 +55,33 @@ public class ListenHeartBeat extends Thread{
                     //System.out.println("ListenHeartBeat: " + listaServidores);
                 }
                 if(info.getMsgAtualiza() != null)
-                    if(info.getMsgAtualiza().equals("Prepare"))
+                    if(info.getMsgAtualiza().equals("Prepare")) {
                         System.out.println("ListenHeartBeatAtualiza" + info);
+                        enviaUDP(info.getPortoUDPAtualiza(), info.getVersaoBdAtualiza(), info.getIp());
+                    }
                // System.out.println("Ligações TCP ativas: " + msg.getLigacoesTCP());
             } catch (IOException | ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
         }
         System.out.println("[INFO] ListenHeartBeat terminado com sucesso!");
+    }
+
+    private void enviaUDP(int portoUDPAtualiza, int versaoBdAtualizada, String ip) throws IOException {
+        DatagramSocket ds = new DatagramSocket();
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream(baos);
+        Msg msg = new Msg();
+        msg.setVersaoBdAtualizada(versaoBdAtualizada);
+
+        oos.writeUnshared(msg);
+        byte[] messageBytes = baos.toByteArray();
+
+        InetAddress ipServer = InetAddress.getByName(ip);
+
+        DatagramPacket dp = new DatagramPacket(messageBytes, messageBytes.length, ipServer, portoUDPAtualiza);
+        ds.send(dp);
     }
 }
 
