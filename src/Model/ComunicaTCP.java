@@ -12,30 +12,20 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 
 public class ComunicaTCP extends Thread {
-    MulticastSocket ms;
     Socket socketCli;
     AtomicInteger ligacoesTCP;
     String dbName;
-
     ArrayList<ObjectOutputStream> listaOos;
     AtomicBoolean disponivel;
-    InetAddress ipgroup;
-    int portTCP;
-    String ipServer;
-    ConnDB connDB;
     AtomicBoolean threadCorre;
-    public ComunicaTCP(MulticastSocket ms, Socket socketCli, AtomicInteger ligacoesTCP, String dbName, AtomicBoolean disponivel, ArrayList<ObjectOutputStream> listaOos,
-                       InetAddress ipgroup, int portTCP, String ipServer, ConnDB connDB,AtomicBoolean threadCorre) {
-        this.ms = ms;
+
+    public ComunicaTCP( Socket socketCli, AtomicInteger ligacoesTCP, String dbName, AtomicBoolean disponivel,
+                        ArrayList<ObjectOutputStream> listaOos, AtomicBoolean threadCorre) {
         this.socketCli = socketCli;
         this.ligacoesTCP = ligacoesTCP;
         this.dbName = dbName;
         this.disponivel = disponivel;
         this.listaOos = listaOos;
-        this.ipgroup = ipgroup;
-        this.portTCP = portTCP;
-        this.ipServer = ipServer;
-        this.connDB = connDB;
         this.threadCorre = threadCorre;
     }
 
@@ -54,7 +44,7 @@ public class ComunicaTCP extends Thread {
 
                         System.out.println("[INFO] A clonar DataBase...");
                         disponivel.getAndSet(false);
-                        Servidor.atualiza(ms, ipgroup, portTCP, ipServer, connDB, null,-2);
+                        Servidor.atualiza( null,-2);
                         FileInputStream fis = new FileInputStream(dbName);
                         byte[] bufferClient = new byte[4000];
                         int nBytes;
@@ -78,7 +68,7 @@ public class ComunicaTCP extends Thread {
                         synchronized (listaOos) {
                             if (!listaOos.contains(oos)) {
                                 listaOos.add(oos);
-                                Servidor.atualiza(ms, ipgroup, portTCP, ipServer, connDB, null,-3);
+                                Servidor.atualiza(null,-3);
                             }
                         }
                         System.out.println("COMUNICATCP:" + msgSocket.getMsg());

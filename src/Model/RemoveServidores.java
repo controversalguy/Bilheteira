@@ -11,24 +11,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class RemoveServidores extends Thread{
-    MulticastSocket ms;
-    InetAddress ipgroup;
-    int portTCP;
-    String ipServer;
+public class RemoveServidores extends Thread {
     ArrayList<Informacoes> listaServidores;
     AtomicBoolean threadCorre;
 
-    ConnDB connDB;
-
-
-    public RemoveServidores(MulticastSocket ms, InetAddress ipgroup, int portTCP, String ipServer, ArrayList<Informacoes> listaServidores, ConnDB connDB, AtomicBoolean threadCorre) {
-        this.ms = ms;
-        this.ipgroup = ipgroup;
-        this.portTCP = portTCP;
-        this.ipServer = ipServer;
+    public RemoveServidores( ArrayList<Informacoes> listaServidores,AtomicBoolean threadCorre) {
         this.listaServidores = listaServidores;
-        this.connDB = connDB;
         this.threadCorre = threadCorre;
     }
 
@@ -52,7 +40,7 @@ public class RemoveServidores extends Thread{
                     if(seconds > 10 || !info.isDisponivel()){ // MUDAR PARA 35 TODO
                         System.out.println("Servidor Desconectou-se [" + info.getPorto() + "]");
                         it.remove();
-                        Servidor.atualiza(ms, ipgroup, portTCP, ipServer,connDB,null,-4);
+                        Servidor.atualiza(null,-4);
                         System.out.println(listaServidores);
                     }
                 }

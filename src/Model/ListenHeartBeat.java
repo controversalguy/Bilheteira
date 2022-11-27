@@ -8,7 +8,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class ListenHeartBeat extends Thread{
     private MulticastSocket ms;
     ArrayList<Informacoes> listaServidores;
-    //HashMap<Integer,String> listaServidores;
     static AtomicBoolean threadCorre;
     public ListenHeartBeat(MulticastSocket ms, ArrayList<Informacoes> listaServidores,AtomicBoolean threadCorre) {
         this.ms = ms;
@@ -58,9 +57,29 @@ public class ListenHeartBeat extends Thread{
                     if(info.getMsgAtualiza().equals("Prepare")) {
                         System.out.println("ListenHeartBeatAtualiza" + info);
                         enviaUDP(info.getPortoUDPAtualiza(), info.getVersaoBdAtualiza(), info.getIp());
+                        int seconds = 3000;
+                        ms.setSoTimeout(seconds);
+                            bais = new ByteArrayInputStream(dp.getData());
+                            try {
+                                ois = new ObjectInputStream(bais);
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            }
+
+                            info = (Informacoes) ois.readObject();
+                            if (info.getMsgAtualiza().equals("Commit")) {
+
+                            } else if (info.getMsgAtualiza().equals("Abort")) {
+
+                            }
+                        }else if(info.getMsgAtualiza().equals("Abort")){
+                        //   info.setDisponivel(true);
                     }
-               // System.out.println("Ligações TCP ativas: " + msg.getLigacoesTCP());
-            } catch (IOException | ClassNotFoundException e) {
+                    } catch (SocketException e) {
+                throw new RuntimeException(e);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            } catch (ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
         }

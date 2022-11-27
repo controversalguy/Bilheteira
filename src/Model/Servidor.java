@@ -15,6 +15,11 @@ import static java.lang.Thread.sleep;
 
 enum tiposErro {
     // TODO FAZER DEPOIS
+    // TODO FAZER Será valorizado o facto de o código das aplicações desenvolvidas ter sido estruturado
+    // TODO servidor que recebe prepare fica a espera
+    //de uma forma modular, com uma separação clara entre lógica de funcionamento,
+    //lógica de comunicação e interface do utilizador, podendo esta ser em modo texto ou
+    //gráfico conforme já mencionado
 }
 
 public class Servidor {
@@ -27,14 +32,16 @@ public class Servidor {
     static InetAddress ipgroup;
     static SocketAddress sa;
     static NetworkInterface ni;
-    static String dBName; // TODO dbName+path
+    static String dBName;
     static int portServer;
     static int portClients;
+    static String ipServer;
     static final int portServers = 4004;
     static final String MULTICAST_IP = "239.39.39.39";
-    static final AtomicInteger ligacoesTCP = new AtomicInteger(0);
-    static final AtomicBoolean disponivel = new AtomicBoolean(true);
-    static final AtomicBoolean threadCorre = new AtomicBoolean(true);
+    static AtomicInteger ligacoesTCP;
+    static AtomicBoolean disponivel;
+    static AtomicBoolean threadCorre;
+    static AtomicInteger tentativas;
 
     public Servidor(String args0, String args1) {
         portClients = Integer.parseInt(args0);
@@ -42,6 +49,10 @@ public class Servidor {
         allThreads = new ArrayList<>();
         listaServidores = new ArrayList<>();
         listaOos = new ArrayList<>();
+        ligacoesTCP = new AtomicInteger(0);
+        disponivel = new AtomicBoolean(true);
+        threadCorre = new AtomicBoolean(true);
+        tentativas = new AtomicInteger(0);
     }
 
     public static void main(String[] args) throws IOException, InterruptedException {
@@ -62,7 +73,7 @@ public class Servidor {
             ss = new ServerSocket(0);
             portServer = ss.getLocalPort();
 
-            String ipServer = InetAddress.getByName("localhost").getHostAddress();
+            ipServer = InetAddress.getByName("localhost").getHostAddress();
 
             ListenHeartBeat lhb = new ListenHeartBeat(ms, listaServidores, threadCorre);
             lhb.start();
@@ -70,8 +81,7 @@ public class Servidor {
 
             connDB = faseDeArranque(listaServidores);
 
-            AtualizaServidor as = new AtualizaServidor(listaServidores, ms, ipgroup, portServer, ipServer,
-                    connDB, disponivel, listaOos, threadCorre);
+            AtualizaServidor as = new AtualizaServidor(listaServidores, connDB, disponivel, listaOos, threadCorre);
             as.start();
             allThreads.add(as);
 
@@ -85,19 +95,17 @@ public class Servidor {
             lUDP.start();
             allThreads.add(lUDP);
 
-            RemoveServidores rs = new RemoveServidores(ms, ipgroup, portServer, ipServer, listaServidores,
-                    connDB, threadCorre);
+            RemoveServidores rs = new RemoveServidores(listaServidores, threadCorre);
             rs.start();
             allThreads.add(rs);
 
             while (true) { // TODO TIRAR
                 Socket sCli = ss.accept();
-                ComunicaTCP ts = new ComunicaTCP(ms, sCli, ligacoesTCP, dBName, disponivel, listaOos,
-                        ipgroup, portServer, ipServer, connDB, threadCorre);
+                ComunicaTCP ts = new ComunicaTCP(sCli, ligacoesTCP, dBName, disponivel, listaOos, threadCorre);
                 ts.start();
                 allThreads.add(ts);
 
-               atualiza(ms, ipgroup, portServer, ipServer, connDB, "prepare",connDB.getVersao().get());
+               atualiza( "prepare",connDB.getVersao().get());
             }
 
         } catch (UnknownHostException e) {
@@ -119,7 +127,7 @@ public class Servidor {
     }
 
     private static ConnDB faseDeArranque(ArrayList<Informacoes> listaServidores) {
-        ConnDB connDB = null;
+        ConnDB connDB;
         try {
             sleep(4000); //TODO passar para 30 segundos
 
@@ -188,14 +196,13 @@ public class Servidor {
         return connDB;
     }
 
-    public static void atualiza(MulticastSocket ms, InetAddress ipgroup, int portTCP, String ipServer,
-                                ConnDB connDB,String msg,int valMaior) {
+    public static void atualiza(String msg, int valMaior) {
         try {
             LocalDateTime now = LocalDateTime.now();
             DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
             String currentTime = now.format(dateTimeFormatter);
 
-            Informacoes info = new Informacoes(portTCP, ipServer, ligacoesTCP.get(), currentTime, connDB.getVersao().get(), disponivel.get());
+            Informacoes info = new Informacoes(portServer, ipServer, ligacoesTCP.get(), currentTime, connDB.getVersao().get(), disponivel.get());
             info.setDbName(connDB.getDbName());
             if(msg!=null){
                 switch (msg.toUpperCase()){
@@ -205,11 +212,15 @@ public class Servidor {
                         DatagramSocket ds = new DatagramSocket(0);
                         info.setPortoUDPAtualiza(ds.getLocalPort());
                         info.setVersaoBdAtualiza(valMaior);
-                        AtualizaUDP aUDP = new AtualizaUDP(ds,threadCorre);
+                        AtualizaUDP aUDP = new AtualizaUDP(ds, connDB,listaServidores,threadCorre,tentativas, valMaior);
                         aUDP.start();
                         allThreads.add(aUDP);
                     }
-                    case "CONFIRM"-> {}
+                    case "ABORT"->{
+                        info.setMsgAtualiza("ABORT");
+                        info.setVersaoBdAtualiza(valMaior);
+                        //disponivel.getAndSet(true);
+                    }
                 }
             }
             // manda inteiro para não crashar // usamos Atomic Integer pois é independente de sincronização

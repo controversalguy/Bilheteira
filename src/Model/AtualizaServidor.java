@@ -15,21 +15,14 @@ public class AtualizaServidor extends Thread {
     ArrayList<Informacoes> listaServidores;
     ConnDB connDB;
     AtomicBoolean disponivel;
-    MulticastSocket ms;
-    InetAddress ipgroup;
-    int portTCP;
-    String ipServer;
     ArrayList<ObjectOutputStream> listOos;
     AtomicBoolean threadCorre;
-    public AtualizaServidor(ArrayList<Informacoes> listaServidores, MulticastSocket ms, InetAddress ipgroup, int portTCP, String ipServer,
-                            ConnDB connDB, AtomicBoolean disponivel, ArrayList<ObjectOutputStream> listOos,AtomicBoolean threadCorre) {
+
+    public AtualizaServidor(ArrayList<Informacoes> listaServidores, ConnDB connDB, AtomicBoolean disponivel,
+                            ArrayList<ObjectOutputStream> listOos,AtomicBoolean threadCorre) {
         this.listaServidores = listaServidores;
         this.connDB = connDB;
         this.disponivel = disponivel;
-        this.ms = ms;
-        this.ipgroup = ipgroup;
-        this.portTCP = portTCP;
-        this.ipServer = ipServer;
         this.listOos = listOos;
         this.threadCorre = threadCorre;
     }
@@ -48,7 +41,7 @@ public class AtualizaServidor extends Thread {
                 if (posMaior > -1) {
                     System.out.println("ENTREI -1");
                     disponivel.getAndSet(false);
-                    Servidor.atualiza(ms, ipgroup, portTCP, ipServer, connDB, "prepare",valMaior);
+                    Servidor.atualiza("prepare",valMaior);
                     for (ObjectOutputStream os: listOos) {
                         enviaListaServidoresAtualizada(os);
                     }

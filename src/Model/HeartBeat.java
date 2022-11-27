@@ -21,6 +21,7 @@ public class HeartBeat extends Thread  {
     private AtomicInteger ligacoesTCP;
     private AtomicBoolean disponivel;
     private AtomicBoolean threadCorre;
+
     public HeartBeat(int portTCP, InetAddress ipgroup, int portServers, MulticastSocket ms,
                      String ipServer, AtomicInteger ligacoesTCP, AtomicInteger versao, String dbName, AtomicBoolean disponivel, AtomicBoolean threadCorre){
         this.portTCP = portTCP;
