@@ -46,7 +46,7 @@ public class RemoveServidores extends Thread{
                     LocalDateTime servidor = LocalDateTime.parse(info.getCurrentTime(), formatter);
 
                     long seconds = ChronoUnit.SECONDS.between(servidor, now);
-                    if(seconds > 10){ // MUDAR PARA 35 TODO
+                    if(seconds > 10 || !info.isDisponivel()){ // MUDAR PARA 35 TODO
                         System.out.println("Servidor Desconectou-se [" + info.getPorto() + "]");
                         it.remove();
                         Servidor.atualiza(ms, ipgroup, portTCP, ipServer,connDB);

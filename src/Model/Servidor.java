@@ -60,9 +60,9 @@ public class Servidor {
 
             connDB = faseDeArranque(listaServidores);
 
-            //AtualizaServidor as = new AtualizaServidor(listaServidores, ms, ipgroup, portServer, ipServer, connDB, disponivel, listaClientes);
-            //as.start();
-            //allThreads.add(as);
+            AtualizaServidor as = new AtualizaServidor(listaServidores, ms, ipgroup, portServer, ipServer, connDB, disponivel, listaOos);
+            as.start();
+            allThreads.add(as);
 
             HeartBeat hb = new HeartBeat(portServer,ipgroup,portServers,ms,ipServer, ligacoesTCP,connDB.getVersao(),connDB.getDbName(),disponivel);
             hb.start();
@@ -83,10 +83,6 @@ public class Servidor {
                 ts = new ComunicaTCP(ms,sCli,ligacoesTCP, dBName, disponivel,listaOos,ipgroup,portServer,ipServer,connDB);
                 ts.start();
                 allThreads.add(ts);
-
-                sleep(3000);
-                AtualizaServidor as = new AtualizaServidor(listaServidores, ms, ipgroup, portServer, ipServer, connDB, disponivel, listaOos);
-                as.start();
                 //System.out.println(listaClientes);
             }
 
@@ -103,8 +99,6 @@ public class Servidor {
             System.out.println("Desconhecido Host");
         } catch (IOException e) {
             System.out.println("Desconhecido");
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
         }
         System.out.println("QUERO FORA");
     }
@@ -137,7 +131,6 @@ public class Servidor {
             }else{
                 connDB = new ConnDB(dBName);
                 connDB.criaTabelas();
-                connDB.decrementaVersao();// TODO eliminar1
                 System.out.println("SERVIDOR FASE DE ARRANQUE: " +connDB.getVersao());
                 //System.out.println("Lista de Servidores: " +listaServidores);
 
@@ -194,7 +187,6 @@ public class Servidor {
                     } catch (IOException e) {
                         System.out.println("Não consegui aceder ao Socket do Servidor: " + servidorTemp.getPort() );
                     } finally {
-                        connDB.incrementaVersao();
                         connDB.incrementaVersao();
                         System.out.println("Versao" + connDB.getVersao());
                         servidorTemp.close();

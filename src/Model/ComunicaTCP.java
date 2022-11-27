@@ -40,9 +40,7 @@ public class ComunicaTCP extends Thread {
     @Override
     public void run() {
         try {
-                //System.out.println("Fico a espera");
-                //socketCli = ss.accept();
-                //System.out.println("BOTA LUMEEEEEEEEEEE");
+
                 ligacoesTCP.getAndIncrement();
                 InputStream is = socketCli.getInputStream();
                 OutputStream os = socketCli.getOutputStream();
@@ -71,8 +69,7 @@ public class ComunicaTCP extends Thread {
                                 msg.setLastPacket(false);
                             oos.reset();
                             oos.writeUnshared(msg);
-                            //System.out.println("NBytes Lidos" + nBytes);
-                            //out.write(bufferClient);
+
                         }while(nBytes != -1);
 
                     } else {

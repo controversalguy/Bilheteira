@@ -48,8 +48,7 @@ public class HeartBeat extends Thread  {
                 info.setVersaoBd(versaoDB.get());
                 info.setDbName(dbName);
                 info.setDisponivel(disponivel.get());
-                // manda inteiro para não crashar // usamos Atomic Integer pois é independente de sincronização
-                //ligacoesTCP
+                // usamos Atomic Integer pois é independente de sincronização (ThreadSafe) e é usado para contadores partilhados
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 ObjectOutputStream oos = new ObjectOutputStream(baos);
                 oos.writeUnshared(info);
