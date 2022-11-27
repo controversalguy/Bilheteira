@@ -33,7 +33,6 @@ public class AtualizaServidor extends Thread {
         this.listOos = listOos;
         this.threadCorre = threadCorre;
     }
-
     @Override
     public void run() {
         while (threadCorre.get()) {
@@ -46,15 +45,14 @@ public class AtualizaServidor extends Thread {
                         posMaior = i;// posicao do Servidor que tem maior versao
                     }
                 }
-
                 if (posMaior > -1) {
                     System.out.println("ENTREI -1");
                     disponivel.getAndSet(false);
-                    Servidor.atualiza(ms, ipgroup, portTCP, ipServer, connDB);
+                    Servidor.atualiza(ms, ipgroup, portTCP, ipServer, connDB, "prepare",valMaior);
                     for (ObjectOutputStream os: listOos) {
                         enviaListaServidoresAtualizada(os);
                     }
-                    
+
                 }
             }
             disponivel.getAndSet(true);

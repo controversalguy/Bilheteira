@@ -52,7 +52,7 @@ public class RemoveServidores extends Thread{
                     if(seconds > 10 || !info.isDisponivel()){ // MUDAR PARA 35 TODO
                         System.out.println("Servidor Desconectou-se [" + info.getPorto() + "]");
                         it.remove();
-                        Servidor.atualiza(ms, ipgroup, portTCP, ipServer,connDB);
+                        Servidor.atualiza(ms, ipgroup, portTCP, ipServer,connDB,null,-4);
                         System.out.println(listaServidores);
                     }
                 }

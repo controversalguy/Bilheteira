@@ -14,6 +14,9 @@ public class Informacoes implements Serializable {
     private boolean disponivel;
     private String currentTime;
     private String dbName;
+    private String msgAtualiza;
+    private int portoUDPAtualiza;
+    private int versaoBdAtualiza;
     public Informacoes(Integer porto, String ip, int ligacoes,String currentTime) {
         this.porto = porto;
         this.ip = ip;
@@ -34,6 +37,23 @@ public class Informacoes implements Serializable {
         this.porto = porto;
         this.ip = ip;
         this.ligacoes = ligacoes;
+    }
+    public int getVersaoBdAtualiza() {return versaoBdAtualiza;}
+    public void setVersaoBdAtualiza(int versaoBdAtualiza) {this.versaoBdAtualiza = versaoBdAtualiza;}
+    public int getPortoUDPAtualiza() {
+        return portoUDPAtualiza;
+    }
+
+    public void setPortoUDPAtualiza(int portoUDPAtualiza) {
+        this.portoUDPAtualiza = portoUDPAtualiza;
+    }
+
+    public String getMsgAtualiza() {
+        return msgAtualiza;
+    }
+
+    public void setMsgAtualiza(String msgAtualiza) {
+        this.msgAtualiza = msgAtualiza;
     }
 
     public Integer getPorto() {
@@ -93,7 +113,8 @@ public class Informacoes implements Serializable {
     @Override
     public String toString() {
         return "Porto:" + porto +" Ip:"+ ip +" LigacoesTCP:"+ ligacoes + " Hora:"+ currentTime + " versaoDB:" + versaoBd +
-                " dbName:" + dbName + " disponivel:" + disponivel;
+                " dbName:" + dbName + " disponivel:" + disponivel + "msgAtualiza: "+ msgAtualiza
+                + "portoUDPAtualiza: " + portoUDPAtualiza +" versaoBdAtualiza: " + versaoBdAtualiza;
     }
 
     @Override

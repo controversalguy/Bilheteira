@@ -42,7 +42,6 @@ public class ComunicaTCP extends Thread {
     @Override
     public void run() {
         try {
-
                 ligacoesTCP.getAndIncrement();
                 InputStream is = socketCli.getInputStream();
                 OutputStream os = socketCli.getOutputStream();
@@ -55,6 +54,7 @@ public class ComunicaTCP extends Thread {
 
                         System.out.println("[INFO] A clonar DataBase...");
                         disponivel.getAndSet(false);
+                        Servidor.atualiza(ms, ipgroup, portTCP, ipServer, connDB, null,-2);
                         FileInputStream fis = new FileInputStream(dbName);
                         byte[] bufferClient = new byte[4000];
                         int nBytes;
@@ -74,15 +74,14 @@ public class ComunicaTCP extends Thread {
 
                         }while(nBytes != -1);
 
-                    } else {
+                    } else { // quando recebe cliente
                         synchronized (listaOos) {
                             if (!listaOos.contains(oos)) {
-                                System.out.println("SE O DIZES");
                                 listaOos.add(oos);
-                                Servidor.atualiza(ms, ipgroup, portTCP, ipServer, connDB);
+                                Servidor.atualiza(ms, ipgroup, portTCP, ipServer, connDB, null,-3);
                             }
                         }
-                        System.out.println("E" + msgSocket.getMsg());
+                        System.out.println("COMUNICATCP:" + msgSocket.getMsg());
                     }
                 }
             } catch (ClassNotFoundException e) {

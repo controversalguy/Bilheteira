@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static java.lang.Thread.sleep;
 
 enum tiposErro {
-    // TODO FAZER DEPOiS
+    // TODO FAZER DEPOIS
 }
 
 public class Servidor {
@@ -70,11 +70,13 @@ public class Servidor {
 
             connDB = faseDeArranque(listaServidores);
 
-            AtualizaServidor as = new AtualizaServidor(listaServidores, ms, ipgroup, portServer, ipServer, connDB, disponivel, listaOos, threadCorre);
+            AtualizaServidor as = new AtualizaServidor(listaServidores, ms, ipgroup, portServer, ipServer,
+                    connDB, disponivel, listaOos, threadCorre);
             as.start();
             allThreads.add(as);
 
-            HeartBeat hb = new HeartBeat(portServer, ipgroup, portServers, ms, ipServer, ligacoesTCP, connDB.getVersao(), connDB.getDbName(), disponivel, threadCorre);
+            HeartBeat hb = new HeartBeat(portServer, ipgroup, portServers, ms, ipServer, ligacoesTCP,
+                    connDB.getVersao(), connDB.getDbName(), disponivel, threadCorre);
             hb.start();
             allThreads.add(hb);
 
@@ -83,16 +85,19 @@ public class Servidor {
             lUDP.start();
             allThreads.add(lUDP);
 
-            RemoveServidores rs = new RemoveServidores(ms, ipgroup, portServer, ipServer, listaServidores, connDB, threadCorre);
+            RemoveServidores rs = new RemoveServidores(ms, ipgroup, portServer, ipServer, listaServidores,
+                    connDB, threadCorre);
             rs.start();
             allThreads.add(rs);
 
-            while (true) {
+            while (true) { // TODO TIRAR
                 Socket sCli = ss.accept();
-                ComunicaTCP ts = new ComunicaTCP(ms, sCli, ligacoesTCP, dBName, disponivel, listaOos, ipgroup, portServer, ipServer, connDB, threadCorre);
+                ComunicaTCP ts = new ComunicaTCP(ms, sCli, ligacoesTCP, dBName, disponivel, listaOos,
+                        ipgroup, portServer, ipServer, connDB, threadCorre);
                 ts.start();
                 allThreads.add(ts);
 
+               atualiza(ms, ipgroup, portServer, ipServer, connDB, "prepare",connDB.getVersao().get());
             }
 
         } catch (UnknownHostException e) {
@@ -183,7 +188,8 @@ public class Servidor {
         return connDB;
     }
 
-    public static void atualiza(MulticastSocket ms, InetAddress ipgroup, int portTCP, String ipServer, ConnDB connDB) {
+    public static void atualiza(MulticastSocket ms, InetAddress ipgroup, int portTCP, String ipServer,
+                                ConnDB connDB,String msg,int valMaior) {
         try {
             LocalDateTime now = LocalDateTime.now();
             DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -191,8 +197,22 @@ public class Servidor {
 
             Informacoes info = new Informacoes(portTCP, ipServer, ligacoesTCP.get(), currentTime, connDB.getVersao().get(), disponivel.get());
             info.setDbName(connDB.getDbName());
+            if(msg!=null){
+                switch (msg.toUpperCase()){
+                    case "PREPARE"-> {
+                        info.setMsgAtualiza("Prepare");
+                        System.out.println("RECEBA");
+                        DatagramSocket ds = new DatagramSocket(0);
+                        info.setPortoUDPAtualiza(ds.getLocalPort());
+                        info.setVersaoBdAtualiza(valMaior);
+                        AtualizaUDP aUDP = new AtualizaUDP(ds.getLocalPort(),threadCorre);
+                        aUDP.start();
+                        allThreads.add(aUDP);
+                    }
+                    case "CONFIRM"-> {}
+                }
+            }
             // manda inteiro para não crashar // usamos Atomic Integer pois é independente de sincronização
-            //ligacoesTCP
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ObjectOutputStream oos = new ObjectOutputStream(baos);
             oos.writeUnshared(info);
