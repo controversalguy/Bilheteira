@@ -3,14 +3,11 @@ package Model;
 import ConnectDatabase.ConnDB;
 
 import java.io.*;
-import java.net.InetAddress;
-import java.net.MulticastSocket;
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class AtualizaServidor extends Thread {
+public class AtualizaServidorDB extends Thread {
 
     ArrayList<Informacoes> listaServidores;
     ConnDB connDB;
@@ -18,8 +15,8 @@ public class AtualizaServidor extends Thread {
     ArrayList<ObjectOutputStream> listOos;
     AtomicBoolean threadCorre;
 
-    public AtualizaServidor(ArrayList<Informacoes> listaServidores, ConnDB connDB, AtomicBoolean disponivel,
-                            ArrayList<ObjectOutputStream> listOos,AtomicBoolean threadCorre) {
+    public AtualizaServidorDB(ArrayList<Informacoes> listaServidores, ConnDB connDB, AtomicBoolean disponivel,
+                              ArrayList<ObjectOutputStream> listOos, AtomicBoolean threadCorre) {
         this.listaServidores = listaServidores;
         this.connDB = connDB;
         this.disponivel = disponivel;
@@ -29,15 +26,17 @@ public class AtualizaServidor extends Thread {
     @Override
     public void run() {
         while (threadCorre.get()) {
+            int valMaior = connDB.getVersao().get();
+            int posMaior = -1;
             synchronized (listaServidores) {
-                int valMaior = connDB.getVersao().get();
-                int posMaior = -1;
+
                 for (int i = 0; i < listaServidores.size(); i++) {
                     if (listaServidores.get(i).getVersaoBd() > valMaior) {
                         valMaior = listaServidores.get(i).getVersaoBd();
                         posMaior = i;// posicao do Servidor que tem maior versao
                     }
                 }
+            }
                 if (posMaior > -1) {
                     System.out.println("ENTREI -1");
                     disponivel.getAndSet(false);
@@ -47,7 +46,7 @@ public class AtualizaServidor extends Thread {
                     }
 
                 }
-            }
+
             disponivel.getAndSet(true);
         }
         System.out.println("[INFO] AtualizaServidor terminado com sucesso!");

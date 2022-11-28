@@ -81,7 +81,7 @@ public class Servidor {
 
             connDB = faseDeArranque(listaServidores);
 
-            AtualizaServidor as = new AtualizaServidor(listaServidores, connDB, disponivel, listaOos, threadCorre);
+            AtualizaServidorDB as = new AtualizaServidorDB(listaServidores, connDB, disponivel, listaOos, threadCorre);
             as.start();
             allThreads.add(as);
 
@@ -104,8 +104,7 @@ public class Servidor {
                 ComunicaTCP ts = new ComunicaTCP(sCli, ligacoesTCP, dBName, disponivel, listaOos, threadCorre);
                 ts.start();
                 allThreads.add(ts);
-
-               atualiza( "prepare",connDB.getVersao().get());
+               //atualiza( "prepare",connDB.getVersao().get());
             }
 
         } catch (UnknownHostException e) {
@@ -117,6 +116,7 @@ public class Servidor {
         } finally {
             System.out.println("[INFO] A encerrar sessão...");
             threadCorre.getAndSet(false);
+
             for (Thread t : allThreads) {
                 t.join();
             }
@@ -205,6 +205,7 @@ public class Servidor {
             Informacoes info = new Informacoes(portServer, ipServer, ligacoesTCP.get(), currentTime, connDB.getVersao().get(), disponivel.get());
             info.setDbName(connDB.getDbName());
             if(msg!=null){
+                System.out.println("msg: " + msg);
                 switch (msg.toUpperCase()){
                     case "PREPARE"-> {
                         info.setMsgAtualiza("Prepare");
@@ -214,7 +215,23 @@ public class Servidor {
                         info.setVersaoBdAtualiza(valMaior);
                         AtualizaUDP aUDP = new AtualizaUDP(ds, connDB,listaServidores,threadCorre,tentativas, valMaior);
                         aUDP.start();
-                        allThreads.add(aUDP);
+                        System.out.println("EDU BOIOLA ATUALIZAUDP");
+
+                        System.out.println("Info antes de Enviar Atualiza Servidor: \n" + info);
+                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                        ObjectOutputStream oos = new ObjectOutputStream(baos);
+                        oos.writeUnshared(info);
+
+                        byte[] myMessageBytes = baos.toByteArray();
+
+                        DatagramPacket dp = new DatagramPacket(
+                                myMessageBytes, myMessageBytes.length,
+                                ipgroup, portServers
+                        );
+                        ms.send(dp);
+
+                        aUDP.join();
+                        return;
                     }
                     case "ABORT"->{
                         info.setMsgAtualiza("ABORT");
@@ -223,7 +240,8 @@ public class Servidor {
                     }
                 }
             }
-            // manda inteiro para não crashar // usamos Atomic Integer pois é independente de sincronização
+            // usamos Atomic Integer pois é independente de sincronização
+            System.out.println("Info antes de Enviar Atualiza Servidor: \n" + info);
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ObjectOutputStream oos = new ObjectOutputStream(baos);
             oos.writeUnshared(info);
@@ -237,6 +255,8 @@ public class Servidor {
             ms.send(dp);
 
         } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
     }

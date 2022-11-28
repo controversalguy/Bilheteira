@@ -41,11 +41,11 @@ public class ListenHeartBeat extends Thread{
                 info = (Informacoes) ois.readObject();
                 synchronized (listaServidores) {
                     //Informacoes info = new Informacoes(msg.getPortoServer(),msg.getIp(),msg.getLigacoesTCP());
-                    if(!listaServidores.contains(info) && info.isDisponivel())
+                    if (!listaServidores.contains(info) /*&& info.isDisponivel()*/) //TODO
                         listaServidores.add(info);
                     else { // se já existir
                         //System.out.println("EXISTE BABY");
-                        listaServidores.set(listaServidores.lastIndexOf(info),info);
+                        listaServidores.set(listaServidores.lastIndexOf(info), info);
                         //System.out.println("Info existente: "+ info);
                     }
                     Comparator<Informacoes> compare = new InformacoesComparator();
@@ -53,29 +53,34 @@ public class ListenHeartBeat extends Thread{
 
                     //System.out.println("ListenHeartBeat: " + listaServidores);
                 }
-                if(info.getMsgAtualiza() != null)
-                    if(info.getMsgAtualiza().equals("Prepare")) {
+                if (info.getMsgAtualiza() != null) {
+                    if (info.getMsgAtualiza().equalsIgnoreCase("PREPARE")) {
                         System.out.println("ListenHeartBeatAtualiza" + info);
                         enviaUDP(info.getPortoUDPAtualiza(), info.getVersaoBdAtualiza(), info.getIp());
-                        int seconds = 3000;
-                        ms.setSoTimeout(seconds);
+                        while (true) {
+                            ms.receive(dp);
                             bais = new ByteArrayInputStream(dp.getData());
                             try {
                                 ois = new ObjectInputStream(bais);
+                                info = (Informacoes) ois.readObject();
                             } catch (IOException e) {
                                 throw new RuntimeException(e);
                             }
-
-                            info = (Informacoes) ois.readObject();
-                            if (info.getMsgAtualiza().equals("Commit")) {
-
-                            } else if (info.getMsgAtualiza().equals("Abort")) {
-
+                            if (info.getMsgAtualiza() != null) {
+                                System.out.println("MSG ATUALIZA LISTEN: " + info.getMsgAtualiza());
+                                if (info.getMsgAtualiza().equalsIgnoreCase("Commit")) {
+                                    System.out.println("Recebi Commit");
+                                    break;
+                                } else if (info.getMsgAtualiza().equalsIgnoreCase("Abort")) {
+                                    System.out.println("Recebi Abort");
+                                    break;
+                                }
                             }
-                        }else if(info.getMsgAtualiza().equals("Abort")){
-                        //   info.setDisponivel(true);
+                        }
+                        System.out.println("RECEBA MM HEIN LISTEN");
                     }
-                    } catch (SocketException e) {
+                }
+            } catch (SocketException e) {
                 throw new RuntimeException(e);
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -93,6 +98,8 @@ public class ListenHeartBeat extends Thread{
         ObjectOutputStream oos = new ObjectOutputStream(baos);
         Msg msg = new Msg();
         msg.setVersaoBdAtualizada(versaoBdAtualizada);
+
+        System.out.println("EU MANDEIIIIIII");
 
         oos.writeUnshared(msg);
         byte[] messageBytes = baos.toByteArray();

@@ -16,7 +16,7 @@ public class ConnDB
         DATABASE_URL =  "jdbc:sqlite:" + dBName;
         System.out.println(DATABASE_URL);
         dbConn = DriverManager.getConnection(DATABASE_URL);
-        versaoDB = new AtomicInteger(1);
+        versaoDB = new AtomicInteger(12);
         //clear();
     }
     public void criaTabelas()
@@ -163,7 +163,9 @@ public class ConnDB
     public void incrementaVersao() {
         versaoDB.getAndIncrement();
     }
-
+    public void setVersaoDB(int versaoDB) {
+        ConnDB.versaoDB.getAndSet(versaoDB);
+    }
     public void decrementaVersao() {
         versaoDB.getAndDecrement();
     }

@@ -44,7 +44,7 @@ public class ComunicaTCP extends Thread {
 
                         System.out.println("[INFO] A clonar DataBase...");
                         disponivel.getAndSet(false);
-                        Servidor.atualiza( null,-2);
+                        Servidor.atualiza( "CloneMyDB",-2);
                         FileInputStream fis = new FileInputStream(dbName);
                         byte[] bufferClient = new byte[4000];
                         int nBytes;
@@ -68,7 +68,7 @@ public class ComunicaTCP extends Thread {
                         synchronized (listaOos) {
                             if (!listaOos.contains(oos)) {
                                 listaOos.add(oos);
-                                Servidor.atualiza(null,-3);
+                                Servidor.atualiza("listaOos",-3);
                             }
                         }
                         System.out.println("COMUNICATCP:" + msgSocket.getMsg());
