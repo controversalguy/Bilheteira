@@ -124,6 +124,7 @@ public class ListenHeartBeat extends Thread{
         Msg msg = new Msg();
         try {
             Iterator<Informacoes> iterator = listaServidores.iterator();
+
             while (iterator.hasNext()) {
                 Informacoes info = iterator.next();
 
