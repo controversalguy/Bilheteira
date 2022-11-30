@@ -16,7 +16,7 @@ public class ClientData {
     String ipClient;
     int portUDP;
     ArrayList<Informacoes> listaServidores;
-
+    ObjectOutputStream oos;
     public ClientData(String ipClient, int portUDP) {
         this.ipClient = ipClient;
         this.portUDP = portUDP;
@@ -83,6 +83,8 @@ public class ClientData {
             try {
                 sClient = new Socket(info.getIp(), info.getPorto());
                 System.out.println("Connectei-me ao Servidor...[" + sClient.getPort() + "]");
+                OutputStream os = sClient.getOutputStream();
+                oos = new ObjectOutputStream(os);
                 ServerSearch ss = new ServerSearch(listaServidores, sClient, this);
                 ss.start();
                 return true;
@@ -98,10 +100,7 @@ public class ClientData {
 
     public boolean enviaInfo(ArrayList<String> temp) {
         try {
-            OutputStream os = sClient.getOutputStream();
-            ObjectOutputStream oos = new ObjectOutputStream(os);
-            String a = "Olá";
-            oos.reset();
+
             oos.writeUnshared(temp);
         } catch (IOException e) {
             throw new RuntimeException(e);
