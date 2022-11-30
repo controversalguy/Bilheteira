@@ -3,6 +3,8 @@ package Model.fsm;
 import Model.Servidor.Cliente;
 import Model.data.ClientData;
 
+import java.util.ArrayList;
+
 abstract class ClientAdapter implements IClientState {
     ClientContext context;
     ClientData data;
@@ -13,7 +15,7 @@ abstract class ClientAdapter implements IClientState {
     }
 
     @Override
-    public boolean regista(String email, String username, String password) {
+    public boolean regista(ArrayList<String> temp) {
         return false;
     }
 }

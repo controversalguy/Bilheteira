@@ -1,9 +1,13 @@
 package Ui;
 
 import Model.Servidor.Cliente;
+import Model.data.info;
 import Model.fsm.ClientContext;
 import utils.PDInput;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Scanner;
 
 public class ClienteUI {
@@ -39,11 +43,12 @@ public class ClienteUI {
     }
 
     private void registoUI() {
-        String email = PDInput.readString("Email: ",false );
+        String name = PDInput.readString("Name: ",false );
         String username = PDInput.readString("Username: ", false);
         String password = PDInput.readString("Password: ", false);
-
-        fsm.regista(email, username, password);
+        ArrayList <String> temp = new ArrayList<>();
+        Collections.addAll(temp, String.valueOf(info.REGISTA_USER),name,username,password);
+        fsm.regista(temp);
     }
 
     private void loginUI() {

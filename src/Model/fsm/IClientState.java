@@ -1,7 +1,8 @@
 package Model.fsm;
 
+import java.util.ArrayList;
+
 public interface IClientState {
     ClientState getState();
-
-    boolean regista(String email, String username, String password);
+    boolean regista(ArrayList<String> temp);
 }

@@ -35,41 +35,48 @@ public class ComunicaTCP extends Thread {
                 ObjectInputStream oisSocket = new ObjectInputStream(is);
                 ObjectOutputStream oos = new ObjectOutputStream(os);
                 while (threadCorre.get()){
-                    Msg msgSocket = (Msg) oisSocket.readObject();
-                    if(msgSocket.getMsg()!=null){
-                        if(msgSocket.getMsg().equals("CloneBD")) {
+                    Object msgSocket = oisSocket.readObject();
+                    System.out.println("MSGSOCKETCARALHOSMAFODA: " + msgSocket);
+                    if(msgSocket instanceof Msg){
+                        Msg msgSockett = (Msg) msgSocket;
+                        if(msgSockett.getMsg()!=null){
+                            if(msgSockett.getMsg().equals("CloneBD")) {
 
-                            System.out.println("[INFO] A clonar DataBase...");
-                            disponivel.getAndSet(false);
-                            Servidor.atualiza( "CloneMyDB",-2);
-                            FileInputStream fis = new FileInputStream(dbName);
-                            byte[] bufferClient = new byte[4000];
-                            int nBytes;
-                            do{
-                                nBytes = fis.read(bufferClient);
-                                Msg msg = new Msg();
-                                msg.setMsgBuffer(bufferClient);
-                                msg.setMsgSize(nBytes);
-                                if(nBytes == -1){
-                                    msg.setMsgBuffer(new byte[4000]);
-                                    msg.setMsgSize(0);
-                                    msg.setLastPacket(true);
-                                }else
-                                    msg.setLastPacket(false);
-                                oos.reset();
-                                oos.writeUnshared(msg);
+                                System.out.println("[INFO] A clonar DataBase...");
+                                disponivel.getAndSet(false);
+                                Servidor.atualiza( "CloneMyDB",-2);
+                                FileInputStream fis = new FileInputStream(dbName);
+                                byte[] bufferClient = new byte[4000];
+                                int nBytes;
+                                do{
+                                    nBytes = fis.read(bufferClient);
+                                    Msg msg = new Msg();
+                                    msg.setMsgBuffer(bufferClient);
+                                    msg.setMsgSize(nBytes);
+                                    if(nBytes == -1){
+                                        msg.setMsgBuffer(new byte[4000]);
+                                        msg.setMsgSize(0);
+                                        msg.setLastPacket(true);
+                                    }else
+                                        msg.setLastPacket(false);
+                                    oos.reset();
+                                    oos.writeUnshared(msg);
 
-                            }while(nBytes != -1);
-                        }
-                    } else { // quando recebe cliente
-                        synchronized (listaOos) {
-                            if (!listaOos.contains(oos)) {
-                                listaOos.add(oos);
-                                Servidor.atualiza("listaOos",-3);
+                                }while(nBytes != -1);
                             }
+                        } else { // quando recebe cliente
+                            synchronized (listaOos) {
+                                if (!listaOos.contains(oos)) {
+                                    listaOos.add(oos);
+                                    Servidor.atualiza("listaOos",-3);
+                                }
+                            }
+                            System.out.println("COMUNICATCP:" + msgSockett.getMsg());
                         }
-                        System.out.println("COMUNICATCP:" + msgSocket.getMsg());
+                    }else {
+                        System.out.println("MSGSOCKET: " + msgSocket);
                     }
+
                 }
             } catch (ClassNotFoundException e) {
                 System.out.println("Classe Não encontrada");

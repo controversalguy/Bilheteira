@@ -2,6 +2,8 @@ package Model.fsm;
 
 import Model.data.ClientData;
 
+import java.util.ArrayList;
+
 public class ClientContext {
     private IClientState state;
     ClientData data;
@@ -20,8 +22,8 @@ public class ClientContext {
         return data.connectaTCPServidor();
     }
 
-    public boolean regista(String email, String username, String password) {
-        return state.regista(email,username,password);
+    public boolean regista(ArrayList<String> temp) {
+        return state.regista(temp);
     }
 
     public boolean conectaUDP() {

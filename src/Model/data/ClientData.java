@@ -9,17 +9,20 @@ import java.net.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+;
+
 public class ClientData {
     Socket sClient;
     String ipClient;
     int portUDP;
-    ArrayList <Informacoes> listaServidores;
+    ArrayList<Informacoes> listaServidores;
+
     public ClientData(String ipClient, int portUDP) {
         this.ipClient = ipClient;
         this.portUDP = portUDP;
     }
 
-    public boolean connectaServidorUDP(){
+    public boolean connectaServidorUDP() {
         try {
             DatagramSocket ds = new DatagramSocket();
 
@@ -50,8 +53,6 @@ public class ClientData {
                     break;
             }
 
-            // listaServidores.get(0).setPorto(1);
-            // listaServidores.get(1).setPorto(2);
             System.out.println("ListaServidores: " + listaServidores);
             ds.close();
             return true;
@@ -71,6 +72,7 @@ public class ClientData {
 
 
     }
+
     public boolean connectaTCPServidor() {
         Iterator<Informacoes> it = listaServidores.iterator();
         Informacoes info;
@@ -81,15 +83,28 @@ public class ClientData {
             try {
                 sClient = new Socket(info.getIp(), info.getPorto());
                 System.out.println("Connectei-me ao Servidor...[" + sClient.getPort() + "]");
-                ServerSearch ss = new ServerSearch(listaServidores,sClient,this);
+                ServerSearch ss = new ServerSearch(listaServidores, sClient, this);
                 ss.start();
                 return true;
             } catch (ConnectException e) {
                 System.out.println("Não me consegui conectar ao porto: [" + info.getPorto() + "]");
 
-            }catch (IOException e ){
+            } catch (IOException e) {
                 System.out.println("IOEXCEPTION BACANA");
             }
+        }
+        return false;
+    }
+
+    public boolean enviaInfo(ArrayList<String> temp) {
+        try {
+            OutputStream os = sClient.getOutputStream();
+            ObjectOutputStream oos = new ObjectOutputStream(os);
+            String a = "Olá";
+            oos.reset();
+            oos.writeUnshared(temp);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
         return false;
     }

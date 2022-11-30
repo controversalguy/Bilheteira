@@ -2,16 +2,16 @@ package Model.fsm;
 
 import Model.data.ClientData;
 
+import java.util.ArrayList;
+
 public class AutenticaState extends ClientAdapter {
     public AutenticaState(ClientContext context, ClientData data) {
         super(context,data);
     }
 
     @Override
-    public boolean regista(String email, String username, String password) {
-
-
-        return false;
+    public boolean regista(ArrayList<String> temp) {
+        return data.enviaInfo(temp);
     }
 
     @Override
