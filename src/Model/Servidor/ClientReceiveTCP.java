@@ -8,12 +8,12 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ClientReceiveTCP extends Thread {
     ArrayList<Informacoes> listaServidores; //todo ATUALIZAR CONECTA
     Socket sClient;
     ClientData data;
-
     public ClientReceiveTCP(ArrayList<Informacoes> listaServidores, Socket sClient, ClientData data) {
         this.listaServidores = listaServidores;
         this.sClient = sClient;
@@ -56,8 +56,9 @@ public class ClientReceiveTCP extends Thread {
         } catch (SocketException e) {
             System.out.println("ListaServersClienteAOFECHAR: " + listaServidores);
             if(!data.connectaTCPServidor()) {
-                System.out.println("XAU");
+                throw new RuntimeException("ClientReceiveTCP Encerrou...");
             }
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

@@ -17,6 +17,7 @@ public class ConnDB
         System.out.println(DATABASE_URL);
         dbConn = DriverManager.getConnection(DATABASE_URL);
         versaoDB = new AtomicInteger(1);
+        inicializaAutenticado();
 //        Statement statement = dbConn.createStatement();
 //        String sqlQuery2 = "INSERT INTO utilizador VALUES (0,'xicao','Francisco','IS3C..00',0,0)";
 //        statement.executeUpdate(sqlQuery2);
@@ -144,7 +145,7 @@ public class ConnDB
             if (username.equals("admin") && password.equals("admin")){
                 return MensagensRetorno.ADMIN_NAO_PODE_REGISTAR;
             }
-            verificaExistente += " WHERE nome = '" + name + "' AND username = '" + username + "' AND password = '" + password + "'";
+            verificaExistente += " WHERE nome = '" + name + "' AND username = '" + username + "'";
             ResultSet resultSet = statement.executeQuery(verificaExistente);
             if (!resultSet.next()) {
 
@@ -162,6 +163,28 @@ public class ConnDB
         }
         statement.close();
         return  MensagensRetorno.CLIENTE_JA_REGISTADO;
+    }
+
+    public void inicializaAutenticado() throws SQLException {
+        Statement statement = dbConn.createStatement();
+        String sqlQuery = "UPDATE utilizador SET autenticado='" + 0 + "' WHERE autenticado=" + 1;
+        statement.executeUpdate(sqlQuery);
+
+        String verificaExistente = "SELECT * FROM utilizador";
+
+        verificaExistente += " WHERE username = '" + "admin" + "' AND password = '" + "admin" + "'";
+        ResultSet resultSet = statement.executeQuery(verificaExistente);
+        if (!resultSet.next()) {
+
+            ResultSet r = statement.executeQuery("SELECT COUNT(*) FROM utilizador");
+            r.next();
+            int count = r.getInt(1);
+            r.close();
+            System.out.println("MyTable has " + count + " row(s).");
+            String user = "INSERT INTO utilizador VALUES ('" + count + "','" + "admin" + "','" + "admin" + "','" + "admin" + "','" + 1 + "','" + 0 + "')";
+            statement.executeUpdate(user);
+            statement.close();
+        }
     }
 
     public String logaUser(String username, String password) throws SQLException

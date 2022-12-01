@@ -19,8 +19,8 @@ public class ClientContext {
         return state.getState();
     }
 
-    public boolean conectaTCP(){
-        return data.connectaTCPServidor();
+    public void conectaTCP(){
+        data.connectaTCPServidor();
     }
 
     public boolean regista(ArrayList<String> temp) {

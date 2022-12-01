@@ -1,46 +1,43 @@
 package Ui;
 
-import Model.Servidor.Cliente;
 import Model.data.info;
 import Model.fsm.ClientContext;
 import utils.PDInput;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class ClienteUI {
+public class ClienteUI{
     Scanner sc;
     ClientContext fsm;
 
-    boolean finish = false;
-
-
+    AtomicBoolean finish = new AtomicBoolean(false);
     public ClienteUI(ClientContext fsm) {
         this.fsm = fsm;
         sc = new Scanner(System.in);
+
     }
-
     public void start() {
-        fsm.conectaUDP();
-        boolean c = fsm.conectaTCP();
-        while (!finish && c) {
-            switch (fsm.getState()) {
-                case AUTENTICA -> autenticaUI();
-                //case ESPETACULO -> espetaculoUI();
+
+            fsm.conectaUDP();
+            fsm.conectaTCP();
+
+            while (!finish.get()) {
+                switch (fsm.getState()) {
+                    case AUTENTICA -> autenticaUI();
+                    //case ESPETACULO -> espetaculoUI();
+                }
             }
-        }
-
-
     }
 
     private void autenticaUI() {
         switch (PDInput.chooseOption("*** Autentica State ***", "Registo", "Login", "Quit")) {
-            case 1 -> registoUI();
-            case 2 -> loginUI();
-            default -> finish = true;
+            case 1 -> {
+                System.out.println("finish: " + finish);if(!finish.get())registoUI();}
+            case 2 -> {if(!finish.get())loginUI();}
+            default -> finish.getAndSet(true);
         }
     }
 
@@ -60,5 +57,4 @@ public class ClienteUI {
         Collections.addAll(temp, String.valueOf(info.LOGIN_USER),username,password);
         fsm.login(temp);
     }
-
 }

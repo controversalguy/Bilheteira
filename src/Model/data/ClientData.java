@@ -8,9 +8,10 @@ import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-;
+;import static java.lang.System.exit;
 
 public class ClientData {
     Socket sClient;
@@ -37,13 +38,20 @@ public class ClientData {
 
             DatagramPacket dp = new DatagramPacket(messageBytes, messageBytes.length, ipServer, portUDP);
             ds.send(dp);
+
             Msg msgTCP;
 
             listaServidores = new ArrayList<>();
 
             while (true) {
+                try {
+                    ds.setSoTimeout(1000);
+                    ds.receive(dp);
 
-                ds.receive(dp);
+                }catch (SocketTimeoutException e){
+                    System.out.println("Nenhum servidor ativo com o porto UDP 1[" + portUDP + "]!");
+                    exit(0);
+                }
 
                 ByteArrayInputStream bais = new ByteArrayInputStream(dp.getData());
                 ObjectInputStream ois = new ObjectInputStream(bais);
@@ -75,30 +83,34 @@ public class ClientData {
     }
 
     public boolean connectaTCPServidor() {
-
+        Informacoes info = null;
+        try {
         System.out.println("ListaServersClienteAOABRIR: " + listaServidores);
         Iterator<Informacoes> it = listaServidores.iterator();
-        Informacoes info;
+        //Informacoes info = null;
 
         while (it.hasNext()) {
             info = it.next();
             System.out.println("Porto do next: " + info.getPorto());
-            try {
-                sClient = new Socket(info.getIp(), info.getPorto());
-                System.out.println("Connectei-me ao Servidor...[" + sClient.getPort() + "]");
-                OutputStream os = sClient.getOutputStream();
-                oos = new ObjectOutputStream(os);
-                ClientReceiveTCP crTCP = new ClientReceiveTCP(listaServidores, sClient, this);
-                crTCP.start();
-                return true;
-            } catch (ConnectException e) {
-                System.out.println("Não me consegui conectar ao porto: [" + info.getPorto() + "]");
 
-            } catch (IOException e) {
-                System.out.println("IOEXCEPTION BACANA");
-            }
+            sClient = new Socket(info.getIp(), info.getPorto());
+            System.out.println("Connectei-me ao Servidor...[" + sClient.getPort() + "]");
+            OutputStream os = sClient.getOutputStream();
+            oos = new ObjectOutputStream(os);
+
+            Thread.UncaughtExceptionHandler h = (th, ex) -> {System.out.println(ex.getMessage());  exit(0);};
+            ClientReceiveTCP crTCP = new ClientReceiveTCP(listaServidores, sClient, this);
+            crTCP.start();
+            crTCP.setUncaughtExceptionHandler(h);
+            return true;
         }
-        System.out.println("DA NADA");
+
+        } catch (ConnectException e) {
+            System.out.println("Não me consegui conectar ao porto: [" + info.getPorto() + "]");
+
+        } catch (IOException e) {
+            System.out.println("IOEXCEPTION");
+        }
         return false;
     }
 
