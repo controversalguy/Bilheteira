@@ -14,10 +14,8 @@ public class ConnDB
     public ConnDB(String dBName) throws SQLException {//
         this.dbName = dBName;
         DATABASE_URL =  "jdbc:sqlite:" + dBName;
-        System.out.println(DATABASE_URL);
         dbConn = DriverManager.getConnection(DATABASE_URL);
         versaoDB = new AtomicInteger(1);
-        inicializaAutenticado();
 //        Statement statement = dbConn.createStatement();
 //        String sqlQuery2 = "INSERT INTO utilizador VALUES (0,'xicao','Francisco','IS3C..00',0,0)";
 //        statement.executeUpdate(sqlQuery2);

@@ -71,7 +71,7 @@ public class ListenHeartBeat extends Thread{
                     if (info.getMsgAtualiza().equalsIgnoreCase("PREPARE")) {
                         System.out.println("ListenHeartBeatAtualiza" + info);
                         enviaUDP(info.getPortoUDPAtualiza(), info.getVersaoBdAtualiza(), info.getIp());
-                        while (true) {
+                        while (true) { //TODO TIMER
                             ms.receive(dp);
                             bais = new ByteArrayInputStream(dp.getData());
                             try {

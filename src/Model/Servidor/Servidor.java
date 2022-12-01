@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static java.lang.System.exit;
 import static java.lang.Thread.sleep;
 
 enum tiposErro {
@@ -117,7 +118,7 @@ public class Servidor {
         } finally {
             System.out.println("[INFO] A encerrar sessão...");
             threadCorre.getAndSet(false);
-
+            exit(0);
             for (Thread t : allThreads) {
                 t.join();
             }
@@ -126,6 +127,7 @@ public class Servidor {
             ms.close();
         }
     }
+
 
     private static ConnDB faseDeArranque(ArrayList<Informacoes> listaServidores) {
         ConnDB connDB;
@@ -143,10 +145,9 @@ public class Servidor {
                     if(!verificaVersao(connDB))
                         connDB.criaTabelas();
                 }
+                connDB.inicializaAutenticado();
             }
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        } catch (SQLException | IOException e) {
+        } catch (InterruptedException | SQLException | IOException e) {
             throw new RuntimeException(e);
         }
         return connDB;
@@ -208,13 +209,12 @@ public class Servidor {
             String currentTime = now.format(dateTimeFormatter);
 
             Informacoes info = new Informacoes(portServer, ipServer, ligacoesTCP.get(), currentTime, connDB.getVersao().get(), disponivel.get());
-            info.setDbName(connDB.getDbName());
             if(msg!=null){
-                System.out.println("msg: " + msg);
+                System.out.println("RECEBIATUALIZMSG: " + msg);
                 switch (msg.toUpperCase()){
                     case "PREPARE"-> {
                         info.setMsgAtualiza("Prepare");
-                        System.out.println("RECEBA");
+                        System.out.println("DENTRO DO PREPARE");
                         DatagramSocket ds = new DatagramSocket(0);
                         info.setPortoUDPAtualiza(ds.getLocalPort());
                         info.setVersaoBdAtualiza(valMaior);

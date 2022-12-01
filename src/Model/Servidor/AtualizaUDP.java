@@ -33,13 +33,11 @@ public class AtualizaUDP extends Thread{
 
     @Override
     public void run() {
-        System.out.println("para de ser burro xico");
         DatagramPacket dp = new DatagramPacket(new byte[255],255);
-        System.out.println("CABRRO");
         synchronized (listaServidores){
             Iterator<Informacoes> it = listaServidores.iterator();
             System.out.println("ItAntes: "+ it.hasNext());
-            while(it.hasNext() && threadCorre.get()){
+            while(it.hasNext() && threadCorre.get()){ // todo VERIIFCAR DB VERSAO
                 it.next();
                 System.out.println("It: "+ it.hasNext());
                 try {

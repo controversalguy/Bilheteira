@@ -51,7 +51,7 @@ public class ComunicaTCP extends Thread {
             synchronized (listaOos) {
                 if (!listaOos.contains(oos)) {
                     listaOos.add(oos);
-                    Servidor.atualiza("listaOos", -3);
+                    //Servidor.atualiza("listaOos", -3);
 
                     synchronized (listaServidores) {
                         Comparator<Informacoes> compare = new InformacoesComparator();
@@ -101,7 +101,9 @@ public class ComunicaTCP extends Thread {
                 } else if (msgSocket instanceof ArrayList<?>) {
                     ArrayList<?> msgSockett = (ArrayList<?>) msgSocket;
                     Msg msg = new Msg();
-                    System.out.println(msgSockett.get(0));
+
+                    Servidor.atualiza("Prepare",connDB.getVersao().get() + 1);
+
                     switch ((String) msgSockett.get(0)) {
                         case "REGISTA_USER" -> {
                             switch (connDB.insertUser((String) msgSockett.get(1), (String) msgSockett.get(2), (String) msgSockett.get(3))) {
@@ -110,6 +112,7 @@ public class ComunicaTCP extends Thread {
                                 }
                                 case CLIENTE_REGISTADO_SUCESSO -> {
                                     msg.setMsg("\nCliente registado com sucesso!");
+
                                     //commit
                                 }
 

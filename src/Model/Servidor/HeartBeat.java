@@ -63,9 +63,7 @@ public class HeartBeat extends Thread  {
                 ms.send(dp);
 
                 sleep(3000); //mudar para 10 TODO
-            } catch ( IOException e) {
-                throw new RuntimeException(e);
-            } catch (InterruptedException e) {
+            } catch (IOException | InterruptedException e) {
                 throw new RuntimeException(e);
             }
         }
