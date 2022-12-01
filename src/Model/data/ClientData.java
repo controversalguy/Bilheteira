@@ -8,6 +8,7 @@ import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 ;
 
@@ -74,6 +75,8 @@ public class ClientData {
     }
 
     public boolean connectaTCPServidor() {
+
+        System.out.println("ListaServersClienteAOABRIR: " + listaServidores);
         Iterator<Informacoes> it = listaServidores.iterator();
         Informacoes info;
 
@@ -95,6 +98,7 @@ public class ClientData {
                 System.out.println("IOEXCEPTION BACANA");
             }
         }
+        System.out.println("DA NADA");
         return false;
     }
 

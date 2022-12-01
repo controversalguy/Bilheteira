@@ -5,7 +5,9 @@ import utils.Msg;
 import java.io.*;
 import java.net.*;
 import java.sql.SQLException;
+import java.sql.SQLOutput;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -20,6 +22,7 @@ public class ComunicaTCP extends Thread {
     AtomicBoolean disponivel;
     AtomicBoolean threadCorre;
     ArrayList<Informacoes> listaServidores;
+
     public ComunicaTCP(Socket socketCli, AtomicInteger ligacoesTCP, String dbName, AtomicBoolean disponivel,
                        ArrayList<ObjectOutputStream> listaOos, AtomicBoolean threadCorre, ArrayList<Informacoes> listaServidores) {
         this.socketCli = socketCli;
@@ -34,7 +37,12 @@ public class ComunicaTCP extends Thread {
     @Override
     public void run() {
         try {
+
             ligacoesTCP.getAndIncrement();
+
+            System.out.println("MAIS UM CLIENTE PA CONTA");
+
+
             InputStream is = socketCli.getInputStream();
             OutputStream os = socketCli.getOutputStream();
             ObjectInputStream oisSocket = new ObjectInputStream(is);
@@ -44,8 +52,19 @@ public class ComunicaTCP extends Thread {
                 if (!listaOos.contains(oos)) {
                     listaOos.add(oos);
                     Servidor.atualiza("listaOos", -3);
+
+                    synchronized (listaServidores) {
+                        Comparator<Informacoes> compare = new InformacoesComparator();
+                        listaServidores.sort(compare);
+                    }
+
+                    for (ObjectOutputStream o : listaOos) {
+                        System.out.println("ERROUUUUUUUUUUUUUUUUUUUUUUUUU");
+                        enviaListaServidoresAtualizada(o);
+                    }
                 }
             }
+
             //System.out.println("COMUNICATCP:" + msgSockett.getMsg())
 
             while (threadCorre.get()) {
@@ -84,26 +103,30 @@ public class ComunicaTCP extends Thread {
                     Msg msg = new Msg();
                     System.out.println(msgSockett.get(0));
                     switch ((String) msgSockett.get(0)) {
-                        case "REGISTA_USER" ->  {
-                            switch(connDB.insertUser((String) msgSockett.get(1), (String) msgSockett.get(2), (String) msgSockett.get(3))){
-                                case ADMIN_NAO_PODE_REGISTAR -> {msg.setMsg("\nImpossível registar como admin");}
-                                case CLIENTE_REGISTADO_SUCESSO -> {msg.setMsg("\nCliente registado com sucesso!");
+                        case "REGISTA_USER" -> {
+                            switch (connDB.insertUser((String) msgSockett.get(1), (String) msgSockett.get(2), (String) msgSockett.get(3))) {
+                                case ADMIN_NAO_PODE_REGISTAR -> {
+                                    msg.setMsg("\nImpossível registar como admin");
+                                }
+                                case CLIENTE_REGISTADO_SUCESSO -> {
+                                    msg.setMsg("\nCliente registado com sucesso!");
                                     //commit
                                 }
 
-                                case CLIENTE_JA_REGISTADO -> {msg.setMsg("\nCliente já registado!");}
+                                case CLIENTE_JA_REGISTADO -> {
+                                    msg.setMsg("\nCliente já registado!");
+                                }
                             }
                         }
-                        case "LOGIN_USER" ->  {
+                        case "LOGIN_USER" -> {
                             String str = connDB.logaUser((String) msgSockett.get(1), (String) msgSockett.get(2));
-                            msg.setMsg("\n"+str);
+                            msg.setMsg("\n" + str);
                         }
 
                     }
                     oos.writeUnshared(msg);
 
                 }
-
             }
         } catch (ClassNotFoundException e) {
             System.out.println("Classe Não encontrada");
@@ -128,10 +151,10 @@ public class ComunicaTCP extends Thread {
 
                 while (iterator.hasNext()) {
                     Informacoes info = iterator.next();
-
                     msg.setPortoServer(info.getPorto());
                     msg.setIp(info.getIp());
                     msg.setLigacoesTCP(info.getLigacoes());
+                    msg.setIndex(listaServidores.indexOf(info));
                     System.out.println("MSGATUALIZA: " + msg);
                     if (!iterator.hasNext()) {
                         msg.setLastPacket(true);

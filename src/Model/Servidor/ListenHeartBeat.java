@@ -48,6 +48,8 @@ public class ListenHeartBeat extends Thread{
                     if (!listaServidores.contains(info)){
                         /*&& info.isDisponivel()*/
                         listaServidores.add(info);
+                        Comparator<Informacoes> compare = new InformacoesComparator();
+                        listaServidores.sort(compare);
 
                         for (ObjectOutputStream os: listOos) {
                             enviaListaServidoresAtualizada(os);
@@ -57,9 +59,11 @@ public class ListenHeartBeat extends Thread{
                         //System.out.println("EXISTE BABY");
                         listaServidores.set(listaServidores.lastIndexOf(info), info);
                         //System.out.println("Info existente: "+ info);
+
+                        Comparator<Informacoes> compare = new InformacoesComparator();
+                        listaServidores.sort(compare);
                     }
-                    Comparator<Informacoes> compare = new InformacoesComparator();
-                    listaServidores.sort(compare);
+
 
                     //System.out.println("ListenHeartBeat: " + listaServidores);
                 }
@@ -131,6 +135,7 @@ public class ListenHeartBeat extends Thread{
                 msg.setPortoServer(info.getPorto());
                 msg.setIp(info.getIp());
                 msg.setLigacoesTCP(info.getLigacoes());
+                msg.setIndex(listaServidores.indexOf(info));
                 System.out.println("MSGATUALIZA: " + msg);
                 if (!iterator.hasNext()) {
                     msg.setLastPacket(true);

@@ -52,6 +52,7 @@ public class ListenUDP extends Thread {
 
                     //System.out.println("Port: "+info.getPorto()+ " Ip: "+info.getIp()+ "LigacoesTCP: " + info.getLigacoes());
                     msgTCP.setLigacoesTCP(info.getLigacoes());
+                    msg.setIndex(listaServidores.indexOf(info));
                     // Msg msgTCP = new Msg("Ola Sou Servidor",ss.getLocalPort());
 
                     oos.writeUnshared(msgTCP);

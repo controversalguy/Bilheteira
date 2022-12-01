@@ -10,7 +10,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 public class ClientReceiveTCP extends Thread {
-    ArrayList<Informacoes> listaServidores;
+    ArrayList<Informacoes> listaServidores; //todo ATUALIZAR CONECTA
     Socket sClient;
     ClientData data;
 
@@ -35,6 +35,9 @@ public class ClientReceiveTCP extends Thread {
                     if(msgTCP.getMsg()!=null){
                         System.out.println(msgTCP.getMsg());
                     }else{
+                        if(msgTCP.getIndex() == 0) //se for o primeiro, volta a ordenar
+                            listaServidores.clear();
+
                         Informacoes info1 = new Informacoes(msgTCP.getPortoServer(), msgTCP.getIp(), msgTCP.getLigacoesTCP());
                         if (!listaServidores.contains(info1)) //se nao tiver na lista
                             listaServidores.add(info1);
@@ -51,7 +54,10 @@ public class ClientReceiveTCP extends Thread {
         } catch (UnknownHostException | ClassNotFoundException e) {
             e.printStackTrace();
         } catch (SocketException e) {
-            data.connectaTCPServidor();
+            System.out.println("ListaServersClienteAOFECHAR: " + listaServidores);
+            if(!data.connectaTCPServidor()) {
+                System.out.println("XAU");
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

@@ -17,6 +17,7 @@ public class Informacoes implements Serializable {
     private String msgAtualiza;
     private int portoUDPAtualiza;
     private int versaoBdAtualiza;
+    private int index;
     public Informacoes(Integer porto, String ip, int ligacoes,String currentTime) {
         this.porto = porto;
         this.ip = ip;
@@ -38,6 +39,15 @@ public class Informacoes implements Serializable {
         this.ip = ip;
         this.ligacoes = ligacoes;
     }
+
+    public int getIndex() {
+        return index;
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
+    }
+
     public int getVersaoBdAtualiza() {return versaoBdAtualiza;}
     public void setVersaoBdAtualiza(int versaoBdAtualiza) {this.versaoBdAtualiza = versaoBdAtualiza;}
     public int getPortoUDPAtualiza() {

@@ -9,9 +9,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Scanner;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ClienteUI {
-    Cliente cliente;
     Scanner sc;
     ClientContext fsm;
 
@@ -23,15 +23,17 @@ public class ClienteUI {
         sc = new Scanner(System.in);
     }
 
-    public void start(){
+    public void start() {
         fsm.conectaUDP();
-        fsm.conectaTCP();
-        while (!finish) {
+        boolean c = fsm.conectaTCP();
+        while (!finish && c) {
             switch (fsm.getState()) {
                 case AUTENTICA -> autenticaUI();
                 //case ESPETACULO -> espetaculoUI();
             }
         }
+
+
     }
 
     private void autenticaUI() {

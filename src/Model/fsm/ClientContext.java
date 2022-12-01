@@ -3,6 +3,7 @@ package Model.fsm;
 import Model.data.ClientData;
 
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ClientContext {
     private IClientState state;
