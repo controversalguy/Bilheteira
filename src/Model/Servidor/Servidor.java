@@ -102,7 +102,7 @@ public class Servidor {
 
             while (true) { // TODO TIRAR
                 Socket sCli = ss.accept();
-                ComunicaTCP ts = new ComunicaTCP(sCli, ligacoesTCP, dBName, disponivel, listaOos, threadCorre);
+                ComunicaTCP ts = new ComunicaTCP(sCli, ligacoesTCP, dBName, disponivel, listaOos, threadCorre,listaServidores);
                 ts.start();
                 allThreads.add(ts);
                 //atualiza( "prepare",connDB.getVersao().get());

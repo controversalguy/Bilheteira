@@ -4,9 +4,13 @@ import utils.Msg;
 
 import java.io.*;
 import java.net.*;
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static Model.Servidor.Servidor.connDB;
 
 public class ComunicaTCP extends Thread {
     Socket socketCli;
@@ -15,15 +19,16 @@ public class ComunicaTCP extends Thread {
     ArrayList<ObjectOutputStream> listaOos;
     AtomicBoolean disponivel;
     AtomicBoolean threadCorre;
-
-    public ComunicaTCP( Socket socketCli, AtomicInteger ligacoesTCP, String dbName, AtomicBoolean disponivel,
-                        ArrayList<ObjectOutputStream> listaOos, AtomicBoolean threadCorre) {
+    ArrayList<Informacoes> listaServidores;
+    public ComunicaTCP(Socket socketCli, AtomicInteger ligacoesTCP, String dbName, AtomicBoolean disponivel,
+                       ArrayList<ObjectOutputStream> listaOos, AtomicBoolean threadCorre, ArrayList<Informacoes> listaServidores) {
         this.socketCli = socketCli;
         this.ligacoesTCP = ligacoesTCP;
         this.dbName = dbName;
         this.disponivel = disponivel;
         this.listaOos = listaOos;
         this.threadCorre = threadCorre;
+        this.listaServidores = listaServidores;
     }
 
     @Override
@@ -74,8 +79,29 @@ public class ComunicaTCP extends Thread {
                             } while (nBytes != -1);
                         }
                     }
-                } else {
-                    System.out.println("MSGSOCKET: " + msgSocket);
+                } else if (msgSocket instanceof ArrayList<?>) {
+                    ArrayList<?> msgSockett = (ArrayList<?>) msgSocket;
+                    Msg msg = new Msg();
+                    System.out.println(msgSockett.get(0));
+                    switch ((String) msgSockett.get(0)) {
+                        case "REGISTA_USER" ->  {
+                            switch(connDB.insertUser((String) msgSockett.get(1), (String) msgSockett.get(2), (String) msgSockett.get(3))){
+                                case ADMIN_NAO_PODE_REGISTAR -> {msg.setMsg("\nImpossível registar como admin");}
+                                case CLIENTE_REGISTADO_SUCESSO -> {msg.setMsg("\nCliente registado com sucesso!");
+                                    //commit
+                                }
+
+                                case CLIENTE_JA_REGISTADO -> {msg.setMsg("\nCliente já registado!");}
+                            }
+                        }
+                        case "LOGIN_USER" ->  {
+                            String str = connDB.logaUser((String) msgSockett.get(1), (String) msgSockett.get(2));
+                            msg.setMsg("\n"+str);
+                        }
+
+                    }
+                    oos.writeUnshared(msg);
+
                 }
 
             }
@@ -88,7 +114,36 @@ public class ComunicaTCP extends Thread {
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
         System.out.println("[INFO] ComunicaTCP terminado com sucesso!");
     }
+    void enviaListaServidoresAtualizada(ObjectOutputStream oos) {
+        Msg msg = new Msg();
+        try {
+            synchronized (listaServidores){
+
+                Iterator<Informacoes> iterator = listaServidores.iterator();
+
+                while (iterator.hasNext()) {
+                    Informacoes info = iterator.next();
+
+                    msg.setPortoServer(info.getPorto());
+                    msg.setIp(info.getIp());
+                    msg.setLigacoesTCP(info.getLigacoes());
+                    System.out.println("MSGATUALIZA: " + msg);
+                    if (!iterator.hasNext()) {
+                        msg.setLastPacket(true);
+                    }
+                    oos.writeUnshared(msg);
+                }
+
+            }
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
+

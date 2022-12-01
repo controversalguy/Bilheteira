@@ -1,5 +1,5 @@
 package Model.data;
 
 public enum info {
-    REGISTA_USER
+    LOGIN_USER, REGISTA_USER
 }

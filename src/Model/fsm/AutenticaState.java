@@ -15,6 +15,11 @@ public class AutenticaState extends ClientAdapter {
     }
 
     @Override
+    public boolean login(ArrayList<String> temp) {
+        return data.enviaInfo(temp);
+    }
+
+    @Override
     public ClientState getState() {
         return ClientState.AUTENTICA;
     }

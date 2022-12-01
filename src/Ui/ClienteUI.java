@@ -52,7 +52,11 @@ public class ClienteUI {
     }
 
     private void loginUI() {
-
+        String username = PDInput.readString("Username: ", false);
+        String password = PDInput.readString("Password: ", false);
+        ArrayList <String> temp = new ArrayList<>();
+        Collections.addAll(temp, String.valueOf(info.LOGIN_USER),username,password);
+        fsm.login(temp);
     }
 
 }

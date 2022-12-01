@@ -136,13 +136,61 @@ public class ConnDB
         statement.close();
     }
 
-    public void insertUser(String name, String birthdate) throws SQLException
+    public MensagensRetorno insertUser(String name, String username, String password) throws SQLException
     {
         Statement statement = dbConn.createStatement();
+        String verificaExistente = "SELECT * FROM utilizador";
+        if (name != null && username != null && password != null) {
+            if (username.equals("admin") && password.equals("admin")){
+                return MensagensRetorno.ADMIN_NAO_PODE_REGISTAR;
+            }
+            verificaExistente += " WHERE nome = '" + name + "' AND username = '" + username + "' AND password = '" + password + "'";
+            ResultSet resultSet = statement.executeQuery(verificaExistente);
+            if (!resultSet.next()) {
 
-        String sqlQuery = "INSERT INTO utilizador VALUES (NULL,'" + name + "','" + birthdate + "')";
-        statement.executeUpdate(sqlQuery);
+                ResultSet r = statement.executeQuery("SELECT COUNT(*) FROM utilizador");
+                r.next();
+                int count = r.getInt(1);
+                r.close();
+                System.out.println("MyTable has " + count + " row(s).");
+                String sqlQuery = "INSERT INTO utilizador VALUES ('" + count + "','" + name + "','" + username + "','" + password + "','" + 0 + "','" + 0 + "')";
+                statement.executeUpdate(sqlQuery);
+                statement.close();
+
+                return MensagensRetorno.CLIENTE_REGISTADO_SUCESSO;
+            }
+        }
         statement.close();
+        return  MensagensRetorno.CLIENTE_JA_REGISTADO;
+    }
+
+    public String logaUser(String username, String password) throws SQLException
+    {
+        String login = null;
+        Statement statement = dbConn.createStatement();
+        String verificaExistente = "SELECT * FROM utilizador";
+        if (username != null && password != null) {
+            verificaExistente += " WHERE username = '" + username + "' AND password = '" + password + "'";
+            ResultSet resultSet = statement.executeQuery(verificaExistente);
+            if (!resultSet.next()) {
+                login =  "Dados incorretos!";
+            } else if (username.equals("admin") && password.equals("admin")){
+                int id = resultSet.getInt("id");
+                String sqlQuery = "UPDATE utilizador SET autenticado='" + 1 + "',administrador='" + 1 + "' WHERE id=" + id;
+                statement.executeUpdate(sqlQuery);
+                login = "Login efetuado como admin com sucesso!";
+            }
+            else {
+                int id = resultSet.getInt("id");
+                String sqlQuery = "UPDATE utilizador SET autenticado='" + 1 + "' WHERE id=" + id;
+                statement.executeUpdate(sqlQuery);
+                login ="Login efetuado com sucesso!";
+            }
+            resultSet.close();
+        }
+
+        statement.close();
+        return login;
     }
 
     public void updateUser(int id, String name, String birthdate) throws SQLException

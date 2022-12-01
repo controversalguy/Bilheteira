@@ -18,4 +18,9 @@ abstract class ClientAdapter implements IClientState {
     public boolean regista(ArrayList<String> temp) {
         return false;
     }
+
+    @Override
+    public boolean login(ArrayList<String> temp) {
+        return false;
+    }
 }

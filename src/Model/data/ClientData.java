@@ -1,7 +1,7 @@
 package Model.data;
 
+import Model.Servidor.ClientReceiveTCP;
 import Model.Servidor.Informacoes;
-import Model.Servidor.ServerSearch;
 import utils.Msg;
 
 import java.io.*;
@@ -85,8 +85,8 @@ public class ClientData {
                 System.out.println("Connectei-me ao Servidor...[" + sClient.getPort() + "]");
                 OutputStream os = sClient.getOutputStream();
                 oos = new ObjectOutputStream(os);
-                ServerSearch ss = new ServerSearch(listaServidores, sClient, this);
-                ss.start();
+                ClientReceiveTCP crTCP = new ClientReceiveTCP(listaServidores, sClient, this);
+                crTCP.start();
                 return true;
             } catch (ConnectException e) {
                 System.out.println("Não me consegui conectar ao porto: [" + info.getPorto() + "]");

@@ -26,6 +26,10 @@ public class ClientContext {
         return state.regista(temp);
     }
 
+    public boolean login(ArrayList<String> temp) {
+        return state.login(temp);
+    }
+
     public boolean conectaUDP() {
         return  data.connectaServidorUDP();
     }
