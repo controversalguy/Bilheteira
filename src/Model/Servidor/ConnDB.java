@@ -1,7 +1,12 @@
 package Model.Servidor;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static Model.Servidor.Servidor.connDB;
 
 public class ConnDB
 { // formato da data muito importante para nao dar erro
@@ -135,8 +140,12 @@ public class ConnDB
         statement.close();
     }
 
-    public MensagensRetorno insertUser(String name, String username, String password) throws SQLException
+    public MensagensRetorno insertUser(ArrayList<String> msgSockett) throws SQLException
     {
+        String name = msgSockett.get(1);
+        String username = msgSockett.get(2);
+        String password = msgSockett.get(3);
+
         Statement statement = dbConn.createStatement();
         String verificaExistente = "SELECT * FROM utilizador";
         if (name != null && username != null && password != null) {
@@ -147,12 +156,14 @@ public class ConnDB
             ResultSet resultSet = statement.executeQuery(verificaExistente);
             if (!resultSet.next()) {
 
+                Servidor.atualiza("Prepare",connDB.getVersao().get() + 1, msgSockett);
+
                 ResultSet r = statement.executeQuery("SELECT COUNT(*) FROM utilizador");
                 r.next();
                 int count = r.getInt(1);
                 r.close();
                 System.out.println("MyTable has " + count + " row(s).");
-                String sqlQuery = "INSERT INTO utilizador VALUES ('" + count + "','" + name + "','" + username + "','" + password + "','" + 0 + "','" + 0 + "')";
+                String sqlQuery = "INSERT INTO utilizador VALUES ('" + count + "','" + username + "','" + name + "','" + password + "','" + 0 + "','" + 0 + "')";
                 statement.executeUpdate(sqlQuery);
                 statement.close();
 

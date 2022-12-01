@@ -40,7 +40,7 @@ public class AtualizaServidorDB extends Thread {
                 if (posMaior > -1) {
                     System.out.println("ENTREI -1");
                     disponivel.getAndSet(false);
-                    Servidor.atualiza("prepare",valMaior);
+                    Servidor.atualiza("prepare",valMaior, null);
                     for (ObjectOutputStream os: listOos) {
                         enviaListaServidoresAtualizada(os);
                     }

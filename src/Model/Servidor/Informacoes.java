@@ -2,6 +2,7 @@ package Model.Servidor;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Objects;
 
 public class Informacoes implements Serializable {
@@ -18,6 +19,8 @@ public class Informacoes implements Serializable {
     private int portoUDPAtualiza;
     private int versaoBdAtualiza;
     private int index;
+
+    ArrayList<String> msgSockett;
     public Informacoes(Integer porto, String ip, int ligacoes,String currentTime) {
         this.porto = porto;
         this.ip = ip;
@@ -38,6 +41,14 @@ public class Informacoes implements Serializable {
         this.porto = porto;
         this.ip = ip;
         this.ligacoes = ligacoes;
+    }
+
+    public ArrayList<String> getMsgSockett() {
+        return msgSockett;
+    }
+
+    public void setMsgSockett(ArrayList<String> msgSockett) {
+        this.msgSockett = msgSockett;
     }
 
     public int getIndex() {

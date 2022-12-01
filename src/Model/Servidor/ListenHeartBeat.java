@@ -23,7 +23,7 @@ public class ListenHeartBeat extends Thread{
     public void run() {
         while(threadCorre.get()) {
             DatagramPacket dp = new DatagramPacket(new byte[4000], 4000);
-
+            System.out.println("A ESPERA DE RECEBER");
             try {
                 ms.receive(dp);
             } catch (IOException e) {
@@ -67,7 +67,9 @@ public class ListenHeartBeat extends Thread{
 
                     //System.out.println("ListenHeartBeat: " + listaServidores);
                 }
+
                 if (info.getMsgAtualiza() != null) {
+                    System.out.println("LISTEN BABY " + info.getMsgAtualiza());
                     if (info.getMsgAtualiza().equalsIgnoreCase("PREPARE")) {
                         System.out.println("ListenHeartBeatAtualiza" + info);
                         enviaUDP(info.getPortoUDPAtualiza(), info.getVersaoBdAtualiza(), info.getIp());
@@ -84,10 +86,13 @@ public class ListenHeartBeat extends Thread{
                                 System.out.println("MSG ATUALIZA LISTEN: " + info.getMsgAtualiza());
                                 if (info.getMsgAtualiza().equalsIgnoreCase("Commit")) {
                                     System.out.println("Recebi Commit");
+
                                     break;
                                 } else if (info.getMsgAtualiza().equalsIgnoreCase("Abort")) {
                                     System.out.println("Recebi Abort");
                                     break;
+                                }else {
+                                    System.out.println("IGNORADO");
                                 }
                             }
                         }
@@ -113,7 +118,7 @@ public class ListenHeartBeat extends Thread{
         Msg msg = new Msg();
         msg.setVersaoBdAtualizada(versaoBdAtualizada);
 
-        System.out.println("EU MANDEIIIIIII");
+        System.out.println("EU enviaUDP");
 
         oos.writeUnshared(msg);
         byte[] messageBytes = baos.toByteArray();

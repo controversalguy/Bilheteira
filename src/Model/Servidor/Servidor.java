@@ -202,7 +202,7 @@ public class Servidor {
         return false;
     }
 
-    public static void atualiza(String msg, int valMaior) {
+    public static void atualiza(String msg, int valMaior, ArrayList<String> msgSockett) {
         try {
             LocalDateTime now = LocalDateTime.now();
             DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -210,7 +210,7 @@ public class Servidor {
 
             Informacoes info = new Informacoes(portServer, ipServer, ligacoesTCP.get(), currentTime, connDB.getVersao().get(), disponivel.get());
             if(msg!=null){
-                System.out.println("RECEBIATUALIZMSG: " + msg);
+                System.out.println("RECEBIATUALIZASERVIDOR: " + msg);
                 switch (msg.toUpperCase()){
                     case "PREPARE"-> {
                         info.setMsgAtualiza("Prepare");
@@ -218,6 +218,7 @@ public class Servidor {
                         DatagramSocket ds = new DatagramSocket(0);
                         info.setPortoUDPAtualiza(ds.getLocalPort());
                         info.setVersaoBdAtualiza(valMaior);
+                        info.setMsgSockett(msgSockett);
                         AtualizaUDP aUDP = new AtualizaUDP(ds, connDB,listaServidores,threadCorre,tentativas, valMaior);
                         aUDP.start();
                         System.out.println("EDU BOIOLA ATUALIZAUDP");
@@ -233,10 +234,17 @@ public class Servidor {
                                 myMessageBytes, myMessageBytes.length,
                                 ipgroup, portServers
                         );
+                        System.out.println("ENVIANDO");
                         ms.send(dp);
-
+                        System.out.println("ENVIEI");
                         aUDP.join();
+
+
                         return;
+                    }
+                    case "COMMIT"->{
+                        info.setMsgAtualiza("COMMIT");
+
                     }
                     case "ABORT"->{
                         info.setMsgAtualiza("ABORT");

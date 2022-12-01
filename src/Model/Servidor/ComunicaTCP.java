@@ -77,7 +77,7 @@ public class ComunicaTCP extends Thread {
 
                             System.out.println("[INFO] A clonar DataBase...");
                             disponivel.getAndSet(false);
-                            Servidor.atualiza("CloneMyDB", -2);
+                            Servidor.atualiza("CloneMyDB", -2, null);
                             FileInputStream fis = new FileInputStream(dbName);
                             byte[] bufferClient = new byte[4000];
                             int nBytes;
@@ -98,15 +98,15 @@ public class ComunicaTCP extends Thread {
                             } while (nBytes != -1);
                         }
                     }
-                } else if (msgSocket instanceof ArrayList<?>) {
-                    ArrayList<?> msgSockett = (ArrayList<?>) msgSocket;
+                } else if (msgSocket instanceof ArrayList) {
+                    ArrayList<String> msgSockett = (ArrayList<String>) msgSocket;
                     Msg msg = new Msg();
 
-                    Servidor.atualiza("Prepare",connDB.getVersao().get() + 1);
+                    //Servidor.atualiza("Prepare",connDB.getVersao().get() + 1);
 
-                    switch ((String) msgSockett.get(0)) {
+                    switch ( msgSockett.get(0)) {
                         case "REGISTA_USER" -> {
-                            switch (connDB.insertUser((String) msgSockett.get(1), (String) msgSockett.get(2), (String) msgSockett.get(3))) {
+                            switch (connDB.insertUser(msgSockett)) {
                                 case ADMIN_NAO_PODE_REGISTAR -> {
                                     msg.setMsg("\nImpossível registar como admin");
                                 }
@@ -122,7 +122,7 @@ public class ComunicaTCP extends Thread {
                             }
                         }
                         case "LOGIN_USER" -> {
-                            String str = connDB.logaUser((String) msgSockett.get(1), (String) msgSockett.get(2));
+                            String str = connDB.logaUser(msgSockett.get(1), msgSockett.get(2));
                             msg.setMsg("\n" + str);
                         }
 

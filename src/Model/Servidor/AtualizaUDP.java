@@ -34,14 +34,14 @@ public class AtualizaUDP extends Thread{
     @Override
     public void run() {
         DatagramPacket dp = new DatagramPacket(new byte[255],255);
-        synchronized (listaServidores){
+        System.out.println("ENTREI AtualizaUDP");
             Iterator<Informacoes> it = listaServidores.iterator();
             System.out.println("ItAntes: "+ it.hasNext());
             while(it.hasNext() && threadCorre.get()){ // todo VERIIFCAR DB VERSAO
                 it.next();
                 System.out.println("It: "+ it.hasNext());
                 try {
-                    //ds.setSoTimeout(5000);
+                    ds.setSoTimeout(1000);
                     ds.receive(dp);
                     ByteArrayInputStream bais = new ByteArrayInputStream(dp.getData());
                     ObjectInputStream ois = new ObjectInputStream(bais);
@@ -49,16 +49,17 @@ public class AtualizaUDP extends Thread{
                     Msg msg = (Msg) ois.readObject();
                     System.out.println("It: "+ msg.getVersaoBdAtualizada());
                     System.out.println("Versao [" + msg.getVersaoBdAtualizada()+"]");
-                    break;
+
                 } catch (SocketTimeoutException e) {
+                    System.out.println("SocketTimeoutException");
                     if(tentativas.get() < 1){
-                        Servidor.atualiza("Prepare", valMaior);
+                        Servidor.atualiza("Prepare", valMaior, null);
                         tentativas.getAndIncrement();
-                        System.out.println("[INFO] AtualizaUDP terminado com sucesso!");
+                        System.out.println("[INFO] AtualizaUDP terminado com sucesso! < 1)");
                         return;
                     }else{
                         System.out.println("!QUE TAS AQUI A FAZER");
-                        Servidor.atualiza("Abort", valMaior);
+                        Servidor.atualiza("Abort", valMaior, null);
                         return;
                     }
                     // Se for a segunda tentativa manda Abort
@@ -70,14 +71,10 @@ public class AtualizaUDP extends Thread{
                 //System.out.println("!GANDA TONE ATUALIZAUDP");
             }
             System.out.println("!GANDA TONE ATUALIZAUDP");
-            Servidor.atualiza("Commit", valMaior);
-            System.out.println("VERSAO ANTES" + connDB.getVersao());
-            connDB.setVersaoDB(valMaior);
-            System.out.println("VERSAO DEPOIS" + connDB.getVersao());
+            Servidor.atualiza("Commit", valMaior, null);
 
-            System.out.println("Recebi de todos");
-
-        }
+        connDB.incrementaVersao();
+        System.out.println("NOVA VERSAO: " + connDB.getVersao());
 
         System.out.println("[INFO] AtualizaUDP terminado com sucesso!");
 
