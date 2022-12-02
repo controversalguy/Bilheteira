@@ -4,6 +4,9 @@ import utils.Msg;
 
 import java.io.*;
 import java.net.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -79,7 +82,16 @@ public class ListenHeartBeat extends Thread{
                         msgSocket = info.getMsgSockett();
 
                         enviaUDP(info.getPortoUDPAtualiza(), info.getVersaoBdAtualiza(), info.getIp());
+                            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                            LocalDateTime entraWhile = LocalDateTime.now();
                         while (true) { //TODO TIMER
+                            LocalDateTime atual = LocalDateTime.now();
+                            long seconds = ChronoUnit.SECONDS.between(entraWhile,atual);
+                            System.out.println("seconds: "+ seconds);
+                            if(seconds > 2){
+                                System.out.println("Esperei 3 segundos");
+                                break;
+                            }
                             ms.receive(dp);
                             bais = new ByteArrayInputStream(dp.getData());
                             try {
