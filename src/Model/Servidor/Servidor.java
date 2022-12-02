@@ -145,8 +145,8 @@ public class Servidor {
                     if(!verificaVersao(connDB))
                         connDB.criaTabelas();
                 }
-                connDB.inicializaAutenticado();
             }
+            connDB.inicializa();
         } catch (InterruptedException | SQLException | IOException e) {
             throw new RuntimeException(e);
         }

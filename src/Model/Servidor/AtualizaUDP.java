@@ -70,11 +70,8 @@ public class AtualizaUDP extends Thread{
                 }
                 //System.out.println("!GANDA TONE ATUALIZAUDP");
             }
-            System.out.println("!GANDA TONE ATUALIZAUDP");
-            Servidor.atualiza("Commit", valMaior, null);
 
-        connDB.incrementaVersao();
-        System.out.println("NOVA VERSAO: " + connDB.getVersao());
+            Servidor.atualiza("Commit", valMaior, null);
 
         System.out.println("[INFO] AtualizaUDP terminado com sucesso!");
 

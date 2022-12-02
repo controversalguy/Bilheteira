@@ -2,8 +2,6 @@ package Model.Servidor;
 
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static Model.Servidor.Servidor.connDB;
@@ -40,7 +38,7 @@ public class ConnDB
             count++;
         }
 
-        if(count == 5){
+        if(count == 6){
             return true;
         }
         return false;
@@ -97,13 +95,17 @@ public class ConnDB
                     administrator INTEGER NOT NULL DEFAULT 0,
                     autenticado INTEGER NOT NULL DEFAULT 0 )
                     """;
+            String sqlQueryVersao = """
+                    CREATE TABLE IF NOT EXISTS versao_db
+                    (versao INTEGER NOT NULL)
+                    """;
 
             statement.executeUpdate(sqlQueryEspetaculo);
             statement.executeUpdate(sqlQueryLugar);
             statement.executeUpdate(sqlQueryReserva);
             statement.executeUpdate(sqlQueryReserva_lugar);
             statement.executeUpdate(sqlQueryUtilizador);
-
+            statement.executeUpdate(sqlQueryVersao);
             statement.close();
 
 
@@ -164,7 +166,11 @@ public class ConnDB
                 r.close();
                 System.out.println("MyTable has " + count + " row(s).");
                 String sqlQuery = "INSERT INTO utilizador VALUES ('" + count + "','" + username + "','" + name + "','" + password + "','" + 0 + "','" + 0 + "')";
+                incrementaVersao();
+                String sqlUpdateVersion = "UPDATE versao_db SET versao='" + getVersao().get()+"'";
+
                 statement.executeUpdate(sqlQuery);
+                statement.executeUpdate(sqlUpdateVersion);
                 statement.close();
 
                 return MensagensRetorno.CLIENTE_REGISTADO_SUCESSO;
@@ -174,10 +180,30 @@ public class ConnDB
         return  MensagensRetorno.CLIENTE_JA_REGISTADO;
     }
 
-    public void inicializaAutenticado() throws SQLException {
+    public void inicializa() throws SQLException {
         Statement statement = dbConn.createStatement();
         String sqlQuery = "UPDATE utilizador SET autenticado='" + 0 + "' WHERE autenticado=" + 1;
         statement.executeUpdate(sqlQuery);
+
+
+        ResultSet rs = statement.executeQuery("SELECT versao FROM versao_db");
+        if(rs.next()){
+            int versao = rs.getInt("versao");
+            setVersaoDB(versao);
+
+        } else {
+            String versao = "INSERT INTO versao_db VALUES ('" + 1+ "')";
+            statement.executeUpdate(versao);
+        }
+
+//        if(countt == 0) {
+//            String versao = "INSERT INTO versao_db VALUES ('" + 10 + "')";
+//            statement.executeUpdate(versao);
+//        }else{
+//            rs.next();
+//            int receba = rs.getInt("versao");
+//            System.out.println("versao: " + receba);
+//        }
 
         String verificaExistente = "SELECT * FROM utilizador";
 
@@ -208,15 +234,23 @@ public class ConnDB
                 login =  "Dados incorretos!";
             } else if (username.equals("admin") && password.equals("admin")){
                 int id = resultSet.getInt("id");
-                String sqlQuery = "UPDATE utilizador SET autenticado='" + 1 + "',administrador='" + 1 + "' WHERE id=" + id;
+                String sqlQuery = "UPDATE utilizador SET autenticado='" + 1 + "',administrator='" + 1 + "' WHERE id=" + id;
                 statement.executeUpdate(sqlQuery);
                 login = "Login efetuado como admin com sucesso!";
+
+                incrementaVersao();
+                String sqlUpdateVersion = "UPDATE versao_db SET versao='" + getVersao().get()+"'";
+                statement.executeUpdate(sqlUpdateVersion);
             }
             else {
                 int id = resultSet.getInt("id");
                 String sqlQuery = "UPDATE utilizador SET autenticado='" + 1 + "' WHERE id=" + id;
                 statement.executeUpdate(sqlQuery);
                 login ="Login efetuado com sucesso!";
+
+                incrementaVersao();
+                String sqlUpdateVersion = "UPDATE versao_db SET versao='" + getVersao().get()+"'";
+                statement.executeUpdate(sqlUpdateVersion);
             }
             resultSet.close();
         }
