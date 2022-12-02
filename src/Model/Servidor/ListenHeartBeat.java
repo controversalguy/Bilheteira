@@ -58,7 +58,7 @@ public class ListenHeartBeat extends Thread{
                     }else { // se já existir
                         //System.out.println("EXISTE BABY");
                         listaServidores.set(listaServidores.lastIndexOf(info), info);
-                        //System.out.println("Info existente: "+ info);
+                        System.out.println("Info existente: "+ info);
 
                         Comparator<Informacoes> compare = new InformacoesComparator();
                         listaServidores.sort(compare);
@@ -69,9 +69,15 @@ public class ListenHeartBeat extends Thread{
                 }
 
                 if (info.getMsgAtualiza() != null) {
+
+                    ArrayList<String> msgSocket = new ArrayList<>();
+
                     System.out.println("LISTEN BABY " + info.getMsgAtualiza());
                     if (info.getMsgAtualiza().equalsIgnoreCase("PREPARE")) {
                         System.out.println("ListenHeartBeatAtualiza" + info);
+
+                        msgSocket = info.getMsgSockett();
+
                         enviaUDP(info.getPortoUDPAtualiza(), info.getVersaoBdAtualiza(), info.getIp());
                         while (true) { //TODO TIMER
                             ms.receive(dp);
@@ -85,8 +91,8 @@ public class ListenHeartBeat extends Thread{
                             if (info.getMsgAtualiza() != null) {
                                 System.out.println("MSG ATUALIZA LISTEN: " + info.getMsgAtualiza());
                                 if (info.getMsgAtualiza().equalsIgnoreCase("Commit")) {
-                                    System.out.println("Recebi Commit");
-
+                                    System.out.println("Recebi Commit QUERO ATUALIZAR");
+                                    System.out.println(msgSocket);
                                     break;
                                 } else if (info.getMsgAtualiza().equalsIgnoreCase("Abort")) {
                                     System.out.println("Recebi Abort");

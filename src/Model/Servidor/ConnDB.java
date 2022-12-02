@@ -164,6 +164,9 @@ public class ConnDB
                 r.next();
                 int count = r.getInt(1);
                 r.close();
+
+                System.out.println("TAS AQUI A FAZER O QUE");
+
                 System.out.println("MyTable has " + count + " row(s).");
                 String sqlQuery = "INSERT INTO utilizador VALUES ('" + count + "','" + username + "','" + name + "','" + password + "','" + 0 + "','" + 0 + "')";
                 incrementaVersao();

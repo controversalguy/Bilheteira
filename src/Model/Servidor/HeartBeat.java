@@ -61,6 +61,7 @@ public class HeartBeat extends Thread  {
                         ipgroup, portServers
                 );
                 ms.send(dp);
+                System.out.println("MANDEIIIIII");
 
                 sleep(3000); //mudar para 10 TODO
             } catch (IOException | InterruptedException e) {

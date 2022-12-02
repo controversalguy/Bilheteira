@@ -79,7 +79,6 @@ public class ClientData {
             return false;
         }
 
-
     }
 
     public boolean connectaTCPServidor() {
@@ -97,6 +96,10 @@ public class ClientData {
             System.out.println("Connectei-me ao Servidor...[" + sClient.getPort() + "]");
             OutputStream os = sClient.getOutputStream();
             oos = new ObjectOutputStream(os);
+
+            Msg msg = new Msg();
+            msg.setMsg("Cliente");
+            oos.writeUnshared(msg);
 
             Thread.UncaughtExceptionHandler h = (th, ex) -> {System.out.println(ex.getMessage());  exit(0);};
             ClientReceiveTCP crTCP = new ClientReceiveTCP(listaServidores, sClient, this);

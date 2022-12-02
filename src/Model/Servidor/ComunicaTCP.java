@@ -38,75 +38,78 @@ public class ComunicaTCP extends Thread {
     public void run() {
         try {
 
-            ligacoesTCP.getAndIncrement();
-
-            System.out.println("MAIS UM CLIENTE PA CONTA");
-
-
             InputStream is = socketCli.getInputStream();
             OutputStream os = socketCli.getOutputStream();
             ObjectInputStream oisSocket = new ObjectInputStream(is);
             ObjectOutputStream oos = new ObjectOutputStream(os);
 
-            synchronized (listaOos) {
-                if (!listaOos.contains(oos)) {
-                    listaOos.add(oos);
-                    //Servidor.atualiza("listaOos", -3);
+            Object msgSocket = oisSocket.readObject();
+            System.out.println("MSGSOCKETCARALHOSMAFODA: " + msgSocket);
+            Msg msgSockett = (Msg) msgSocket;
 
-                    synchronized (listaServidores) {
-                        Comparator<Informacoes> compare = new InformacoesComparator();
-                        listaServidores.sort(compare);
-                    }
+            if (msgSockett.getMsg() != null) {
+                if (msgSockett.getMsg().equals("CloneBD")) {
+                    System.out.println("[INFO] A clonar DataBase...");
+                    //disponivel.getAndSet(false);
+                    //Servidor.atualiza("CloneMyDB", -2, null);
+                    System.out.println("dbName" + dbName);
+                    FileInputStream fis = new FileInputStream(dbName);
+                    byte[] bufferClient = new byte[4000];
+                    int nBytes;
+                    do {
+                        nBytes = fis.read(bufferClient);
+                        Msg msg = new Msg();
+                        msg.setMsgBuffer(bufferClient);
+                        msg.setMsgSize(nBytes);
+                        if (nBytes == -1) {
+                            msg.setMsgBuffer(new byte[4000]);
+                            msg.setMsgSize(0);
+                            msg.setLastPacket(true);
+                        } else
+                            msg.setLastPacket(false);
+                        oos.reset();
+                        oos.writeUnshared(msg);
 
-                    for (ObjectOutputStream o : listaOos) {
-                        System.out.println("ERROUUUUUUUUUUUUUUUUUUUUUUUUU");
-                        enviaListaServidoresAtualizada(o);
+                    } while (nBytes != -1);
+
+                } else if (msgSockett.getMsg().equals("Cliente")) {
+                    System.out.println("MAIS UM CLIENTE PA CONTA");
+                    ligacoesTCP.getAndIncrement();
+
+                    synchronized (listaOos) {
+                        if (!listaOos.contains(oos)) {
+                            listaOos.add(oos);
+                            //Servidor.atualiza("listaOos", -3);
+
+                            synchronized (listaServidores) {
+                                Comparator<Informacoes> compare = new InformacoesComparator();
+                                listaServidores.sort(compare);
+                            }
+
+                            for (ObjectOutputStream o : listaOos) {
+                                System.out.println("ERROUUUUUUUUUUUUUUUUUUUUUUUUU");
+                                enviaListaServidoresAtualizada(o);
+                            }
+                        }
                     }
                 }
             }
 
-            //System.out.println("COMUNICATCP:" + msgSockett.getMsg())
+            System.out.println("COMUNICATCP:" + msgSockett.getMsg());
 
             while (threadCorre.get()) {
-                Object msgSocket = oisSocket.readObject();
+                msgSocket = oisSocket.readObject();
                 System.out.println("MSGSOCKETCARALHOSMAFODA: " + msgSocket);
-                if (msgSocket instanceof Msg) {
-                    Msg msgSockett = (Msg) msgSocket;
-                    if (msgSockett.getMsg() != null) {
-                        if (msgSockett.getMsg().equals("CloneBD")) {
 
-                            System.out.println("[INFO] A clonar DataBase...");
-                            disponivel.getAndSet(false);
-                            Servidor.atualiza("CloneMyDB", -2, null);
-                            FileInputStream fis = new FileInputStream(dbName);
-                            byte[] bufferClient = new byte[4000];
-                            int nBytes;
-                            do {
-                                nBytes = fis.read(bufferClient);
-                                Msg msg = new Msg();
-                                msg.setMsgBuffer(bufferClient);
-                                msg.setMsgSize(nBytes);
-                                if (nBytes == -1) {
-                                    msg.setMsgBuffer(new byte[4000]);
-                                    msg.setMsgSize(0);
-                                    msg.setLastPacket(true);
-                                } else
-                                    msg.setLastPacket(false);
-                                oos.reset();
-                                oos.writeUnshared(msg);
-
-                            } while (nBytes != -1);
-                        }
-                    }
-                } else if (msgSocket instanceof ArrayList) {
-                    ArrayList<String> msgSockett = (ArrayList<String>) msgSocket;
+                if (msgSocket instanceof ArrayList) {
+                    ArrayList<String> msgSockettt = (ArrayList<String>) msgSocket;
                     Msg msg = new Msg();
 
                     //Servidor.atualiza("Prepare",connDB.getVersao().get() + 1);
 
-                    switch ( msgSockett.get(0)) {
+                    switch ( msgSockettt.get(0)) {
                         case "REGISTA_USER" -> {
-                            switch (connDB.insertUser(msgSockett)) {
+                            switch (connDB.insertUser(msgSockettt)) {
                                 case ADMIN_NAO_PODE_REGISTAR -> {
                                     msg.setMsg("\nImpossível registar como admin");
                                 }
@@ -122,7 +125,7 @@ public class ComunicaTCP extends Thread {
                             }
                         }
                         case "LOGIN_USER" -> {
-                            String str = connDB.logaUser(msgSockett.get(1), msgSockett.get(2));
+                            String str = connDB.logaUser(msgSockettt.get(1), msgSockettt.get(2));
                             msg.setMsg("\n" + str);
                         }
 
@@ -131,12 +134,13 @@ public class ComunicaTCP extends Thread {
 
                 }
             }
+
         } catch (ClassNotFoundException e) {
             System.out.println("Classe Não encontrada");
         } catch (IOException e) {
             try {
                 socketCli.close();
-                ligacoesTCP.getAndDecrement();
+                //ligacoesTCP.getAndDecrement();
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }

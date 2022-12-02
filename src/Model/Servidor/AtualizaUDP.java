@@ -33,45 +33,53 @@ public class AtualizaUDP extends Thread{
 
     @Override
     public void run() {
-        DatagramPacket dp = new DatagramPacket(new byte[255],255);
+        DatagramPacket dp = new DatagramPacket(new byte[255], 255);
         System.out.println("ENTREI AtualizaUDP");
-            Iterator<Informacoes> it = listaServidores.iterator();
-            System.out.println("ItAntes: "+ it.hasNext());
-            while(it.hasNext() && threadCorre.get()){ // todo VERIIFCAR DB VERSAO
-                it.next();
-                System.out.println("It: "+ it.hasNext());
-                try {
-                    ds.setSoTimeout(1000);
-                    ds.receive(dp);
-                    ByteArrayInputStream bais = new ByteArrayInputStream(dp.getData());
-                    ObjectInputStream ois = new ObjectInputStream(bais);
 
-                    Msg msg = (Msg) ois.readObject();
-                    System.out.println("It: "+ msg.getVersaoBdAtualizada());
-                    System.out.println("Versao [" + msg.getVersaoBdAtualizada()+"]");
+        //Iterator<Informacoes> it = listaServidores.iterator();
+        //System.out.println("ItAntes: " + it.hasNext());
 
-                } catch (SocketTimeoutException e) {
-                    System.out.println("SocketTimeoutException");
-                    if(tentativas.get() < 1){
-                        Servidor.atualiza("Prepare", valMaior, null);
-                        tentativas.getAndIncrement();
-                        System.out.println("[INFO] AtualizaUDP terminado com sucesso! < 1)");
-                        return;
-                    }else{
-                        System.out.println("!QUE TAS AQUI A FAZER");
-                        Servidor.atualiza("Abort", valMaior, null);
-                        return;
-                    }
-                    // Se for a segunda tentativa manda Abort
-                }catch (ClassNotFoundException e) {
-                    throw new RuntimeException(e);
-                }catch (IOException e) {
-                    throw new RuntimeException(e);
+        System.out.println("LISTA ANTES: " + listaServidores);
+        //while (it.hasNext() && threadCorre.get()) { // TODO VERIIFCAR DB VERSAO
+
+        System.out.println(listaServidores);
+            for(int i = 0; i < listaServidores.size(); i++) {
+
+            System.out.println("LISTA dentro: " + listaServidores);
+           // it.next();
+            //System.out.println("It: " + it.hasNext());
+            try {
+                ds.setSoTimeout(1000);
+                ds.receive(dp);
+                ByteArrayInputStream bais = new ByteArrayInputStream(dp.getData());
+                ObjectInputStream ois = new ObjectInputStream(bais);
+
+                Msg msg = (Msg) ois.readObject();
+                System.out.println("It: " + msg.getVersaoBdAtualizada());
+                System.out.println("Versao [" + msg.getVersaoBdAtualizada() + "]");
+
+            } catch (SocketTimeoutException e) {
+                System.out.println("SocketTimeoutException");
+                if (tentativas.get() < 1) {
+                    Servidor.atualiza("Prepare", valMaior, null);
+                    tentativas.getAndIncrement();
+                    System.out.println("[INFO] AtualizaUDP terminado com sucesso! < 1)");
+                    return;
+                } else {
+                    System.out.println("!QUE TAS AQUI A FAZER");
+                    Servidor.atualiza("Abort", valMaior, null);
+                    return;
                 }
-                //System.out.println("!GANDA TONE ATUALIZAUDP");
+                // Se for a segunda tentativa manda Abort
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
+            //System.out.println("!GANDA TONE ATUALIZAUDP");
+        }
 
-            Servidor.atualiza("Commit", valMaior, null);
+        Servidor.atualiza("Commit", valMaior, null);
 
         System.out.println("[INFO] AtualizaUDP terminado com sucesso!");
 

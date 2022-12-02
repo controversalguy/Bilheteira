@@ -168,21 +168,25 @@ public class Servidor {
                 servidorTemp = new Socket("localhost", listaServidores.get(posMaior).getPorto());
                 System.out.println("Conectou-se por TCP ao Servidor [" + servidorTemp.getPort() + "]");
 
-                InputStream is = servidorTemp.getInputStream();
-                OutputStream os = servidorTemp.getOutputStream();
-                ObjectOutputStream oosTCP = new ObjectOutputStream(os);
-                ObjectInputStream oisTCP = new ObjectInputStream(is);
+                ObjectOutputStream oosTCP = new ObjectOutputStream(servidorTemp.getOutputStream());
+
+                ObjectInputStream oisTCP = new ObjectInputStream(servidorTemp.getInputStream());
+                System.out.println("CREIEI O FICHEIRO ");
+
+                System.out.println("CREIEI O FICHEIRO ");
                 Msg msgTCP = new Msg();
                 msgTCP.setMsg("CloneBD");
                 oosTCP.writeUnshared(msgTCP);
 
                 FileOutputStream fos = new FileOutputStream(dBName);
 
+
                 Msg msg;
                 do {
 
                     try {
                         msg = (Msg) oisTCP.readObject();
+                        System.out.println("msg: " + msg);
                     } catch (ClassNotFoundException e) {
                         throw new RuntimeException(e);
                     }
@@ -239,7 +243,7 @@ public class Servidor {
                         System.out.println("ENVIEI");
                         aUDP.join();
 
-
+                        System.out.println("FODEU MM RAPAZ");
                         return;
                     }
                     case "COMMIT"->{
