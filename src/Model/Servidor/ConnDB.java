@@ -97,7 +97,8 @@ public class ConnDB
                     """;
             String sqlQueryVersao = """
                     CREATE TABLE IF NOT EXISTS versao_db
-                    (versao INTEGER NOT NULL)
+                    (versao INTEGER NOT NULL,
+                    query TEXT NOT NULL)
                     """;
 
             statement.executeUpdate(sqlQueryEspetaculo);
@@ -154,7 +155,7 @@ public class ConnDB
             if (username.equals("admin") && password.equals("admin")){
                 return MensagensRetorno.ADMIN_NAO_PODE_REGISTAR;
             }
-            verificaExistente += " WHERE nome = '" + name + "' AND username = '" + username + "'";
+            verificaExistente += " WHERE username = '" + username + "'";
             ResultSet resultSet = statement.executeQuery(verificaExistente);
             if (!resultSet.next()) {
 
@@ -170,10 +171,11 @@ public class ConnDB
                 System.out.println("MyTable has " + count + " row(s).");
                 String sqlQuery = "INSERT INTO utilizador VALUES ('" + count + "','" + username + "','" + name + "','" + password + "','" + 0 + "','" + 0 + "')";
                 incrementaVersao();
-                String sqlUpdateVersion = "UPDATE versao_db SET versao='" + getVersao().get()+"'";
+                //String sqlUpdateVersion = "INSERT INTO versao_db (query)VALUES('"+sqlQuery+"')" ;
+                String versao = "INSERT INTO versao_db VALUES ('" + getVersao().get() + "','" + "MUDAR" +"')"; //TODO
 
                 statement.executeUpdate(sqlQuery);
-                statement.executeUpdate(sqlUpdateVersion);
+                statement.executeUpdate(versao);
                 statement.close();
 
                 return MensagensRetorno.CLIENTE_REGISTADO_SUCESSO;
@@ -188,41 +190,38 @@ public class ConnDB
         String sqlQuery = "UPDATE utilizador SET autenticado='" + 0 + "' WHERE autenticado=" + 1;
         statement.executeUpdate(sqlQuery);
 
+        ResultSet rs = statement.executeQuery("SELECT COUNT(*) FROM versao_db");
+        rs.next();
+        int aux = rs.getInt(1);
+        rs.close();
 
-        ResultSet rs = statement.executeQuery("SELECT versao FROM versao_db");
-        if(rs.next()){
-            int versao = rs.getInt("versao");
-            setVersaoDB(versao);
+        if (aux > 0) { //se ja tiver versao
+            //String query = rs.getString("query");
+            setVersaoDB(aux);
 
         } else {
-            String versao = "INSERT INTO versao_db VALUES ('" + 1+ "')";
-            statement.executeUpdate(versao);
-        }
+            // String verificaExistente = "SELECT * FROM utilizador";
 
-//        if(countt == 0) {
-//            String versao = "INSERT INTO versao_db VALUES ('" + 10 + "')";
-//            statement.executeUpdate(versao);
-//        }else{
-//            rs.next();
-//            int receba = rs.getInt("versao");
-//            System.out.println("versao: " + receba);
-//        }
-
-        String verificaExistente = "SELECT * FROM utilizador";
-
-        verificaExistente += " WHERE username = '" + "admin" + "' AND password = '" + "admin" + "'";
-        ResultSet resultSet = statement.executeQuery(verificaExistente);
-        if (!resultSet.next()) {
+            //verificaExistente += " WHERE username = '" + "admin" + "' AND password = '" + "admin" + "'";
+            //ResultSet resultSet = statement.executeQuery(verificaExistente);
+            //if (!resultSet.next()) {
 
             ResultSet r = statement.executeQuery("SELECT COUNT(*) FROM utilizador");
             r.next();
             int count = r.getInt(1);
             r.close();
             System.out.println("MyTable has " + count + " row(s).");
+
             String user = "INSERT INTO utilizador VALUES ('" + count + "','" + "admin" + "','" + "admin" + "','" + "admin" + "','" + 1 + "','" + 0 + "')";
             statement.executeUpdate(user);
-            statement.close();
-        }
+
+            //String teste = "INSERT INTO reserva_lugar VALUES ('" + 1 + "','" + 1  + "')";
+            //System.out.println(teste);
+
+            String versao = "INSERT INTO versao_db VALUES ('" + 1 + "','" + "MUDAR" +"')"; //TODO
+            statement.executeUpdate(versao);
+            }
+        statement.close();
     }
 
     public String logaUser(String username, String password) throws SQLException
@@ -252,8 +251,8 @@ public class ConnDB
                 login ="Login efetuado com sucesso!";
 
                 incrementaVersao();
-                String sqlUpdateVersion = "UPDATE versao_db SET versao='" + getVersao().get()+"'";
-                statement.executeUpdate(sqlUpdateVersion);
+                String versao = "INSERT INTO versao_db VALUES ('" + getVersao().get() + "','" + "MUDAR" +"')"; //TODO
+                statement.executeUpdate(versao);
             }
             resultSet.close();
         }
@@ -262,14 +261,33 @@ public class ConnDB
         return login;
     }
 
-    public void updateUser(int id, String name, String birthdate) throws SQLException
+    public String updateUser(String atualizaCampo, String id, int tipo) throws SQLException
     {
+        System.out.println("SATUALIZA CAMPO:" + atualizaCampo);
+        System.out.println("SATUALIZA ID:" + id);
+        System.out.println("SATUALIZA CTIPO:" + tipo);
+        String update = null;
         Statement statement = dbConn.createStatement();
-
-        String sqlQuery = "UPDATE users SET name='" + name + "', " +
-                "BIRTHDATE='" + birthdate + "' WHERE id=" + id;
+        String sqlQuery = null;
+        
+        switch (tipo) {
+            case 0 -> {
+               sqlQuery = "UPDATE utilizador SET nome='" + atualizaCampo + "' WHERE username like '%" + id + "%'";
+               update = "Nome mudado com sucesso!";
+            }
+            case 1 -> {
+                sqlQuery = "UPDATE utilizador SET username='" + atualizaCampo + "' WHERE username like '%" + id + "%'";
+                update = "Username mudado com sucesso!";
+            }
+            case 2 -> {
+                sqlQuery = "UPDATE utilizador SET password='" + atualizaCampo + "' WHERE username like '%" + id + "%'";
+                update = "Password mudada com sucesso!";
+            }
+        }
+        
         statement.executeUpdate(sqlQuery);
         statement.close();
+        return update;
     }
 
     public void deleteUser(int id) throws SQLException

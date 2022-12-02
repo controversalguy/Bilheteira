@@ -8,7 +8,6 @@ import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 ;import static java.lang.System.exit;
@@ -16,6 +15,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class ClientData {
     Socket sClient;
     String ipClient;
+    String cliente;
     int portUDP;
     ArrayList<Informacoes> listaServidores;
     ObjectOutputStream oos;
@@ -81,7 +81,7 @@ public class ClientData {
 
     }
 
-    public boolean connectaTCPServidor() {
+    public boolean connectaTCPServidor(AtomicBoolean confirmaUpdate) {
         Informacoes info = null;
         try {
         System.out.println("ListaServersClienteAOABRIR: " + listaServidores);
@@ -102,7 +102,7 @@ public class ClientData {
             oos.writeUnshared(msg);
 
             Thread.UncaughtExceptionHandler h = (th, ex) -> {System.out.println(ex.getMessage());  exit(0);};
-            ClientReceiveTCP crTCP = new ClientReceiveTCP(listaServidores, sClient, this);
+            ClientReceiveTCP crTCP = new ClientReceiveTCP(listaServidores, sClient, this, confirmaUpdate);
             crTCP.start();
             crTCP.setUncaughtExceptionHandler(h);
             return true;
@@ -119,7 +119,15 @@ public class ClientData {
 
     public boolean enviaInfo(ArrayList<String> temp) {
         try {
+            if(temp.get(0).equals("LOGIN_USER"))
+                cliente = temp.get(2);
+            else if(temp.get(0).contains("EDITA"))
+                temp.add(cliente);
 
+            if(temp.get(0).equals("EDITA_USERNAME"))
+                cliente = temp.get(1);
+
+            System.out.println(temp);
             oos.writeUnshared(temp);
         } catch (IOException e) {
             throw new RuntimeException(e);

@@ -14,10 +14,12 @@ public class ClientReceiveTCP extends Thread {
     ArrayList<Informacoes> listaServidores; //todo ATUALIZAR CONECTA
     Socket sClient;
     ClientData data;
-    public ClientReceiveTCP(ArrayList<Informacoes> listaServidores, Socket sClient, ClientData data) {
+    AtomicBoolean confirmaUpdate;
+    public ClientReceiveTCP(ArrayList<Informacoes> listaServidores, Socket sClient, ClientData data, AtomicBoolean confirmaUpdate) {
         this.listaServidores = listaServidores;
         this.sClient = sClient;
         this.data = data;
+        this.confirmaUpdate = confirmaUpdate;
     }
 
     @Override
@@ -34,6 +36,10 @@ public class ClientReceiveTCP extends Thread {
                     msgTCP = (Msg) msg;
                     if(msgTCP.getMsg()!=null){
                         System.out.println(msgTCP.getMsg());
+                        if(msgTCP.getMsg().equals("\nLogin efetuado como admin com sucesso!") || msgTCP.getMsg().equals("\nLogin efetuado com sucesso!") ){
+                            //System.out.println("Cliente registado bem");
+                            confirmaUpdate.getAndSet(true);
+                        }
                     }else{
                         if(msgTCP.getIndex() == 0) //se for o primeiro, volta a ordenar
                             listaServidores.clear();
@@ -55,7 +61,7 @@ public class ClientReceiveTCP extends Thread {
             e.printStackTrace();
         } catch (SocketException e) {
             System.out.println("ListaServersClienteAOFECHAR: " + listaServidores);
-            if(!data.connectaTCPServidor()) {
+            if(!data.connectaTCPServidor(confirmaUpdate)) {
                 throw new RuntimeException("ClientReceiveTCP Encerrou...");
             }
 

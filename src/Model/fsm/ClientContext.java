@@ -13,14 +13,18 @@ public class ClientContext {
         data = new ClientData(strIpServer,portServer);
         state = ClientState.AUTENTICA.createState(this, data);
     }
-
+    public void estadoSeguinte(IClientState newState) {
+        state = newState;
+    }
     public ClientState getState() {
         if (state == null) return null;
         return state.getState();
     }
-
-    public void conectaTCP(){
-        data.connectaTCPServidor();
+    public void avancar() {
+        state.avancar();
+    }
+    public void conectaTCP(AtomicBoolean confirma){
+        data.connectaTCPServidor(confirma);
     }
 
     public boolean regista(ArrayList<String> temp) {
@@ -34,4 +38,6 @@ public class ClientContext {
     public boolean conectaUDP() {
         return  data.connectaServidorUDP();
     }
+
+    public boolean edita(ArrayList<String> temp) { return state.edita(temp);}
 }

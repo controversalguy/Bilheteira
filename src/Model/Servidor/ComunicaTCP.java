@@ -107,7 +107,7 @@ public class ComunicaTCP extends Thread {
 
                     //Servidor.atualiza("Prepare",connDB.getVersao().get() + 1);
 
-                    switch ( msgSockettt.get(0)) {
+                    switch (msgSockettt.get(0)) {
                         case "REGISTA_USER" -> {
                             switch (connDB.insertUser(msgSockettt)) {
                                 case ADMIN_NAO_PODE_REGISTAR -> {
@@ -126,6 +126,18 @@ public class ComunicaTCP extends Thread {
                         }
                         case "LOGIN_USER" -> {
                             String str = connDB.logaUser(msgSockettt.get(1), msgSockettt.get(2));
+                            msg.setMsg("\n" + str);
+                        }
+                        case "EDITA_NAME" -> {
+                            String str = connDB.updateUser(msgSockettt.get(1), msgSockettt.get(2), 0);
+                            msg.setMsg("\n" + str);
+                        }
+                        case "EDITA_USERNAME" -> {
+                            String str = connDB.updateUser(msgSockettt.get(1), msgSockettt.get(2), 1);
+                            msg.setMsg("\n" + str);
+                        }
+                        case "EDITA_PASSWORD" -> {
+                            String str = connDB.updateUser(msgSockettt.get(1), msgSockettt.get(2), 2);
                             msg.setMsg("\n" + str);
                         }
 
@@ -149,10 +161,11 @@ public class ComunicaTCP extends Thread {
         }
         System.out.println("[INFO] ComunicaTCP terminado com sucesso!");
     }
+
     void enviaListaServidoresAtualizada(ObjectOutputStream oos) {
         Msg msg = new Msg();
         try {
-            synchronized (listaServidores){
+            synchronized (listaServidores) {
 
                 Iterator<Informacoes> iterator = listaServidores.iterator();
 
@@ -172,7 +185,7 @@ public class ComunicaTCP extends Thread {
             }
 
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            //throw new RuntimeException(e); //TODO VER ONDE MANDA MSG ATUALIZADA
         }
     }
 }

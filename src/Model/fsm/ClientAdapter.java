@@ -13,7 +13,9 @@ abstract class ClientAdapter implements IClientState {
         this.context = context;
         this.data = data;
     }
-
+    void estadoSeguinte(ClientState newState) {
+        context.estadoSeguinte(newState.createState(context, data));
+    }
     @Override
     public boolean regista(ArrayList<String> temp) {
         return false;
@@ -23,4 +25,18 @@ abstract class ClientAdapter implements IClientState {
     public boolean login(ArrayList<String> temp) {
         return false;
     }
+
+    @Override
+    public boolean edita(ArrayList<String> temp) {
+        return false;
+    }
+
+    @Override
+    public void avancar() {
+    }
+
+    @Override
+    public void regressar() {
+    }
+
 }

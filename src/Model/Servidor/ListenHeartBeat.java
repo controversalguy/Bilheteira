@@ -82,9 +82,8 @@ public class ListenHeartBeat extends Thread{
                         msgSocket = info.getMsgSockett();
 
                         enviaUDP(info.getPortoUDPAtualiza(), info.getVersaoBdAtualiza(), info.getIp());
-                            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
                             LocalDateTime entraWhile = LocalDateTime.now();
-                        while (true) { //TODO TIMER
+                        while (true) {
                             LocalDateTime atual = LocalDateTime.now();
                             long seconds = ChronoUnit.SECONDS.between(entraWhile,atual);
                             System.out.println("seconds: "+ seconds);

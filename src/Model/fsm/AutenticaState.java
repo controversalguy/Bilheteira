@@ -4,6 +4,9 @@ import Model.data.ClientData;
 
 import java.util.ArrayList;
 
+import static Model.fsm.ClientState.ESPETACULO;
+import static Model.fsm.ClientState.LOGADO;
+
 public class AutenticaState extends ClientAdapter {
     public AutenticaState(ClientContext context, ClientData data) {
         super(context,data);
@@ -17,6 +20,11 @@ public class AutenticaState extends ClientAdapter {
     @Override
     public boolean login(ArrayList<String> temp) {
         return data.enviaInfo(temp);
+    }
+
+    @Override
+    public void avancar() {
+        estadoSeguinte(LOGADO);
     }
 
     @Override
