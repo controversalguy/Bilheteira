@@ -145,6 +145,15 @@ public class ComunicaTCP extends Thread {
                             String str = connDB.insereEspetaculos(msgSockettt.get(1));
                             msg.setMsg("\n" + str);
                         }
+                        case "TORNA_VISIVEL" -> {
+                            String str = connDB.tornaVisivel(msgSockettt.get(1));
+                            msg.setMsg("\n" + str);
+                        }
+                        case "FILTRO_ESPETACULO"->{
+                            System.out.println("FILTRA");
+                            String str = connDB.filtraEspetaculo(msgSockettt.get(1));
+                            msg.setMsg("\n" + str);
+                        }
 
                     }
                     oos.writeUnshared(msg);

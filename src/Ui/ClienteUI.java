@@ -61,14 +61,25 @@ public class ClienteUI{
     }
 
     private void espetaculoUI() {
-        switch (PDInput.chooseOption("*** Espetaculo State Admin ***", "Inserir")) {
+        switch (PDInput.chooseOption("*** Espetaculo State Admin ***", "Inserir","Tornar visível","Consulta")) {
             case 1 -> {
                 String filename = PDInput.readString("Filename:",false);
                 ArrayList <String> temp = new ArrayList<>();
                 Collections.addAll(temp, String.valueOf(info.INSERE_ESPETACULOS), filename);
                 fsm.inserirEspetaculos(temp);
             }
-            case 2 -> {loginUI();}
+            case 2 -> {
+                int id = PDInput.readInt("Introduza o id do espetáculo: ");
+                ArrayList <String> temp = new ArrayList<>();
+                Collections.addAll(temp, String.valueOf(info.TORNA_VISIVEL),String.valueOf(id));
+                fsm.visivel(temp);
+            }
+            case 3 ->{
+                String filtro = PDInput.readString("Procure o espetáculo: ",false);
+                ArrayList <String> temp = new ArrayList<>();
+                Collections.addAll(temp, String.valueOf(info.FILTRO_ESPETACULO),filtro);
+                fsm.consulta(temp);
+            }
             default -> finish.getAndSet(true);
         }
     }

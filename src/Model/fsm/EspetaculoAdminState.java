@@ -15,6 +15,16 @@ public class EspetaculoAdminState extends ClientAdapter {
     }
 
     @Override
+    public boolean visivel(ArrayList<String> temp) {
+        return data.enviaInfo(temp);
+    }
+
+    @Override
+    public boolean consulta(ArrayList<String> temp) {
+        return data.enviaInfo(temp);
+    }
+
+    @Override
     public ClientState getState() {
         return ClientState.ESPETACULO_ADMIN;
     }

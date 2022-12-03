@@ -127,8 +127,6 @@ public class Servidor {
             ms.close();
         }
     }
-
-
     private static ConnDB faseDeArranque(ArrayList<Informacoes> listaServidores) {
         ConnDB connDB;
         try {

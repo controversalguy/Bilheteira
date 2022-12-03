@@ -10,4 +10,8 @@ public interface IClientState {
     void avancar();
     void regressar();
     boolean inserirEspetaculo(ArrayList<String> temp);
+
+    boolean visivel(ArrayList<String> temp);
+
+    boolean consulta(ArrayList<String> temp);
 }

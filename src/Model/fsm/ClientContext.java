@@ -44,4 +44,13 @@ public class ClientContext {
     public boolean inserirEspetaculos(ArrayList<String> temp) {
         return state.inserirEspetaculo(temp);
     }
+
+    public boolean visivel(ArrayList<String> temp) {
+        return state.visivel(temp);
+    }
+
+    public boolean consulta(ArrayList<String> temp) {
+        return state.consulta(temp);
+    }
+
 }

@@ -382,7 +382,7 @@ public class ConnDB
 
                                 String[] attributesAux = attributes[i].replace("\"", "").trim().split(":");
 
-                                System.out.println("attributesAux" + Arrays.toString(attributesAux));
+                                //System.out.println("attributesAux" + Arrays.toString(attributesAux));
                                 if (i == 0) {
                                     attributes[0] = attributesAux[0];
                                 } else if (i == 1) {
@@ -399,7 +399,7 @@ public class ConnDB
                                     }
                                 }
                             }
-                            System.out.println("fila" + fila);
+                          //  System.out.println("fila" + fila);
                         }
                     }
 
@@ -414,7 +414,7 @@ public class ConnDB
                 insereEspetaculosLista.add(result);
             }
 
-            System.out.println("insereespetaculo"+ insereEspetaculosLista);
+           // System.out.println("insereespetaculo"+ insereEspetaculosLista);
 
             Statement statement = connDB.dbConn.createStatement();
 
@@ -445,7 +445,7 @@ public class ConnDB
                     }
                 }
 
-
+            insere = "Espetáculo inserido com sucesso!";
 
             }
             statement.close();
@@ -458,7 +458,45 @@ public class ConnDB
         return insere;
     }
 
+    public String tornaVisivel(String id) throws SQLException {
+        int idEspetaculo = Integer.parseInt(id);
+        Statement statement = connDB.dbConn.createStatement();
+        ResultSet r = statement.executeQuery("SELECT * FROM espetaculo WHERE id =" + idEspetaculo);
+        if (r.next()) {
+            String sqlQuery = "UPDATE espetaculo SET visivel='" + 1 + "' WHERE id=" + idEspetaculo;
+            statement.executeUpdate(sqlQuery);
+            return "Espetáculo visível!";
+        }
+    return "Espetáculo não existe!";
+    }
 
+    public String filtraEspetaculo(String filtro)throws SQLException {
+
+        Statement statement = connDB.dbConn.createStatement();
+        ResultSet r = statement.executeQuery("SELECT * FROM espetaculo WHERE descricao like '%" + filtro+ "%'");
+        System.out.println("filtro:"+filtro);
+        if (r.next()) {
+            int visibilidade = r.getInt("visivel");
+            if(visibilidade == 0)
+                return "Espetáculo não existente!";
+
+            String descricao = r.getString("descricao");
+            System.out.println("descricao"+descricao);
+            String tipo = r.getString("tipo");
+            String data_hora = r.getString("data_hora");
+            int duracao = r.getInt("duracao");
+            String local = r.getString("local");
+            String localidade = r.getString("localidade");
+            String pais = r.getString("pais");
+            String classificacao = r.getString("classificacao_etaria");
+            StringBuilder sb = new StringBuilder();
+            sb.append("Descrição:"+descricao).append("\nTipo:"+tipo).append("\nData:"+data_hora).append("\nDuracao:"+duracao).append("\nLocal:"+local)
+                    .append("\nLocalidade:"+localidade).append("\nPais:"+pais).append("\nClassificacao:"+classificacao);
+            return sb.toString();
+        }
+
+        return "Não existe nenhum espetáculo";
+    }
 
     /*public static void main(String[] args)
     {
