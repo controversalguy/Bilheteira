@@ -347,7 +347,8 @@ public class ConnDB
 
             String line = br.readLine();
             String data_hora;
-            ArrayList<String> temp = new ArrayList<>();
+            ArrayList<String> listaEspetaculos = new ArrayList<>();
+
 
             HashMap<String, HashMap<String, String>> fila = new HashMap<>();
 
@@ -357,7 +358,9 @@ public class ConnDB
                 String[] attributes = line.split(";");
                 switch (attributes.length) {
                     case 2 -> {
-                        temp.add(attributes[1]);
+                        String[] auxiliar = attributes[1].split(":");
+                        if(auxiliar.length < 2)
+                            listaEspetaculos.add(attributes[1]);
                     }
                     case 4 -> {
                         data_hora = attributes[1] + "-" + attributes[2] + "-" + attributes[3] + " ";
@@ -366,7 +369,7 @@ public class ConnDB
                         attributes = line.split(";");
 
                         data_hora += attributes[1] + "-" + attributes[2];
-                        temp.add(data_hora);
+                        listaEspetaculos.add(data_hora);
                     }
                     default -> {
 
@@ -398,22 +401,63 @@ public class ConnDB
                             }
                             System.out.println("fila" + fila);
                         }
-
                     }
-
 
                 }
 
                 line = br.readLine();
             }
 
+            ArrayList insereEspetaculosLista = new ArrayList<>();
+            for (int i = 0; i < listaEspetaculos.size(); i++) {
+                String result = listaEspetaculos.get(i).replaceAll("\"", "");
+                insereEspetaculosLista.add(result);
+            }
 
+            System.out.println("insereespetaculo"+ insereEspetaculosLista);
+
+            Statement statement = connDB.dbConn.createStatement();
+
+            String verificaExistente = "SELECT * FROM espetaculo";
+
+            verificaExistente += " WHERE descricao = '" + insereEspetaculosLista.get(0)+ "' AND data_hora='" + insereEspetaculosLista.get(2)+"'";
+            ResultSet resultSet = statement.executeQuery(verificaExistente);
+            if (!resultSet.next()) {
+
+                ResultSet r = statement.executeQuery("SELECT COUNT(*) FROM espetaculo");
+                r.next();
+                int count = r.getInt(1);
+                r.close();
+
+                String espetaculo = "INSERT INTO espetaculo VALUES ('" + count + "','" + insereEspetaculosLista.get(0) + "','" + insereEspetaculosLista.get(1) + "','" + insereEspetaculosLista.get(2) + "','" + insereEspetaculosLista.get(3) + "','"
+                        + insereEspetaculosLista.get(4) + "','" + insereEspetaculosLista.get(5) + "','" + insereEspetaculosLista.get(6) + "','" + insereEspetaculosLista.get(7) + "','" + 0 + "')";
+
+                statement.executeUpdate(espetaculo);
+
+                for (var a: fila.keySet()) {
+                    for (var b: fila.get(a).keySet()) {
+                        ResultSet ra = statement.executeQuery("SELECT COUNT(*) FROM lugar");
+                        r.next();
+                        int count2 = ra.getInt(1);
+                        r.close();
+                        String insereLugar = "INSERT INTO lugar VALUES ('"+ count2 + "','"+ a +"','"+ b +"','"+ fila.get(a).get(b) +"','"+ count + "')" ;
+                        statement.executeUpdate(insereLugar);
+                    }
+                }
+
+
+
+            }
+            statement.close();
             System.out.println(fila);
         } catch (IOException ioe) {
             insere = "Este ficheiro não existe!";
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
         return insere;
     }
+
 
 
     /*public static void main(String[] args)
