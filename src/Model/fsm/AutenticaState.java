@@ -4,7 +4,6 @@ import Model.data.ClientData;
 
 import java.util.ArrayList;
 
-import static Model.fsm.ClientState.LOGADO;
 
 public class AutenticaState extends ClientAdapter {
     public AutenticaState(ClientContext context, ClientData data) {
@@ -22,8 +21,11 @@ public class AutenticaState extends ClientAdapter {
     }
 
     @Override
-    public void avancar() {
-        estadoSeguinte(LOGADO);
+    public void avancar(int i) {
+        if(i == 1)
+            estadoSeguinte(ClientState.LOGADO_USER);
+        else if(i == 2)
+            estadoSeguinte(ClientState.LOGADO_ADMIN);
     }
 
     @Override

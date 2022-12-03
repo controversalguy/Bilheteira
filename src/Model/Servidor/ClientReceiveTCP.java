@@ -9,13 +9,14 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ClientReceiveTCP extends Thread {
     ArrayList<Informacoes> listaServidores; //todo ATUALIZAR CONECTA
     Socket sClient;
     ClientData data;
-    AtomicBoolean confirmaUpdate;
-    public ClientReceiveTCP(ArrayList<Informacoes> listaServidores, Socket sClient, ClientData data, AtomicBoolean confirmaUpdate) {
+    AtomicInteger confirmaUpdate;
+    public ClientReceiveTCP(ArrayList<Informacoes> listaServidores, Socket sClient, ClientData data, AtomicInteger confirmaUpdate) {
         this.listaServidores = listaServidores;
         this.sClient = sClient;
         this.data = data;
@@ -36,10 +37,12 @@ public class ClientReceiveTCP extends Thread {
                     msgTCP = (Msg) msg;
                     if(msgTCP.getMsg()!=null){
                         System.out.println(msgTCP.getMsg());
-                        if(msgTCP.getMsg().equals("\nLogin efetuado como admin com sucesso!") || msgTCP.getMsg().equals("\nLogin efetuado com sucesso!")
-                        || msgTCP.getMsg().equals("\nLogin efetuado como admin com sucesso!")){
-                            //System.out.println("Cliente registado bem");
-                            confirmaUpdate.getAndSet(true);
+                        if(msgTCP.getMsg().equals("\nLogin efetuado como admin com sucesso!")){
+                            confirmaUpdate.getAndSet(2);
+                        }
+                        else if(msgTCP.getMsg().equals("\nLogin efetuado com sucesso!")){
+                            confirmaUpdate.getAndSet(1);
+
                         }
                     }else{
                         if(msgTCP.getIndex() == 0) //se for o primeiro, volta a ordenar

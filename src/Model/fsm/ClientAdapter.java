@@ -32,7 +32,7 @@ abstract class ClientAdapter implements IClientState {
     }
 
     @Override
-    public void avancar() {
+    public void avancar(int i) {
     }
 
     @Override
@@ -49,6 +49,8 @@ abstract class ClientAdapter implements IClientState {
         return false;
     }
 
+    @Override
+    public boolean selecionar(ArrayList<String> temp) { return false;}
     @Override
     public boolean visivel(ArrayList<String> temp) {
         return false;

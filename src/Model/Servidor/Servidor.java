@@ -207,7 +207,7 @@ public class Servidor {
     public static void atualiza(String msg, int valMaior, ArrayList<String> msgSockett) {
         try {
             LocalDateTime now = LocalDateTime.now();
-            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
             String currentTime = now.format(dateTimeFormatter);
 
             Informacoes info = new Informacoes(portServer, ipServer, ligacoesTCP.get(), currentTime, connDB.getVersao().get(), disponivel.get());

@@ -3,7 +3,7 @@ package Model.fsm;
 import Model.data.ClientData;
 
 import java.util.ArrayList;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ClientContext {
     private IClientState state;
@@ -20,10 +20,10 @@ public class ClientContext {
         if (state == null) return null;
         return state.getState();
     }
-    public void avancar() {
-        state.avancar();
+    public void avancar(int i) {
+        state.avancar(i);
     }
-    public void conectaTCP(AtomicBoolean confirma){
+    public void conectaTCP(AtomicInteger confirma){
         data.connectaTCPServidor(confirma);
     }
 
@@ -53,4 +53,5 @@ public class ClientContext {
         return state.consulta(temp);
     }
 
+    public boolean selecionarEspetaculo(ArrayList<String> temp) { return state.consulta(temp); }
 }

@@ -8,7 +8,7 @@ import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 ;import static java.lang.System.exit;
 
@@ -81,7 +81,7 @@ public class ClientData {
 
     }
 
-    public boolean connectaTCPServidor(AtomicBoolean confirmaUpdate) {
+    public boolean connectaTCPServidor(AtomicInteger confirmaUpdate) {
         Informacoes info = null;
         try {
         System.out.println("ListaServersClienteAOABRIR: " + listaServidores);

@@ -4,11 +4,11 @@ import Model.data.info;
 import Model.fsm.ClientContext;
 import utils.PDInput;
 
-import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.lang.System.exit;
 import static java.lang.Thread.sleep;
@@ -17,8 +17,9 @@ public class ClienteUI{
     Scanner sc;
     ClientContext fsm;
 
-    AtomicBoolean finish = new AtomicBoolean(false);
-    AtomicBoolean confirmaUpdate = new AtomicBoolean(false);
+    boolean finish = false;
+    AtomicInteger confirmaUpdate = new AtomicInteger(0);
+    //AtomicBoolean confirmaUpdate = new AtomicBoolean(false);
     public ClienteUI(ClientContext fsm) {
         this.fsm = fsm;
         sc = new Scanner(System.in);
@@ -30,19 +31,22 @@ public class ClienteUI{
         fsm.conectaUDP();
         fsm.conectaTCP(confirmaUpdate);
 
-        while (!finish.get()) {
+        while (!finish) {
 
-            System.out.println("finish" + finish.get());
-            if (confirmaUpdate.get()) {
-                fsm.avancar();
-                confirmaUpdate.getAndSet(false);
-                System.out.println("AVANCEI");
+            if (confirmaUpdate.get() == 1) {
+                fsm.avancar(1);
+                confirmaUpdate.getAndSet(0);
+                System.out.println("AVANCEI LOGADO_USER");
+            }else if(confirmaUpdate.get() == 2){
+                fsm.avancar(2);
+                confirmaUpdate.getAndSet(0);
+                System.out.println("AVANCEI LOGADO_ADMIN");
             }
             switch (fsm.getState()) {
                 case AUTENTICA -> autenticaUI();
-                case LOGADO -> logadoUI();
-                case ESPETACULO_ADMIN -> espetaculoUI();
-                default -> finish.getAndSet(true);
+                case LOGADO_ADMIN -> logadoAdminUI();
+                case LOGADO_USER -> logadoUserUI();
+                default -> finish = true;
 
             }
             sleep(300);
@@ -51,17 +55,31 @@ public class ClienteUI{
         exit(0);
     }
 
-    private void logadoUI() {
-        switch (PDInput.chooseOption("*** Logado State ***", "Editar", "Consultar","Logado")) {
-            case 1 -> { editaUI(); }
-            case 2 -> { loginUI(); }
-            case 3 -> {fsm.avancar();}
-            default -> finish.getAndSet(true);
+    private void logadoUserUI() {
+        switch (PDInput.chooseOption("*** User State ***", "Editar Perfil", "Consultar Espetaculos", "Selecionar espetaculo")) {
+            case 1 -> editaUI();
+            case 2 -> consultarEspetaculos();
+            case 3 -> selecionarEspetaculo();
+            default -> finish = true;
+        }
+    }
+
+    private void selecionarEspetaculo() {
+        int numero = PDInput.readInt("Número do espetáculo: ");
+        ArrayList <String> temp = new ArrayList<>();
+        Collections.addAll(temp, String.valueOf(info.SELECIONAR_ESPETACULO), String.valueOf(numero));
+        fsm.selecionarEspetaculo(temp);
+    }
+
+    private void logadoAdminUI() {
+        switch (PDInput.chooseOption("*** Admin State ***",  "Espetaculos")) {
+            case 1-> { espetaculoUI(); }
+            default -> finish = true;
         }
     }
 
     private void espetaculoUI() {
-        switch (PDInput.chooseOption("*** Espetaculo State Admin ***", "Inserir","Tornar visível","Consulta")) {
+        switch (PDInput.chooseOption("*** Espetaculos  ***", "Inserir","Tornar visível","Consultar")) {
             case 1 -> {
                 String filename = PDInput.readString("Filename:",false);
                 ArrayList <String> temp = new ArrayList<>();
@@ -74,13 +92,59 @@ public class ClienteUI{
                 Collections.addAll(temp, String.valueOf(info.TORNA_VISIVEL),String.valueOf(id));
                 fsm.visivel(temp);
             }
-            case 3 ->{
-                String filtro = PDInput.readString("Procure o espetáculo: ",false);
-                ArrayList <String> temp = new ArrayList<>();
-                Collections.addAll(temp, String.valueOf(info.FILTRO_ESPETACULO),filtro);
+            case 3 -> consultarEspetaculos();
+            default -> finish=true;
+        }
+    }
+
+    private void consultarEspetaculos() {
+
+        ArrayList<String> temp = new ArrayList<>();
+        switch (PDInput.chooseOption("*** Consultar Espetaculos ***", "Descrição", "Tipo", "Data e hora", "Duração", "Local", "Localidade", "País", "Classificação Etária", "Todos")) {
+            case 1 -> {
+                String filtro = PDInput.readString("Insira a Descrição: ", false);
+                Collections.addAll(temp, String.valueOf(info.FILTRO_ESPETACULO), "0", filtro);
                 fsm.consulta(temp);
             }
-            default -> finish.getAndSet(true);
+            case 2 -> {
+                String filtro = PDInput.readString("Insira o Tipo: ", false);
+                Collections.addAll(temp, String.valueOf(info.FILTRO_ESPETACULO), "1", filtro);
+                fsm.consulta(temp);
+            }
+            case 3 -> {
+                String filtro = PDInput.readString("Insira a Data e hora: ", false);
+                Collections.addAll(temp, String.valueOf(info.FILTRO_ESPETACULO), "2", filtro);
+                fsm.consulta(temp);
+            }
+            case 4 -> {
+                String filtro = PDInput.readString("Insira a Duração: ", false);
+                Collections.addAll(temp, String.valueOf(info.FILTRO_ESPETACULO), "3", filtro);
+                fsm.consulta(temp);
+            }
+            case 5 -> {
+                String filtro = PDInput.readString("Insira o Local: ", false);
+                Collections.addAll(temp, String.valueOf(info.FILTRO_ESPETACULO), "4", filtro);
+                fsm.consulta(temp);
+            }
+            case 6 -> {
+                String filtro = PDInput.readString("Insira a Localidade: ", false);
+                Collections.addAll(temp, String.valueOf(info.FILTRO_ESPETACULO), "5", filtro);
+                fsm.consulta(temp);
+            }
+            case 7 -> {
+                String filtro = PDInput.readString("Insira o País: ", false);
+                Collections.addAll(temp, String.valueOf(info.FILTRO_ESPETACULO), "6", filtro);
+                fsm.consulta(temp);
+            }
+            case 8 -> {
+                String filtro = PDInput.readString("Insira a Classificação Etária: ", false);
+                Collections.addAll(temp, String.valueOf(info.FILTRO_ESPETACULO), "7", filtro);
+                fsm.consulta(temp);
+            }
+            case 9 -> {
+                Collections.addAll(temp, String.valueOf(info.FILTRO_ESPETACULO), "8", "Todos");
+                fsm.consulta(temp);
+            }
         }
     }
 
@@ -88,7 +152,7 @@ public class ClienteUI{
         switch (PDInput.chooseOption("*** Autentica State ***", "Registo", "Login", "Quit")) {
             case 1 -> { registoUI(); }
             case 2 -> { loginUI(); }
-            case 3 -> { finish.getAndSet(true); }
+            case 3 -> {finish=true; }
         }
     }
 

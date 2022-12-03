@@ -42,7 +42,7 @@ public class HeartBeat extends Thread  {
             try {
 
                 LocalDateTime now = LocalDateTime.now();
-                DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
                 String currentTime = now.format(dateTimeFormatter);
 
                 Informacoes info = new Informacoes(portTCP, ipServer, ligacoesTCP.get(),currentTime);

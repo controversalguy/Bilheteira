@@ -5,8 +5,10 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.sql.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -368,7 +370,7 @@ public class ConnDB
                         line = br.readLine();
                         attributes = line.split(";");
 
-                        data_hora += attributes[1] + "-" + attributes[2];
+                        data_hora += attributes[1] + ":" + attributes[2];
                         listaEspetaculos.add(data_hora);
                     }
                     default -> {
@@ -390,7 +392,7 @@ public class ConnDB
                                         lugares.put(attributesAux[0], attributesAux[1]);
                                         fila.put(attributes[0], lugares);
                                     }
-                                } else if (i > 1) {
+                                } else {
                                     if (!fila.get(attributes[0]).containsKey(attributesAux[0])) {
 
                                         lugares.put(attributesAux[0], attributesAux[1]);
@@ -470,16 +472,34 @@ public class ConnDB
     return "Espetáculo não existe!";
     }
 
-    public String filtraEspetaculo(String filtro)throws SQLException {
+    public String filtraEspetaculo(int i, String filtro)throws SQLException {
 
         Statement statement = connDB.dbConn.createStatement();
-        ResultSet r = statement.executeQuery("SELECT * FROM espetaculo WHERE descricao like '%" + filtro+ "%'");
+        ResultSet r = null;
+        
+        switch (i) {
+            case 0 -> r = statement.executeQuery("SELECT * FROM espetaculo WHERE descricao like '%" + filtro+ "%'");
+            case 1 -> r = statement.executeQuery("SELECT * FROM espetaculo WHERE tipo like '%" + filtro+ "%'");
+            case 2 -> r = statement.executeQuery("SELECT * FROM espetaculo WHERE data_hora like '%" + filtro+ "%'");
+            case 3 -> r = statement.executeQuery("SELECT * FROM espetaculo WHERE duracao like '%" + filtro+ "%'");
+            case 4 -> r = statement.executeQuery("SELECT * FROM espetaculo WHERE local like '%" + filtro+ "%'");
+            case 5 -> r = statement.executeQuery("SELECT * FROM espetaculo WHERE localidade like '%" + filtro+ "%'");
+            case 6 -> r = statement.executeQuery("SELECT * FROM espetaculo WHERE pais like '%" + filtro+ "%'");
+            case 7 -> r = statement.executeQuery("SELECT * FROM espetaculo WHERE classificacao_etaria like '%" + filtro+ "%'");
+            case 8 -> r = statement.executeQuery("SELECT * FROM espetaculo");
+        }
+        
+        //ResultSet r = statement.executeQuery("SELECT * FROM espetaculo WHERE descricao like '%" + filtro+ "%'");
         System.out.println("filtro:"+filtro);
-        if (r.next()) {
+        StringBuilder sb = new StringBuilder();
+        StringBuilder sbs = new StringBuilder();
+
+        while (r.next()) {
             int visibilidade = r.getInt("visivel");
             if(visibilidade == 0)
                 return "Espetáculo não existente!";
 
+            int numero = r.getInt("id");
             String descricao = r.getString("descricao");
             System.out.println("descricao"+descricao);
             String tipo = r.getString("tipo");
@@ -489,13 +509,57 @@ public class ConnDB
             String localidade = r.getString("localidade");
             String pais = r.getString("pais");
             String classificacao = r.getString("classificacao_etaria");
+            sbs.append("\n\nNúmero do Espetáculo: "+numero).append("\nDescrição: "+descricao).append("\nTipo: "+tipo).append("\nData: "+data_hora).append("\nDuracao: "+duracao).append("\nLocal: "+local)
+                    .append("\nLocalidade: "+localidade).append("\nPais: "+pais).append("\nClassificação: "+classificacao);
+
+        }
+        if(sbs.length() != 0){
+            sb = sbs;
+        }else sb.append("Não existe espetáculo com esse filtro!");
+        return sb.toString();
+    }
+
+    public String selecionaEspetaculo(int idEspetaculo) throws SQLException {
+        LocalDateTime now = LocalDateTime.now();
+        Statement statement = connDB.dbConn.createStatement();
+        ResultSet r = statement.executeQuery("SELECT * FROM espetaculo WHERE id =" + idEspetaculo);
+        if (r.next()) {
+            String data_hora = r.getString("data_hora");
+
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
+            LocalDateTime hora_espetaculo = LocalDateTime.parse(data_hora, formatter);
+
+            long hora = ChronoUnit.HOURS.between(now, hora_espetaculo);
+
+            if (hora < 24)
+                return "Não é possivel selecionar este espetáculo";
+
+            int visibilidade = r.getInt("visivel");
+            if (visibilidade == 0)
+                return "Espetáculo não existente!";
+
+            ResultSet rL = statement.executeQuery("SELECT * FROM lugar");
             StringBuilder sb = new StringBuilder();
-            sb.append("Descrição:"+descricao).append("\nTipo:"+tipo).append("\nData:"+data_hora).append("\nDuracao:"+duracao).append("\nLocal:"+local)
-                    .append("\nLocalidade:"+localidade).append("\nPais:"+pais).append("\nClassificacao:"+classificacao);
+            String filaaux = null;
+            while (rL.next()) {
+                String fila = r.getString("fila");
+                if(filaaux == null)
+                    filaaux = fila;
+                String assento = r.getString("assento");
+                String preco = r.getString("preco");
+                if(!filaaux.equals(fila)){
+                    sb.append("\n");
+                    filaaux = null;
+                }
+                System.out.println("fila: " + fila);
+                System.out.println("assento: " + assento);
+                System.out.println("preco: " + preco);
+                sb.append("|"+fila+"|").append(assento+"->").append(preco+"|");
+            }
+
             return sb.toString();
         }
-
-        return "Não existe nenhum espetáculo";
+        return "Espetáculo Inexistente!";
     }
 
     /*public static void main(String[] args)
