@@ -4,7 +4,6 @@ import Model.data.ClientData;
 
 import java.util.ArrayList;
 
-import static Model.fsm.ClientState.ESPETACULO;
 import static Model.fsm.ClientState.LOGADO;
 
 public class AutenticaState extends ClientAdapter {

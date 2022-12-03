@@ -41,7 +41,7 @@ public class ClienteUI{
             switch (fsm.getState()) {
                 case AUTENTICA -> autenticaUI();
                 case LOGADO -> logadoUI();
-                case ESPETACULO -> espetaculoUI();
+                case ESPETACULO_ADMIN -> espetaculoUI();
                 default -> finish.getAndSet(true);
 
             }
@@ -55,14 +55,20 @@ public class ClienteUI{
         switch (PDInput.chooseOption("*** Logado State ***", "Editar", "Consultar","Logado")) {
             case 1 -> { editaUI(); }
             case 2 -> { loginUI(); }
+            case 3 -> {fsm.avancar();}
             default -> finish.getAndSet(true);
         }
     }
 
     private void espetaculoUI() {
-        switch (PDInput.chooseOption("*** Espetaculo State ***", "Registo", "Login", "Logout")) {
-            case 1 -> { registoUI(); }
-            case 2 -> { loginUI(); }
+        switch (PDInput.chooseOption("*** Espetaculo State Admin ***", "Inserir")) {
+            case 1 -> {
+                String filename = PDInput.readString("Filename:",false);
+                ArrayList <String> temp = new ArrayList<>();
+                Collections.addAll(temp, String.valueOf(info.INSERE_ESPETACULOS), filename);
+                fsm.inserirEspetaculos(temp);
+            }
+            case 2 -> {loginUI();}
             default -> finish.getAndSet(true);
         }
     }

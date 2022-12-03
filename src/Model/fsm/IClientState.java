@@ -9,4 +9,5 @@ public interface IClientState {
     boolean edita(ArrayList<String> temp);
     void avancar();
     void regressar();
+    boolean inserirEspetaculo(ArrayList<String> temp);
 }

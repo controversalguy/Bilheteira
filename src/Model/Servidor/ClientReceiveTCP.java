@@ -36,7 +36,8 @@ public class ClientReceiveTCP extends Thread {
                     msgTCP = (Msg) msg;
                     if(msgTCP.getMsg()!=null){
                         System.out.println(msgTCP.getMsg());
-                        if(msgTCP.getMsg().equals("\nLogin efetuado como admin com sucesso!") || msgTCP.getMsg().equals("\nLogin efetuado com sucesso!") ){
+                        if(msgTCP.getMsg().equals("\nLogin efetuado como admin com sucesso!") || msgTCP.getMsg().equals("\nLogin efetuado com sucesso!")
+                        || msgTCP.getMsg().equals("\nLogin efetuado como admin com sucesso!")){
                             //System.out.println("Cliente registado bem");
                             confirmaUpdate.getAndSet(true);
                         }

@@ -39,4 +39,8 @@ abstract class ClientAdapter implements IClientState {
     public void regressar() {
     }
 
+    @Override
+    public boolean inserirEspetaculo(ArrayList<String> temp) {
+        return false;
+    }
 }

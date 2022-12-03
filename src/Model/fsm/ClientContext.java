@@ -40,4 +40,8 @@ public class ClientContext {
     }
 
     public boolean edita(ArrayList<String> temp) { return state.edita(temp);}
+
+    public boolean inserirEspetaculos(ArrayList<String> temp) {
+        return state.inserirEspetaculo(temp);
+    }
 }

@@ -15,6 +15,11 @@ public class LogadoState extends ClientAdapter {
     }
 
     @Override
+    public void avancar() {
+        estadoSeguinte(ClientState.ESPETACULO_ADMIN);
+    }
+
+    @Override
     public ClientState getState() {
         return ClientState.LOGADO;
     }
