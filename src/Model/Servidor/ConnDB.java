@@ -349,16 +349,16 @@ public class ConnDB
             String data_hora;
             ArrayList<String> temp = new ArrayList<>();
 
-            ArrayList<String> tempLugares;
-
-            HashMap<String,HashMap<String,String>> fila = new HashMap<>();
+            HashMap<String, HashMap<String, String>> fila = new HashMap<>();
 
             //ADICIONA TABELA ESPETACULOS
             while (line != null) {
 
                 String[] attributes = line.split(";");
                 switch (attributes.length) {
-                    case 2 -> {temp.add(attributes[1]);}
+                    case 2 -> {
+                        temp.add(attributes[1]);
+                    }
                     case 4 -> {
                         data_hora = attributes[1] + "-" + attributes[2] + "-" + attributes[3] + " ";
 
@@ -370,98 +370,43 @@ public class ConnDB
                     }
                     default -> {
 
-                        HashMap<String,String> lugares = new HashMap<>();
+                        HashMap<String, String> lugares = new HashMap<>();
 
 
                         if (attributes[0].length() == 3) {
-                           // System.out.println("attributes" + Arrays.toString(attributes));
+                            // System.out.println("attributes" + Arrays.toString(attributes));
                             for (int i = 0; i < attributes.length; i++) { // corresponde a uma fila
 
-                                String[] attributesAux = attributes[i].replace("\"","").split(":");
+                                String[] attributesAux = attributes[i].replace("\"", "").trim().split(":");
 
                                 System.out.println("attributesAux" + Arrays.toString(attributesAux));
-                                if(i == 0){
+                                if (i == 0) {
                                     attributes[0] = attributesAux[0];
-                                }
-                                else if (i == 1) {
-                                        if(!fila.containsKey(attributes[0])) {
-                                            lugares.put(attributesAux[0], attributesAux[1]);
-                                            fila.put(attributes[0], lugares);
-                                        }
-                                    } else if(i>1) {
-                                        if (!fila.get(attributes[0]).containsKey(attributesAux[0])) {
+                                } else if (i == 1) {
+                                    if (!fila.containsKey(attributes[0])) {
+                                        lugares.put(attributesAux[0], attributesAux[1]);
+                                        fila.put(attributes[0], lugares);
+                                    }
+                                } else if (i > 1) {
+                                    if (!fila.get(attributes[0]).containsKey(attributesAux[0])) {
 
-                                            lugares.put(attributesAux[0], attributesAux[1]);
+                                        lugares.put(attributesAux[0], attributesAux[1]);
 
-                                            fila.get(attributes[0]).putAll(lugares);
-                                        }
+                                        fila.get(attributes[0]).putAll(lugares);
                                     }
                                 }
-                                System.out.println("fila"+fila);
                             }
+                            System.out.println("fila" + fila);
+                        }
 
+                    }
 
-                               // System.out.println("attributesAuxDEPOISCAGADO" + fila);
-                                //tempLugares.add(attributes[i].replaceAll("\"", ""));
-                                //String [] auxx = tempLugares.get(i).split(",");
-                            }
-
-
-//                            if(!mapa.containsKey(tempLugares.get(0))) {
-//                                ArrayList<String> aux = mapa.get(tempLugares.get(0));
-//                                System.out.println("LISTA QUE TEM "+ aux);
-//
-//
-//
-//                            }
-//
-//                            for(Evento ev: userInEvent.keySet()) {
-//                                if(ev.getId() == idEvento){
-//                                    listaUtilizadores = userInEvent.get(ev);
-//                                    listaUtilizadores.add(utilizador);
-//                                    userInEvent.put(ev, listaUtilizadores);
-//                                    return true;
-//                                }
-//                            }
-//                                mapa.put(tempLugares.get(0), tempLugares);
 
                 }
 
                 line = br.readLine();
             }
 
-//            ArrayList temp2 = new ArrayList<>();
-//            for (int i = 0; i < temp.size(); i++) {
-//                String result = temp.get(i).replaceAll("\"","");
-//                temp2.add(result);
-//            }
-//
-//            System.out.println(temp2);
-//
-//            //////////////////////////////////////////////////////////////////////////////
-//            //ADICIONA TABELA LUGARES
-//           // br.readLine();
-//            while (line == null) {
-//                line = br.readLine();
-//                System.out.println("linewhile: "+line);
-//            }
-//
-//            System.out.println("line: "+line);
-//
-//
-//            //ADICIONA TABELA ESPETACULOS
-//            System.out.println("fila");
-//            System.out.println(line);
-//            while (line != null) {
-//                tempLugares = new ArrayList<>();
-//                String[] attributes = line.split(";");
-//                System.out.println("attributes" + Arrays.toString(attributes));
-//                for (int i = 0; i < line.length();i++){
-//                    tempLugares.add(attributes[i].replaceAll("\"",""));
-//                }
-//                line = br.readLine();
-//                mapa.put(tempLugares.get(0),tempLugares);
-//            }
 
             System.out.println(fila);
         } catch (IOException ioe) {
