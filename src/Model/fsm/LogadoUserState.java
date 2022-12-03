@@ -20,7 +20,7 @@ public class LogadoUserState extends ClientAdapter {
     }
 
     @Override
-    public boolean selecionar(ArrayList<String> temp) {
+    public boolean submeteReserva(ArrayList<String> temp) {
         return data.enviaInfo(temp);
     }
 

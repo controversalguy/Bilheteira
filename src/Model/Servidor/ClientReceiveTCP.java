@@ -42,7 +42,9 @@ public class ClientReceiveTCP extends Thread {
                         }
                         else if(msgTCP.getMsg().equals("\nLogin efetuado com sucesso!")){
                             confirmaUpdate.getAndSet(1);
-
+                        }
+                        else if(msgTCP.getMsg().equals("\nEspetáculo Inexistente!")){
+                            confirmaUpdate.getAndSet(3);
                         }
                     }else{
                         if(msgTCP.getIndex() == 0) //se for o primeiro, volta a ordenar

@@ -50,9 +50,10 @@ abstract class ClientAdapter implements IClientState {
     }
 
     @Override
-    public boolean selecionar(ArrayList<String> temp) { return false;}
-    @Override
     public boolean visivel(ArrayList<String> temp) {
         return false;
     }
+
+    @Override
+    public boolean submeteReserva(ArrayList<String> temp) { return false; }
 }

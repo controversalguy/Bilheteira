@@ -31,7 +31,20 @@ public final class PDInput {
         }
         return value;
     }
+    public static boolean isNumeric(String string) {
 
+        if(string == null || string.equals("")) {
+            return false;
+        }
+
+        try {
+            Integer.parseInt(string);
+            return true;
+        } catch (NumberFormatException e) {
+
+        }
+        return false;
+    }
     public static int readInt(String title) {
         while (true) {
             if (title != null)

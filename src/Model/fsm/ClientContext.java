@@ -54,4 +54,6 @@ public class ClientContext {
     }
 
     public boolean selecionarEspetaculo(ArrayList<String> temp) { return state.consulta(temp); }
+
+    public boolean submeteReserva(ArrayList<String> temp) { return state.submeteReserva(temp); }
 }

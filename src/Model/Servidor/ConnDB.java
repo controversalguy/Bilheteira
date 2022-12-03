@@ -9,10 +9,12 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static Model.Servidor.Servidor.connDB;
+import static Model.Servidor.Servidor.ms;
 
 public class ConnDB
 { // formato da data muito importante para nao dar erro
@@ -497,7 +499,7 @@ public class ConnDB
         while (r.next()) {
             int visibilidade = r.getInt("visivel");
             if(visibilidade == 0)
-                return "Espetáculo não existente!";
+                continue;
 
             int numero = r.getInt("id");
             String descricao = r.getString("descricao");
@@ -536,30 +538,82 @@ public class ConnDB
 
             int visibilidade = r.getInt("visivel");
             if (visibilidade == 0)
-                return "Espetáculo não existente!";
+                return "Espetáculo Inexistente!";
 
-            ResultSet rL = statement.executeQuery("SELECT * FROM lugar");
+            ResultSet rL = statement.executeQuery("SELECT * FROM lugar where espetaculo_id="+idEspetaculo);
             StringBuilder sb = new StringBuilder();
             String filaaux = null;
+            int muda = 0;
+            int c = 0;
+
+
             while (rL.next()) {
                 String fila = r.getString("fila");
-                if(filaaux == null)
+
+                if(filaaux == null) {
                     filaaux = fila;
+                    muda = 0;
+                }
+
                 String assento = r.getString("assento");
                 String preco = r.getString("preco");
-                if(!filaaux.equals(fila)){
+                if(!filaaux.equals(fila)) {
                     sb.append("\n");
                     filaaux = null;
+                    muda = 1;
                 }
-                System.out.println("fila: " + fila);
-                System.out.println("assento: " + assento);
-                System.out.println("preco: " + preco);
-                sb.append("|"+fila+"|").append(assento+"->").append(preco+"|");
+
+                if(muda == 1 || c == 0)
+                    sb.append("|"+fila+"| ");
+
+                sb.append(assento+" -> ").append(preco+" | ");
+                c++;
             }
+
 
             return sb.toString();
         }
         return "Espetáculo Inexistente!";
+    }
+
+    public String submeteReserva(ArrayList<String> msgSockettt) throws SQLException {
+        StringBuilder submete = new StringBuilder();
+        Statement st = dbConn.createStatement();
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+        String data_hora = now.format(dateTimeFormatter);
+        String username = msgSockettt.get(msgSockettt.size() - 1);
+
+        for (int i = 2; i < msgSockettt.size() - 1; i++) {
+
+            //comParts[0] -> fila || comParts[1] -> lugar
+            String[] comParts = msgSockettt.get(i).toUpperCase().split("-");
+
+            int id_espetaculo = Integer.parseInt(msgSockettt.get(1));
+            String query = "SELECT id from lugar where fila ='" + comParts[0] + "' AND assento='" + comParts[1] + "' AND espetaculo_id=" + id_espetaculo; // devolve a linha com o lugar
+
+            ResultSet r = st.executeQuery(query);
+            if (r.next()) {
+                int id_lugar = r.getInt("id");
+                String reservaLugar = "SELECT COUNT(*) FROM reserva_lugar WHERE id_lugar=" + id_lugar; // devolve a linha com o lugar
+               ResultSet rs =  st.executeQuery(reservaLugar);
+                if (!rs.next()) {
+                    String sqlQuery = "INSERT INTO reserva VALUES( (SELECT COUNT(*) FROM reserva),'" + data_hora + "','" + 0
+                            + "',(SELECT id FROM utilizador WHERE username= '" + username + "'),'" + id_espetaculo + "')";
+                    st.executeUpdate(sqlQuery);
+
+                    String sqlQuery2 = "INSERT INTO reserva_lugar VALUES( (SELECT COUNT(*) FROM reserva_lugar),'" + id_lugar + "')";
+                    st.executeUpdate(sqlQuery2);
+                    submete.append("\nLugar reservado com sucesso: [" +comParts[0]+"-"+comParts[1]+"]");
+                }else{
+                    submete.append("\nLugar já reservado! [" + comParts[0] + "-" + comParts[1] +"]");
+                }
+            }else{
+                submete.append("\nLugar não existe! ["+comParts[0]+"-"+comParts[1]+"]");
+            }
+        }
+        st.close();
+        return String.valueOf(submete);
     }
 
     /*public static void main(String[] args)

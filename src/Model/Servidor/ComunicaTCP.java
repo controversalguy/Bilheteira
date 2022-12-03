@@ -157,6 +157,10 @@ public class ComunicaTCP extends Thread {
                             String str = connDB.selecionaEspetaculo(Integer.parseInt(msgSockettt.get(1)));
                             msg.setMsg("\n" + str);
                         }
+                        case "SUBMETE_RESERVA"->{
+                            String str = connDB.submeteReserva(msgSockettt);
+                            msg.setMsg("\n" + str);
+                        }
 
                     }
                     oos.writeUnshared(msg);

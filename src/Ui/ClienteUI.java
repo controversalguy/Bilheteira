@@ -55,7 +55,7 @@ public class ClienteUI{
         exit(0);
     }
 
-    private void logadoUserUI() {
+    private void logadoUserUI() throws InterruptedException {
         switch (PDInput.chooseOption("*** User State ***", "Editar Perfil", "Consultar Espetaculos", "Selecionar espetaculo")) {
             case 1 -> editaUI();
             case 2 -> consultarEspetaculos();
@@ -64,11 +64,50 @@ public class ClienteUI{
         }
     }
 
-    private void selecionarEspetaculo() {
+    private void selecionarEspetaculo() throws InterruptedException {
         int numero = PDInput.readInt("Número do espetáculo: ");
         ArrayList <String> temp = new ArrayList<>();
         Collections.addAll(temp, String.valueOf(info.SELECIONAR_ESPETACULO), String.valueOf(numero));
         fsm.selecionarEspetaculo(temp);
+
+        //TODO n deixar avancar se n existir confirmaUpdate
+
+        sleep(300);
+
+        if(confirmaUpdate.get() == 3) {
+            confirmaUpdate.getAndSet(0);
+            return;
+        }
+
+        System.out.println("\n");
+
+        ArrayList<String> lugaresFila = new ArrayList<>();
+        lugaresFila.add(String.valueOf(info.SUBMETE_RESERVA));
+        lugaresFila.add(String.valueOf(numero));
+
+        int continuar;
+
+        do {
+            String fila;
+            do {
+
+                fila = PDInput.readString("Fila: ", false);
+
+            }while (fila.length() > 1 || PDInput.isNumeric(fila));
+
+            int lugar = PDInput.readInt("Lugar: ");
+
+            String par = fila + "-" + lugar;
+            lugaresFila.add(par);
+
+
+            continuar = PDInput.readInt("Deseja inserir mais lugares? [0 - Sim | Outro - Não]");
+        } while (continuar == 0);
+
+        System.out.println("Filas: " +  lugaresFila);
+
+        fsm.submeteReserva(lugaresFila);
+
     }
 
     private void logadoAdminUI() {

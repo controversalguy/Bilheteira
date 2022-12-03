@@ -14,5 +14,6 @@ public interface IClientState {
     boolean visivel(ArrayList<String> temp);
 
     boolean consulta(ArrayList<String> temp);
-    boolean selecionar(ArrayList<String> temp);
+
+    boolean submeteReserva(ArrayList<String> temp);
 }
