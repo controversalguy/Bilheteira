@@ -43,7 +43,7 @@ public class ClientReceiveTCP extends Thread {
                         else if(msgTCP.getMsg().equals("\nLogin efetuado com sucesso!")){
                             confirmaUpdate.getAndSet(1);
                         }
-                        else if(msgTCP.getMsg().equals("\nEspetáculo Inexistente!")){
+                        else if(msgTCP.getMsg().equals("\nEspetáculo Inexistente!") || msgTCP.getMsg().equals("\nNão é possivel selecionar este espetáculo!")){
                             confirmaUpdate.getAndSet(3);
                         }
                     }else{

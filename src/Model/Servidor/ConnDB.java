@@ -534,41 +534,82 @@ public class ConnDB
             long hora = ChronoUnit.HOURS.between(now, hora_espetaculo);
 
             if (hora < 24)
-                return "Não é possivel selecionar este espetáculo";
+                return "Não é possivel selecionar este espetáculo!";
 
             int visibilidade = r.getInt("visivel");
             if (visibilidade == 0)
-                return "Espetáculo Inexistente!";
+                return "Não é possivel selecionar este espetáculo!";
 
+
+            System.out.println("ESPERTACILOID" + idEspetaculo);
             ResultSet rL = statement.executeQuery("SELECT * FROM lugar where espetaculo_id="+idEspetaculo);
             StringBuilder sb = new StringBuilder();
             String filaaux = null;
             int muda = 0;
             int c = 0;
 
-
             while (rL.next()) {
-                String fila = r.getString("fila");
+                System.err.println(rL.getString("fila"));
+                String fila = rL.getString("fila");
 
                 if(filaaux == null) {
                     filaaux = fila;
                     muda = 0;
                 }
 
-                String assento = r.getString("assento");
-                String preco = r.getString("preco");
+                String assento = rL.getString("assento");
+                String preco = rL.getString("preco");
                 if(!filaaux.equals(fila)) {
                     sb.append("\n");
                     filaaux = null;
                     muda = 1;
                 }
 
-                if(muda == 1 || c == 0)
+                if(muda == 1 || c == 0){
                     sb.append("|"+fila+"| ");
+                }
+
+                System.err.println("CLOSED"+rL.isClosed());
+                System.err.println(rL.getString("fila"));
+
+                String query = "SELECT id from lugar WHERE fila ='" + fila + "' AND assento='" + assento + "' AND espetaculo_id=" + idEspetaculo; // devolve a linha com o lugar
+                Statement st = dbConn.createStatement();
+                ResultSet resultSet = st.executeQuery(query);
+                if (resultSet.next()) {
+                    int id_lugar = resultSet.getInt("id");
+                    ResultSet rs =  st.executeQuery("SELECT COUNT(*) FROM reserva_lugar WHERE id_lugar=" + id_lugar);
+                    rs.next();
+                    int count = rs.getInt(1);
+                    rs.close();
+
+                    if (count != 0) {
+                        preco = " X  ";
+                    }
+                }
+                st.close();
+                resultSet.close();
+
+                //System.err.println(rL.getString("fila"));
+                System.err.println("CLOSE333D"+rL.isClosed());
 
                 sb.append(assento+" -> ").append(preco+" | ");
                 c++;
             }
+
+            rL.close();
+
+
+            //String query = "SELECT * FROM lugar WHERE fila='" +fila+ "' AND assento='" + assento + "' AND espetaculo_id=" + idEspetaculo;
+            //ResultSet r1 = statement.executeQuery(query);
+           // int idLugar = r1.getInt("id");
+//            String query1 = "SELECT * FROM reserva_lugar WHERE id_lugar=" + idLugar;
+//            ResultSet r2 = statement.executeQuery(query1);
+//            if(r2.next()){
+//                preco = "x";
+//            }
+//            r1.close();
+//            r2.close();
+//            System.err.println("SB: " + sb);
 
 
             return sb.toString();
@@ -583,7 +624,7 @@ public class ConnDB
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
         String data_hora = now.format(dateTimeFormatter);
         String username = msgSockettt.get(msgSockettt.size() - 1);
-
+        ResultSet r = null;
         for (int i = 2; i < msgSockettt.size() - 1; i++) {
 
             //comParts[0] -> fila || comParts[1] -> lugar
@@ -592,12 +633,15 @@ public class ConnDB
             int id_espetaculo = Integer.parseInt(msgSockettt.get(1));
             String query = "SELECT id from lugar where fila ='" + comParts[0] + "' AND assento='" + comParts[1] + "' AND espetaculo_id=" + id_espetaculo; // devolve a linha com o lugar
 
-            ResultSet r = st.executeQuery(query);
+            r = st.executeQuery(query);
             if (r.next()) {
                 int id_lugar = r.getInt("id");
-                String reservaLugar = "SELECT COUNT(*) FROM reserva_lugar WHERE id_lugar=" + id_lugar; // devolve a linha com o lugar
-               ResultSet rs =  st.executeQuery(reservaLugar);
-                if (!rs.next()) {
+                ResultSet rs =  st.executeQuery("SELECT COUNT(*) FROM reserva_lugar WHERE id_lugar=" + id_lugar);
+                rs.next();
+                int count = rs.getInt(1);
+                rs.close();
+
+                if (count == 0) {
                     String sqlQuery = "INSERT INTO reserva VALUES( (SELECT COUNT(*) FROM reserva),'" + data_hora + "','" + 0
                             + "',(SELECT id FROM utilizador WHERE username= '" + username + "'),'" + id_espetaculo + "')";
                     st.executeUpdate(sqlQuery);
@@ -612,6 +656,7 @@ public class ConnDB
                 submete.append("\nLugar não existe! ["+comParts[0]+"-"+comParts[1]+"]");
             }
         }
+        r.close();
         st.close();
         return String.valueOf(submete);
     }
