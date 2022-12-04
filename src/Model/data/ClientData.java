@@ -6,8 +6,15 @@ import utils.Msg;
 
 import java.io.*;
 import java.net.*;
+import java.sql.Time;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 ;import static java.lang.System.exit;
@@ -132,6 +139,18 @@ public class ClientData {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        return false;
+    }
+
+    public boolean esperaPagamento(AtomicInteger pagamento) {
+        ArrayList<Thread> allThreads = new ArrayList<>();
+        Thread tempo = new ThreadTempo(pagamento); //TODO PASSAR VARIAVEL PARA ACABAR A THREAD CASO TENHA PAGO
+        tempo.start();
+        allThreads.add(tempo);
+        Thread scan = new ThreadScan(pagamento);
+        scan.start();
+        allThreads.add(tempo);
+
         return false;
     }
 

@@ -7,7 +7,6 @@ import utils.PDInput;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Scanner;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.lang.System.exit;
@@ -19,6 +18,7 @@ public class ClienteUI{
 
     boolean finish = false;
     AtomicInteger confirmaUpdate = new AtomicInteger(0);
+    AtomicInteger pagamento = new AtomicInteger(0);
     //AtomicBoolean confirmaUpdate = new AtomicBoolean(false);
     public ClienteUI(ClientContext fsm) {
         this.fsm = fsm;
@@ -36,16 +36,19 @@ public class ClienteUI{
             if (confirmaUpdate.get() == 1) {
                 fsm.avancar(1);
                 confirmaUpdate.getAndSet(0);
-                System.out.println("AVANCEI LOGADO_USER");
-            }else if(confirmaUpdate.get() == 2){
+            } else if(confirmaUpdate.get() == 2) {
                 fsm.avancar(2);
                 confirmaUpdate.getAndSet(0);
-                System.out.println("AVANCEI LOGADO_ADMIN");
+            } if(confirmaUpdate.get() == 4) {
+                fsm.avancar(0);
+                confirmaUpdate.getAndSet(0);
             }
+
             switch (fsm.getState()) {
                 case AUTENTICA -> autenticaUI();
                 case LOGADO_ADMIN -> logadoAdminUI();
                 case LOGADO_USER -> logadoUserUI();
+                case PAGAMENTO -> pagamentoUI();
                 default -> finish = true;
 
             }
@@ -53,6 +56,44 @@ public class ClienteUI{
         }
 
         exit(0);
+    }
+
+    private void pagamentoUI() {
+        System.out.println("*** Pagamento State ***, Efetuar Pagamento [1], Consultar Reservas Pagas [2], Consultar Reservas Pendentes [3]");
+        fsm.esperaPagamento(pagamento);
+
+        do {
+            if(pagamento.get() == 1) {
+                efetuaPagamento();
+                pagamento.getAndSet(0);
+            } else if(pagamento.get() == 2) {
+                consultaReservasPagas();
+                pagamento.getAndSet(0);
+            } else if(pagamento.get() == 3) {
+                consultaReservasPendentes();
+                pagamento.getAndSet(0);
+            }
+        } while (pagamento.get() != 4);
+
+        System.out.println("ACABOUUUUUU");
+
+       // PDInput.chooseOption("*** Pagamento State ***", "Efetuar Pagamento", "Consultar Reservas Pagas", "Consultar Reservas Pendentes"))
+//            case 1 ->if(!espera)
+//            case 2 ->if(!espera) ;
+//            case 3 ->if(!espera) ;
+//            default -> finish = true;
+    }
+
+    private void efetuaPagamento() {
+        System.out.println("FAZ PAGAMENTO");
+    }
+
+    private void consultaReservasPagas() {
+        System.out.println("CONSULTA O QUE PAGAS");
+    }
+
+    private void consultaReservasPendentes() {
+        System.out.println("DEVES AO PESSOAL BORRO");
     }
 
     private void logadoUserUI() throws InterruptedException {

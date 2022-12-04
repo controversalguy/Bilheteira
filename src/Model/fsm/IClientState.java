@@ -1,6 +1,7 @@
 package Model.fsm;
 
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public interface IClientState {
     ClientState getState();
@@ -14,6 +15,9 @@ public interface IClientState {
     boolean visivel(ArrayList<String> temp);
 
     boolean consulta(ArrayList<String> temp);
+    boolean consultaReservasPagas(ArrayList<String> temp);
+    boolean consultaReservasParaPagamento(ArrayList<String> temp);
+    boolean esperaPagamento(AtomicInteger pagamento);
 
     boolean submeteReserva(ArrayList<String> temp);
 }

@@ -243,6 +243,11 @@ public class ConnDB
         if (username != null && password != null) {
             verificaExistente += " WHERE username = '" + username + "' AND password = '" + password + "'";
             ResultSet resultSet = statement.executeQuery(verificaExistente);
+            int logado = resultSet.getInt("autenticado");
+            if(logado == 1)
+                return "Cliente com inicio de sessão já ativa!";
+
+
             if (!resultSet.next()) {
                 login =  "Dados incorretos!";
             } else if (username.equals("admin") && password.equals("admin")){

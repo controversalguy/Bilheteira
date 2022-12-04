@@ -46,6 +46,9 @@ public class ClientReceiveTCP extends Thread {
                         else if(msgTCP.getMsg().equals("\nEspetáculo Inexistente!") || msgTCP.getMsg().equals("\nNão é possivel selecionar este espetáculo!")){
                             confirmaUpdate.getAndSet(3);
                         }
+                        else if(msgTCP.getMsg().contains("Lugar reservado")){
+                            confirmaUpdate.getAndSet(4);
+                        }
                     }else{
                         if(msgTCP.getIndex() == 0) //se for o primeiro, volta a ordenar
                             listaServidores.clear();

@@ -26,7 +26,7 @@ public class LogadoUserState extends ClientAdapter {
 
     @Override
     public void avancar(int i) {
-        // TODO estadoSeguinte(ClientState.);
+       estadoSeguinte(ClientState.PAGAMENTO);
     }
 
     @Override

@@ -4,6 +4,7 @@ import Model.Servidor.Cliente;
 import Model.data.ClientData;
 
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 abstract class ClientAdapter implements IClientState {
     ClientContext context;
@@ -56,4 +57,18 @@ abstract class ClientAdapter implements IClientState {
 
     @Override
     public boolean submeteReserva(ArrayList<String> temp) { return false; }
+
+    @Override
+    public boolean consultaReservasPagas(ArrayList<String> temp) {
+        return false;
+    }
+    @Override
+    public boolean consultaReservasParaPagamento(ArrayList<String> temp) {
+        return false;
+    }
+
+    @Override
+    public boolean esperaPagamento(AtomicInteger pagamento) {
+        return false;
+    }
 }
