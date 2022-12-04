@@ -68,6 +68,11 @@ abstract class ClientAdapter implements IClientState {
     }
 
     @Override
+    public boolean efetuaPagamento(ArrayList<String> temp) {
+        return false;
+    }
+
+    @Override
     public boolean esperaPagamento(AtomicInteger pagamento) {
         return false;
     }

@@ -172,23 +172,30 @@ public class ConnDB
                 Servidor.atualiza("Prepare",connDB.getVersao().get() + 1, msgSockett);
 
                 ResultSet r = statement.executeQuery("SELECT COUNT(*) FROM utilizador");
-                r.next();
-                int count = r.getInt(1);
+                int count = -1;
+                if(r.next())
+                    count = r.getInt(1);
                 r.close();
 
                 System.out.println("TAS AQUI A FAZER O QUE");
 
                 System.out.println("MyTable has " + count + " row(s).");
-                String sqlQuery = "INSERT INTO utilizador VALUES ('" + count + "','" + username + "','" + name + "','" + password + "','" + 0 + "','" + 0 + "')";
-                incrementaVersao();
-                //String sqlUpdateVersion = "INSERT INTO versao_db (query)VALUES('"+sqlQuery+"')" ;
-                String versao = "INSERT INTO versao_db VALUES ('" + getVersao().get() + "','" + "MUDAR" +"')"; //TODO
+                if(count > -1){
+                    String sqlQuery = "INSERT INTO utilizador VALUES ('" + count + "','" + username + "','" + name + "','" + password + "','" + 0 + "','" + 0 + "')";
+                    incrementaVersao();
+                    //String sqlUpdateVersion = "INSERT INTO versao_db (query)VALUES('"+sqlQuery+"')" ;
+                    String versao = "INSERT INTO versao_db VALUES ('" + getVersao().get() + "','" + "MUDAR" +"')"; //TODO
 
-                statement.executeUpdate(sqlQuery);
-                statement.executeUpdate(versao);
-                statement.close();
+                    statement.executeUpdate(sqlQuery);
+                    statement.executeUpdate(versao);
+                    statement.close();
+                    return MensagensRetorno.CLIENTE_REGISTADO_SUCESSO;
+                }
+                else{
 
-                return MensagensRetorno.CLIENTE_REGISTADO_SUCESSO;
+                    statement.close();
+                    return MensagensRetorno.CLIENTE_JA_REGISTADO;
+                }
             }
         }
         statement.close();
@@ -546,7 +553,6 @@ public class ConnDB
                 return "Não é possivel selecionar este espetáculo!";
 
 
-            System.out.println("ESPERTACILOID" + idEspetaculo);
             ResultSet rL = statement.executeQuery("SELECT * FROM lugar where espetaculo_id="+idEspetaculo);
             StringBuilder sb = new StringBuilder();
             String filaaux = null;
@@ -554,7 +560,6 @@ public class ConnDB
             int c = 0;
 
             while (rL.next()) {
-                System.err.println(rL.getString("fila"));
                 String fila = rL.getString("fila");
 
                 if(filaaux == null) {
@@ -574,9 +579,6 @@ public class ConnDB
                     sb.append("|"+fila+"| ");
                 }
 
-                System.err.println("CLOSED"+rL.isClosed());
-                System.err.println(rL.getString("fila"));
-
                 String query = "SELECT id from lugar WHERE fila ='" + fila + "' AND assento='" + assento + "' AND espetaculo_id=" + idEspetaculo; // devolve a linha com o lugar
                 Statement st = dbConn.createStatement();
                 ResultSet resultSet = st.executeQuery(query);
@@ -593,9 +595,6 @@ public class ConnDB
                 }
                 st.close();
                 resultSet.close();
-
-                //System.err.println(rL.getString("fila"));
-                System.err.println("CLOSE333D"+rL.isClosed());
 
                 sb.append(assento+" -> ").append(preco+" | ");
                 c++;
@@ -637,33 +636,90 @@ public class ConnDB
 
             int id_espetaculo = Integer.parseInt(msgSockettt.get(1));
             String query = "SELECT id from lugar where fila ='" + comParts[0] + "' AND assento='" + comParts[1] + "' AND espetaculo_id=" + id_espetaculo; // devolve a linha com o lugar
-
             r = st.executeQuery(query);
+            //lugares existem
             if (r.next()) {
-                int id_lugar = r.getInt("id");
-                ResultSet rs =  st.executeQuery("SELECT COUNT(*) FROM reserva_lugar WHERE id_lugar=" + id_lugar);
-                rs.next();
-                int count = rs.getInt(1);
-                rs.close();
+                int id_lugar = r.getInt(1);
+                ResultSet rs =  st.executeQuery("SELECT id_reserva FROM reserva_lugar WHERE id_lugar=" + id_lugar);
+                //int count = -1;
 
-                if (count == 0) {
-                    String sqlQuery = "INSERT INTO reserva VALUES( (SELECT COUNT(*) FROM reserva),'" + data_hora + "','" + 0
-                            + "',(SELECT id FROM utilizador WHERE username= '" + username + "'),'" + id_espetaculo + "')";
-                    st.executeUpdate(sqlQuery);
+                //se lugar ja tiver reserva asscociada
+                //if(rs.next()){
+                    //count = rs.getInt(1);
+                //}
+                //rs.close();
 
-                    String sqlQuery2 = "INSERT INTO reserva_lugar VALUES( (SELECT COUNT(*) FROM reserva_lugar),'" + id_lugar + "')";
-                    st.executeUpdate(sqlQuery2);
-                    submete.append("\nLugar reservado com sucesso: [" +comParts[0]+"-"+comParts[1]+"]");
-                }else{
-                    submete.append("\nLugar já reservado! [" + comParts[0] + "-" + comParts[1] +"]");
+                //se lugar não tiver reserva asscociada
+                if (!rs.next()) {
+                    String queryUsername = "SELECT id FROM utilizador WHERE username= '" + username + "'";
+                    ResultSet rsUser = st.executeQuery(queryUsername);
+                    if (rsUser.next()) {
+                        int idUser = rsUser.getInt(1);
+
+                        ResultSet resultSet = st.executeQuery("SELECT * FROM reserva where id_utilizador =" + idUser +
+                                " AND id_espetaculo=" + id_espetaculo);
+
+
+                        //se utilizador não tiver reservas naquele espetaculo
+                        if (!resultSet.next()) {
+                            System.err.println("NAO HA RESERVAS");
+
+                            ResultSet rs1 = st.executeQuery("SELECT COUNT(*) FROM reserva");
+                            int count = 0;
+                            if(r.next())
+                                count = r.getInt(1);
+                            r.close();
+
+//                            ResultSet rs1 = st.executeQuery("SELECT COUNT(*) FROM reserva");
+//                            if(!rs1.next())
+//                                continue;
+//                            int contador = rs1.getInt(1);
+
+                            String sqlQuery = "INSERT INTO reserva VALUES('"+count+"','" + data_hora + "','" + 0
+                                    + "',(SELECT id FROM utilizador WHERE username= '" + username + "'),'" + id_espetaculo + "')";
+                            st.executeUpdate(sqlQuery);
+
+                            String sqlQuery2 = "INSERT INTO reserva_lugar VALUES( '"+count+"','" + id_lugar + "')";
+                            st.executeUpdate(sqlQuery2);
+
+                            //se utilizador tiver reservas naquele espetaculo
+                        } else {
+                            int id = resultSet.getInt(1);
+                            st.executeUpdate("UPDATE reserva SET data_hora='" + data_hora + "'WHERE id_espetaculo='" + id_espetaculo + "' AND (SELECT id FROM utilizador WHERE username= '" + username + "')");
+                            String sqlQuery2 = "INSERT INTO reserva_lugar VALUES('" + id + "','" + id_lugar + "')";
+                            st.executeUpdate(sqlQuery2);
+                        }
+                        submete.append("\nLugar reservado com sucesso: [" + comParts[0] + "-" + comParts[1] + "]");
+                    }
+                } else {
+                    submete.append("\nLugar já reservado! [" + comParts[0] + "-" + comParts[1] + "]");
                 }
-            }else{
-                submete.append("\nLugar não existe! ["+comParts[0]+"-"+comParts[1]+"]");
+            } else {
+                submete.append("\nLugar não existe! [" + comParts[0] + "-" + comParts[1] + "]");
             }
         }
         r.close();
         st.close();
         return String.valueOf(submete);
+    }
+
+    public String efetuaPagamento(String username) throws SQLException {
+        Statement st= dbConn.createStatement();
+        String verificaExistente = "SELECT * FROM utilizador WHERE username = '" + username + "'";
+        ResultSet rs = st.executeQuery(verificaExistente);
+        if(rs.next()){
+            int idUser = rs.getInt("id");
+            String verificaIdReserva = "SELECT * FROM reserva WHERE id_utilizador="+idUser;
+            ResultSet resultSet = st.executeQuery(verificaIdReserva);
+            if(resultSet.next()){
+                st.executeUpdate("UPDATE reserva SET pago='"+1+"' WHERE pago='"+0+"' AND id_utilizador="+idUser);
+                return "Reserva paga com sucesso!";
+            }
+            return "Reservas inexistentes!";
+        }
+
+
+        return "UserName inexistente!";
     }
 
     /*public static void main(String[] args)

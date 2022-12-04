@@ -130,6 +130,8 @@ public class ClientData {
                 cliente = temp.get(2);
             else if(temp.get(0).contains("EDITA") || temp.get(0).contains("SUBMETE_RESERVA"))
                 temp.add(cliente);
+            else if(temp.get(0).equals("EFETUA_PAGAMENTO"))
+                temp.add(cliente);
 
             if(temp.get(0).equals("EDITA_USERNAME"))
                 cliente = temp.get(1);

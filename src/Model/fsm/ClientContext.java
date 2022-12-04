@@ -60,4 +60,8 @@ public class ClientContext {
     public boolean esperaPagamento(AtomicInteger pagamento) {
         return state.esperaPagamento(pagamento);
     }
+
+    public boolean efetuaPagamento(ArrayList<String> temp) {
+        return state.efetuaPagamento(temp);
+    }
 }

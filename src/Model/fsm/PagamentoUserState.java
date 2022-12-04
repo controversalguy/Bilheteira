@@ -26,6 +26,11 @@ public class PagamentoUserState extends ClientAdapter {
     }
 
     @Override
+    public boolean efetuaPagamento(ArrayList<String> temp) {
+        return data.enviaInfo(temp);
+    }
+
+    @Override
     public ClientState getState() {
         return ClientState.PAGAMENTO;
     }

@@ -44,7 +44,6 @@ public class ComunicaTCP extends Thread {
             ObjectOutputStream oos = new ObjectOutputStream(os);
 
             Object msgSocket = oisSocket.readObject();
-            System.out.println("MSGSOCKETCARALHOSMAFODA: " + msgSocket);
             Msg msgSockett = (Msg) msgSocket;
 
             if (msgSockett.getMsg() != null) {
@@ -73,13 +72,11 @@ public class ComunicaTCP extends Thread {
                     } while (nBytes != -1);
 
                 } else if (msgSockett.getMsg().equals("Cliente")) {
-                    System.out.println("MAIS UM CLIENTE PA CONTA");
                     ligacoesTCP.getAndIncrement();
 
                     synchronized (listaOos) {
                         if (!listaOos.contains(oos)) {
                             listaOos.add(oos);
-                            //Servidor.atualiza("listaOos", -3);
 
                             synchronized (listaServidores) {
                                 Comparator<Informacoes> compare = new InformacoesComparator();
@@ -87,7 +84,6 @@ public class ComunicaTCP extends Thread {
                             }
 
                             for (ObjectOutputStream o : listaOos) {
-                                System.out.println("ERROUUUUUUUUUUUUUUUUUUUUUUUUU");
                                 enviaListaServidoresAtualizada(o);
                             }
                         }
@@ -99,7 +95,7 @@ public class ComunicaTCP extends Thread {
 
             while (threadCorre.get()) {
                 msgSocket = oisSocket.readObject();
-                System.out.println("MSGSOCKETCARALHOSMAFODA: " + msgSocket);
+                System.out.println("Msg do Cliente: " + msgSocket);
 
                 if (msgSocket instanceof ArrayList) {
                     ArrayList<String> msgSockettt = (ArrayList<String>) msgSocket;
@@ -159,6 +155,10 @@ public class ComunicaTCP extends Thread {
                         }
                         case "SUBMETE_RESERVA"->{
                             String str = connDB.submeteReserva(msgSockettt);
+                            msg.setMsg("\n" + str);
+                        }
+                        case "EFETUA_PAGAMENTO"->{
+                            String str = connDB.efetuaPagamento(msgSockettt.get(1));
                             msg.setMsg("\n" + str);
                         }
 

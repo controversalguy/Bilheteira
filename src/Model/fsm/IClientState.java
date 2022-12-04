@@ -20,4 +20,6 @@ public interface IClientState {
     boolean esperaPagamento(AtomicInteger pagamento);
 
     boolean submeteReserva(ArrayList<String> temp);
+
+    boolean efetuaPagamento(ArrayList<String> temp);
 }

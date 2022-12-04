@@ -87,6 +87,10 @@ public class ClienteUI{
 
     private void efetuaPagamento() {
         System.out.println("FAZ PAGAMENTO");
+        ArrayList<String> listaPagamento = new ArrayList<>();
+        listaPagamento.add(String.valueOf(info.EFETUA_PAGAMENTO));
+
+        fsm.efetuaPagamento(listaPagamento);
     }
 
     private void consultaReservasPagas() {
