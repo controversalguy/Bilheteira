@@ -25,4 +25,8 @@ public interface IClientState {
     boolean efetuaPagamento(ArrayList<String> temp);
 
     boolean limiteTempo(ArrayList<String> temp);
+
+    boolean eliminarEspetaculo(ArrayList<String> temp);
+
+    boolean logout(ArrayList<String> temp);
 }

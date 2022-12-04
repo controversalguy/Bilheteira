@@ -114,13 +114,26 @@ public class ClienteUI{
     }
 
     private void logadoUserUI() throws InterruptedException {
-        switch (PDInput.chooseOption("*** User State ***", "Editar Perfil", "Consultar Espetaculos", "Selecionar espetaculo", "Consultar Pagos")) {
+        switch (PDInput.chooseOption("*** User State ***", "Editar Perfil", "Consultar Espetaculos", "Selecionar espetaculo",
+                "Consultar Pagos", "Logout")) {
             case 1 -> editaUI();
             case 2 -> consultarEspetaculos();
             case 3 -> selecionarEspetaculo();
             case 4 -> consultaReservasPagas();
+            case 5 ->  {
+                logout();
+                fsm.regressar();
+            }
             default -> finish = true;
         }
+    }
+
+    private boolean logout() {
+        ArrayList <String> temp = new ArrayList<>();
+        Collections.addAll(temp, String.valueOf(info.LOGOUT));
+        if(fsm.logout(temp))
+            return true;
+        return false;
     }
 
     private void selecionarEspetaculo() throws InterruptedException {
@@ -170,14 +183,8 @@ public class ClienteUI{
     }
 
     private void logadoAdminUI() {
-        switch (PDInput.chooseOption("*** Admin State ***",  "Espetaculos")) {
-            case 1-> { espetaculoUI(); }
-            default -> finish = true;
-        }
-    }
-
-    private void espetaculoUI() {
-        switch (PDInput.chooseOption("*** Espetaculos  ***", "Inserir","Tornar visível","Consultar")) {
+        switch (PDInput.chooseOption("*** Admin State  ***", "Inserir Espetáculo","Tornar Espetáculo Visível","Consultar Espetáculo",
+                "Eliminar Espetáculo","Logout")) {
             case 1 -> {
                 String filename = PDInput.readString("Filename:",false);
                 ArrayList <String> temp = new ArrayList<>();
@@ -191,9 +198,24 @@ public class ClienteUI{
                 fsm.visivel(temp);
             }
             case 3 -> consultarEspetaculos();
+            case 4 -> eliminarEspetaculo();
+            case 5 ->  {
+                logout();
+                fsm.regressar();
+            }
             default -> finish=true;
         }
     }
+
+    private boolean eliminarEspetaculo() {
+        int numeroEspetaculo = PDInput.readInt("Número do Espetáculo: ");
+        ArrayList <String> temp = new ArrayList<>();
+        Collections.addAll(temp, String.valueOf(info.ELIMINA_ESPETACULO),String.valueOf(numeroEspetaculo));
+        if(fsm.eliminarEspetaculo(temp))
+            return true;
+        return false;
+    }
+
 
     private void consultarEspetaculos() {
 

@@ -170,8 +170,15 @@ public class ComunicaTCP extends Thread {
                             msg.setMsg("\n" + str);
                         }
                         case "CONSULTA_RESERVAS_PENDENTES"->{
-                            System.out.println("ENTREI CONSULTA_RESERVAS_PENDENTES");
                             String str = connDB.consultaReservasPendentes(msgSockettt.get(1));
+                            msg.setMsg("\n" + str);
+                        }
+                        case "ELIMINA_ESPETACULO"->{
+                            String str = connDB.eliminarEspetaculo(Integer.parseInt(msgSockettt.get(1)));
+                            msg.setMsg("\n" + str);
+                        }
+                        case "LOGOUT"->{
+                            String str = connDB.logout(msgSockettt.get(1));
                             msg.setMsg("\n" + str);
                         }
 

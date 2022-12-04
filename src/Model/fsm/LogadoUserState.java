@@ -35,6 +35,16 @@ public class LogadoUserState extends ClientAdapter {
     }
 
     @Override
+    public boolean logout(ArrayList<String> temp) {
+        return data.enviaInfo(temp);
+    }
+
+    @Override
+    public void regressar() {
+        estadoSeguinte(ClientState.AUTENTICA);
+    }
+
+    @Override
     public ClientState getState() {
         return ClientState.LOGADO_USER;
     }

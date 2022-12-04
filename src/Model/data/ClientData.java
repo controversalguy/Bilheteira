@@ -6,12 +6,7 @@ import utils.Msg;
 
 import java.io.*;
 import java.net.*;
-import java.sql.Time;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 ;import static java.lang.System.exit;
@@ -126,8 +121,9 @@ public class ClientData {
             if(temp.get(0).equals("LOGIN_USER"))
                 cliente = temp.get(2);
             else if(temp.get(0).contains("EDITA") || temp.get(0).contains("SUBMETE_RESERVA")
-                    ||temp.get(0).equals("EFETUA_PAGAMENTO") || temp.get(0).equals("LIMITE_TEMPO")|| temp.get(0).equals("CONSULTA_RESERVAS_PAGAS")
-                    || temp.get(0).equals("CONSULTA_RESERVAS_PENDENTES") || temp.get(0).equals("FILTRO_ESPETACULO"))
+                    ||temp.get(0).equals("EFETUA_PAGAMENTO") || temp.get(0).equals("LIMITE_TEMPO")||
+                    temp.get(0).equals("CONSULTA_RESERVAS_PAGAS") || temp.get(0).equals("CONSULTA_RESERVAS_PENDENTES")
+                    || temp.get(0).equals("FILTRO_ESPETACULO") || temp.get(0).equals("LOGOUT"))
                         temp.add(cliente);
 
             if(temp.get(0).equals("EDITA_USERNAME"))

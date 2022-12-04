@@ -40,6 +40,11 @@ abstract class ClientAdapter implements IClientState {
     }
 
     @Override
+    public boolean eliminarEspetaculo(ArrayList<String> temp) {
+        return false;
+    }
+
+    @Override
     public boolean consulta(ArrayList<String> temp) {
         return false;
     }
@@ -77,6 +82,11 @@ abstract class ClientAdapter implements IClientState {
     }
     @Override
     public boolean esperaPagamento(AtomicInteger pagamento) {
+        return false;
+    }
+
+    @Override
+    public boolean logout(ArrayList<String> temp) {
         return false;
     }
 

@@ -9,12 +9,10 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static Model.Servidor.Servidor.connDB;
-import static Model.Servidor.Servidor.ms;
 
 public class ConnDB
 { // formato da data muito importante para nao dar erro
@@ -162,8 +160,8 @@ public class ConnDB
             if (username.equals("admin") && password.equals("admin")){
                 return MensagensRetorno.ADMIN_NAO_PODE_REGISTAR;
             }
-            verificaExistente += " WHERE username = '" + username + "'";
-            ResultSet resultSet = statement.executeQuery(verificaExistente);
+            String verifica = "SELECT * FROM utilizador WHERE nome='"+name+"' OR username='" + username + "'";
+            ResultSet resultSet = statement.executeQuery(verifica);
             if (!resultSet.next()) {
 
                 Servidor.atualiza("Prepare",connDB.getVersao().get() + 1, msgSockett);
@@ -465,8 +463,8 @@ public class ConnDB
             System.out.println(fila);
         } catch (IOException ioe) {
             insere = "Este ficheiro não existe!";
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+            insere = "Ficheiro inválido!";
         }
         return insere;
     }
@@ -889,6 +887,48 @@ public class ConnDB
         }
         rs.close();
         return sb.toString();
+    }
+
+    public String eliminarEspetaculo(int idEspetaculo) throws SQLException {
+        Statement st = dbConn.createStatement();
+        System.err.println(idEspetaculo);
+        String verificaidEspetaculo = "SELECT id FROM espetaculo WHERE id=" + idEspetaculo;
+        ResultSet resultSet = st.executeQuery(verificaidEspetaculo); // tem espetaculo pedido
+
+        //espetaculo existe
+        if (resultSet.next()) {
+            //Statement stat = dbConn.createStatement();
+            String verificaReserva = "SELECT * FROM reserva WHERE id_espetaculo=" + idEspetaculo;
+            ResultSet rs1 = st.executeQuery(verificaReserva);
+            if (!rs1.next()) {
+                st.executeUpdate("DELETE FROM espetaculo WHERE id=" + idEspetaculo);
+            } else {
+                String verificaReservaPago = "SELECT * FROM reserva WHERE pago='" + 0 + "' AND id_espetaculo=" + idEspetaculo;
+                ResultSet rs2 = st.executeQuery(verificaReservaPago);
+                if(rs2.next()) {
+                    int idReserva = rs2.getInt("id");
+                    st.executeUpdate("DELETE FROM reserva_lugar WHERE id_reserva=" + idReserva);
+                    //int idReserva = rs1.getInt("id");
+                    st.executeUpdate("DELETE FROM reserva WHERE id=" + idReserva);
+                    st.executeUpdate("DELETE FROM espetaculo WHERE id=" + idEspetaculo);
+                }
+            }
+
+            return "Espetáculo eliminado com sucesso!";
+        }
+        return "Não é possível eliminar espetáculo inexistente!";
+    }
+
+    public String logout(String username) throws SQLException {
+        Statement st = dbConn.createStatement();
+        String user = "SELECT * FROM utilizador WHERE username='" + username + "'";
+        ResultSet rs = st.executeQuery(user);
+        if(rs.next()) {
+            String logout = "UPDATE utilizador SET autenticado ='" + 0 + "' WHERE username='" + username + "'";
+            st.executeUpdate(logout);
+        }
+
+        return "Cliente terminou sessão!";
     }
 
     /*public static void main(String[] args)

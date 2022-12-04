@@ -25,6 +25,16 @@ public class LogadoAdminState extends ClientAdapter {
     }
 
     @Override
+    public boolean eliminarEspetaculo(ArrayList<String> temp) {return data.enviaInfo(temp);}
+    @Override
+    public boolean logout(ArrayList<String> temp) {
+        return data.enviaInfo(temp);
+    }
+    @Override
+    public void regressar() {
+        estadoSeguinte(ClientState.AUTENTICA);
+    }
+    @Override
     public ClientState getState() {
         return ClientState.LOGADO_ADMIN;
     }

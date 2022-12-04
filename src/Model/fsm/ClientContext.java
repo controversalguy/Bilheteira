@@ -77,4 +77,12 @@ public class ClientContext {
     public void regressar() {
         state.regressar();
     }
+
+    public boolean eliminarEspetaculo(ArrayList<String> temp) {
+        return state.eliminarEspetaculo(temp);
+    }
+
+    public boolean logout(ArrayList<String> temp) {
+        return state.logout(temp);
+    }
 }
