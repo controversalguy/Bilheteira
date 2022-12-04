@@ -146,7 +146,7 @@ public class ComunicaTCP extends Thread {
                             msg.setMsg("\n" + str);
                         }
                         case "FILTRO_ESPETACULO"->{
-                            String str = connDB.filtraEspetaculo(Integer.parseInt(msgSockettt.get(1)),msgSockettt.get(2));
+                            String str = connDB.filtraEspetaculo(Integer.parseInt(msgSockettt.get(1)),msgSockettt.get(2), msgSockettt.get(3));
                             msg.setMsg("\n" + str);
                         }
                         case "SELECIONAR_ESPETACULO"->{

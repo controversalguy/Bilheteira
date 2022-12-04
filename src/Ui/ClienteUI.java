@@ -59,7 +59,7 @@ public class ClienteUI{
         exit(0);
     }
 
-    private void pagamentoUI() {
+    private void pagamentoUI() throws InterruptedException {
         ArrayList<String> listaPagamento = new ArrayList<>();
         System.out.println("*** Pagamento State ***, Efetuar Pagamento [1], Consultar Reservas Pendentes [2]");
         fsm.esperaPagamento(pagamento);
@@ -71,8 +71,9 @@ public class ClienteUI{
                 break;
             } else if(pagamento.get() == Pagamento.CONSULTA_RESERVAS_PENDENTES.ordinal()) {
                 consultaReservasPendentes();
-                break;
-                //pagamento.getAndSet(Pagamento.ESPERA.ordinal());
+                pagamento.getAndSet(Pagamento.ESPERA.ordinal());
+                sleep(400);
+                System.out.println("*** Pagamento State ***, Efetuar Pagamento [1], Consultar Reservas Pendentes [2]");
             }
         }
 
@@ -113,8 +114,7 @@ public class ClienteUI{
     }
 
     private void logadoUserUI() throws InterruptedException {
-        switch (PDInput.chooseOption("*** User State ***", "Editar Perfil", "Consultar Espetaculos", "Selecionar espetaculo", "Consultar Pagos",
-                "Consultar Pendentes")) {
+        switch (PDInput.chooseOption("*** User State ***", "Editar Perfil", "Consultar Espetaculos", "Selecionar espetaculo", "Consultar Pagos")) {
             case 1 -> editaUI();
             case 2 -> consultarEspetaculos();
             case 3 -> selecionarEspetaculo();

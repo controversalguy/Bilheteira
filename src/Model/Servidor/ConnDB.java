@@ -48,10 +48,7 @@ public class ConnDB
             count++;
         }
 
-        if(count == 6){
-            return true;
-        }
-        return false;
+        return count == 6;
     }
     public void criaTabelas()
     {
@@ -486,7 +483,7 @@ public class ConnDB
     return "Espetáculo não existe!";
     }
 
-    public String filtraEspetaculo(int i, String filtro)throws SQLException {
+    public String filtraEspetaculo(int i, String filtro, String username)throws SQLException {
 
         Statement statement = connDB.dbConn.createStatement();
         ResultSet r = null;
@@ -510,7 +507,7 @@ public class ConnDB
 
         while (r.next()) {
             int visibilidade = r.getInt("visivel");
-            if(visibilidade == 0)
+            if(visibilidade == 0 && !username.equalsIgnoreCase("admin"))
                 continue;
 
             int numero = r.getInt("id");
