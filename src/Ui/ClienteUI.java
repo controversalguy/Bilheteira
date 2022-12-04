@@ -61,20 +61,19 @@ public class ClienteUI{
 
     private void pagamentoUI() {
         ArrayList<String> listaPagamento = new ArrayList<>();
-        System.out.println("*** Pagamento State ***, Efetuar Pagamento [1], Consultar Reservas Pagas [2], Consultar Reservas Pendentes [3]");
+        System.out.println("*** Pagamento State ***, Efetuar Pagamento [1], Consultar Reservas Pendentes [3]");
         fsm.esperaPagamento(pagamento);
 
-        do {
+        while (pagamento.get() != Pagamento.LIMITE_TEMPO.ordinal()) {
+
             if(pagamento.get() == Pagamento.EFETUA_PAGAMENTO.ordinal()) {
                 efetuaPagamento();
-            } else if(pagamento.get() == Pagamento.CONSULTA_RESERVAS_PAGAS.ordinal()) {
-                consultaReservasPagas();
-                //pagamento.getAndSet(Pagamento.ESPERA.ordinal());
+                break;
             } else if(pagamento.get() == Pagamento.CONSULTA_RESERVAS_PENDENTES.ordinal()) {
                 consultaReservasPendentes();
                 //pagamento.getAndSet(Pagamento.ESPERA.ordinal());
             }
-        } while (pagamento.get() != Pagamento.LIMITE_TEMPO.ordinal() && pagamento.get() != Pagamento.EFETUA_PAGAMENTO.ordinal());
+        }
 
         if(pagamento.get() == Pagamento.LIMITE_TEMPO.ordinal()) {
             System.out.println("Limite de tempo atingido!");
@@ -82,7 +81,7 @@ public class ClienteUI{
             listaPagamento.add(String.valueOf(Pagamento.LIMITE_TEMPO));
             fsm.limiteTempo(listaPagamento);
         }
-
+        System.out.println("EFETUEI PAGAMENTO MM");
         pagamento.getAndSet(Pagamento.ESPERA.ordinal());
         fsm.regressar();
 
@@ -101,7 +100,9 @@ public class ClienteUI{
     }
 
     private void consultaReservasPagas() {
-        System.out.println("CONSULTA O QUE PAGAS");
+        ArrayList<String> listaPagos = new ArrayList<>();
+        listaPagos.add(String.valueOf(Pagamento.CONSULTA_RESERVAS_PAGAS));
+        fsm.consultaReservasPagas(listaPagos);
     }
 
     private void consultaReservasPendentes() {
@@ -109,10 +110,11 @@ public class ClienteUI{
     }
 
     private void logadoUserUI() throws InterruptedException {
-        switch (PDInput.chooseOption("*** User State ***", "Editar Perfil", "Consultar Espetaculos", "Selecionar espetaculo")) {
+        switch (PDInput.chooseOption("*** User State ***", "Editar Perfil", "Consultar Espetaculos", "Selecionar espetaculo", "Consultar Pagos")) {
             case 1 -> editaUI();
             case 2 -> consultarEspetaculos();
             case 3 -> selecionarEspetaculo();
+            case  4 -> consultaReservasPagas();
             default -> finish = true;
         }
     }

@@ -24,11 +24,10 @@ public class ThreadTempo extends Thread {
 
             if (seconds > 10) {
                 pagamento.getAndSet( Pagamento.LIMITE_TEMPO.ordinal());
-                scan.interrupt();
                 break;
             }
         }
-
+        scan.interrupt();
     }
 }
 

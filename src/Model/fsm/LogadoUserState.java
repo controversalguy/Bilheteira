@@ -30,6 +30,11 @@ public class LogadoUserState extends ClientAdapter {
     }
 
     @Override
+    public boolean consultaReservasPagas(ArrayList<String> temp) {
+        return data.enviaInfo(temp);
+    }
+
+    @Override
     public ClientState getState() {
         return ClientState.LOGADO_USER;
     }

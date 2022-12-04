@@ -125,7 +125,8 @@ public class ClientData {
         try {
             if(temp.get(0).equals("LOGIN_USER"))
                 cliente = temp.get(2);
-            else if(temp.get(0).contains("EDITA") || temp.get(0).contains("SUBMETE_RESERVA") ||temp.get(0).equals("EFETUA_PAGAMENTO") || temp.get(0).equals("LIMITE_TEMPO"))
+            else if(temp.get(0).contains("EDITA") || temp.get(0).contains("SUBMETE_RESERVA")
+                    ||temp.get(0).equals("EFETUA_PAGAMENTO") || temp.get(0).equals("LIMITE_TEMPO")|| temp.get(0).equals("CONSULTA_RESERVAS_PAGAS"))
                 temp.add(cliente);
 
             if(temp.get(0).equals("EDITA_USERNAME"))

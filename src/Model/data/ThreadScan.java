@@ -31,37 +31,14 @@ public class ThreadScan extends Thread {
                 line = reader.readLine();
                 switch (Integer.parseInt(line)) {
                     case 1 -> pagamento.getAndSet(Pagamento.EFETUA_PAGAMENTO.ordinal());
-                    case 2 -> pagamento.getAndSet(Pagamento. CONSULTA_RESERVAS_PAGAS.ordinal());
-                    case 3 -> pagamento.getAndSet(Pagamento.CONSULTA_RESERVAS_PENDENTES.ordinal());
+                    case 2 -> pagamento.getAndSet(Pagamento.CONSULTA_RESERVAS_PENDENTES.ordinal());
                 }
-                System.out.println(line);
+                System.out.println("Pagamento+ " + pagamento.get());
             }
         } catch (IOException e) {
-            //TODO: handle exception
-            System.out.println("Ngrok exception" + e);
+            System.out.println("IOException: " + e);
         }
 
-//        while (pagamento.get() != Pagamento.LIMITE_TEMPO.ordinal()) {
-//            System.out.println("esperaPagamento");
-//            try {
-//                System.out.println("esperaPagamento1");
-//                while(sc.hasNextInt()){
-//                    int opcao = sc.nextInt();
-//                    System.out.println("esperaPagamento2");
-//                    switch (opcao) {
-//                        case 1 -> {
-//                            pagamento.getAndSet(Pagamento.EFETUA_PAGAMENTO.ordinal());
-//                            return;
-//                        }
-//                        case 2 -> pagamento.getAndSet(Pagamento. CONSULTA_RESERVAS_PAGAS.ordinal());
-//                        case 3 -> pagamento.getAndSet(Pagamento.CONSULTA_RESERVAS_PENDENTES.ordinal());
-//                    }
-//                }
-//            }catch (Exception e){
-//                System.out.println("mm a bacano");
-//                return;
-//            }
-//        }
-        System.out.println("mm a bacano sai");
+      System.out.println("mm a bacano sai");
     }
 }

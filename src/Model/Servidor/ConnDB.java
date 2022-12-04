@@ -664,7 +664,6 @@ public class ConnDB
 
                         //se utilizador não tiver reservas naquele espetaculo
                         if (!resultSet.next() || i == 2) {
-                            System.err.println("NAO HA RESERVAS");
 
                             ResultSet rs1 = st.executeQuery("SELECT COUNT(*) FROM reserva");
                             if(rs1.next())
@@ -713,7 +712,10 @@ public class ConnDB
             String verificaIdReserva = "SELECT * FROM reserva WHERE id_utilizador="+idUser;
             ResultSet resultSet = st.executeQuery(verificaIdReserva);
             if(resultSet.next()){
+                System.err.println("PAGUEI");
                 st.executeUpdate("UPDATE reserva SET pago='"+1+"' WHERE pago='"+0+"' AND id_utilizador="+idUser);
+                rs.close();
+                resultSet.close();
                 return "Reserva paga com sucesso!";
             }
             return "Reservas inexistentes!";
@@ -731,17 +733,92 @@ public class ConnDB
         if(rs.next()){
             System.out.println("retiraReservaLimiteTempo existe user");
             int idUser = rs.getInt("id");
-            String verificaIdReserva = "SELECT * FROM reserva WHERE id_utilizador="+idUser;
+            String verificaIdReserva = "SELECT * FROM reserva WHERE id_utilizador='"+idUser+"' AND pago=" + 0;
             ResultSet resultSet = st.executeQuery(verificaIdReserva);
             if(resultSet.next()){
-                System.out.println("retiraReservaLimiteTempo existe Reserva");
-                st.executeUpdate("DELETE reserva WHERE pago='"+0+"' AND id_utilizador="+idUser);
+                int idReserva = resultSet.getInt("id");
+                System.out.println("retiraReservaLimiteTempo existe Reserva"+ idReserva);
+                st.executeUpdate("DELETE FROM reserva_lugar WHERE id_reserva="+idReserva);
+                st.executeUpdate("DELETE FROM reserva WHERE pago='"+0+"' AND id="+idReserva);
                 return "Reserva eliminada com sucesso!";
             }
             return "Não tem reserva associada a esse username!";
         }
         return "UserName inexistente!";
 
+    }
+
+    public String consultaReservasPagas(String username) throws SQLException {
+        StringBuilder sb = new StringBuilder();
+
+        Statement st = dbConn.createStatement();
+        String verificaExistente = "SELECT * FROM utilizador WHERE username = '" + username + "'";
+        ResultSet rs = st.executeQuery(verificaExistente);
+
+        //user existe
+        if (rs.next()) {
+            Statement stat = dbConn.createStatement();
+            int idUser = rs.getInt("id");
+            String verificaReserva = "SELECT * FROM reserva WHERE pago= '" + 1 + "' AND id_utilizador=" + idUser;
+            ResultSet rs1 = stat.executeQuery(verificaReserva);
+
+            //utilizador tem reservas pagas
+            while (rs1.next()) {
+                int idReserva = rs1.getInt("id");
+                int idEspetaculo = rs1.getInt("id_espetaculo");
+                Statement stats = dbConn.createStatement();
+                String verificaEspetaculo = "SELECT * FROM espetaculo WHERE id=" + idEspetaculo;
+                ResultSet rs2 = stats.executeQuery(verificaEspetaculo);
+
+                //reserva tem espetaculo
+                if(rs2.next()) {
+                    int visibilidade = rs2.getInt("visivel");
+                    if (visibilidade == 0)
+                        continue;
+
+                    int numero = rs2.getInt("id");
+                    String descricao = rs2.getString("descricao");
+                    String tipo = rs2.getString("tipo");
+                    String data_hora2 = rs2.getString("data_hora");
+                    int duracao = rs2.getInt("duracao");
+                    String local = rs2.getString("local");
+                    String localidade = rs2.getString("localidade");
+                    String pais = rs2.getString("pais");
+                    String classificacao = rs2.getString("classificacao_etaria");
+                    sb.append("\n\nNúmero do Espetáculo: " + numero).append("\nDescrição: " + descricao).append("\nTipo: " + tipo).append("\nData: " + data_hora2).append("\nDuracao: " + duracao).append("\nLocal: " + local)
+                            .append("\nLocalidade: " + localidade).append("\nPais: " + pais).append("\nClassificação: " + classificacao);
+
+                    String verificaReservaLugares = "SELECT * FROM reserva_lugar WHERE id_reserva=" + idReserva;
+                    Statement state = dbConn.createStatement();
+                    ResultSet rs3 = state.executeQuery(verificaReservaLugares);
+                    //reserva tem lugares
+                    while (rs3.next()) {
+                        System.out.println("ENTREIII");
+                        int idLugar = rs3.getInt("id_lugar");
+                        System.out.println("IDLUGAR" + idLugar);
+
+                        String verificaLugares = "SELECT * FROM lugar WHERE id=" + idLugar;
+                        Statement statem = dbConn.createStatement();
+                        ResultSet rs4 = statem.executeQuery(verificaLugares);
+
+                        //lugares
+                        if(rs4.next()) {
+                            String fila = rs4.getString("fila");
+                            String assento = rs4.getString("assento");
+
+                            sb.append("\nFila: " + fila).append(" | Assento: " + assento);
+                        }
+                        //rs4.close();
+                    }
+                    //rs3.close();
+                }
+                //rs2.close();
+
+            }
+            //rs1.close();
+        }
+        //rs.close();
+        return sb.toString();
     }
 
     /*public static void main(String[] args)

@@ -31,6 +31,11 @@ public class PagamentoUserState extends ClientAdapter {
     }
 
     @Override
+    public boolean limiteTempo(ArrayList<String> temp) {
+        return data.enviaInfo(temp);
+    }
+
+    @Override
     public void regressar() {
         estadoSeguinte(ClientState.LOGADO_USER);
     }
