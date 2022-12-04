@@ -16,7 +16,7 @@ public class PagamentoUserState extends ClientAdapter {
     }
 
     @Override
-    public boolean consultaReservasParaPagamento(ArrayList<String> temp) {
+    public boolean consultaReservasPendentes(ArrayList<String> temp) {
         return data.enviaInfo(temp);
     }
 

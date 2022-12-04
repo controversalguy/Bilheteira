@@ -62,7 +62,7 @@ abstract class ClientAdapter implements IClientState {
         return false;
     }
     @Override
-    public boolean consultaReservasParaPagamento(ArrayList<String> temp) {
+    public boolean consultaReservasPendentes(ArrayList<String> temp) {
         return false;
     }
 

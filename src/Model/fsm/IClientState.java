@@ -17,7 +17,7 @@ public interface IClientState {
 
     boolean consulta(ArrayList<String> temp);
     boolean consultaReservasPagas(ArrayList<String> temp);
-    boolean consultaReservasParaPagamento(ArrayList<String> temp);
+    boolean consultaReservasPendentes(ArrayList<String> temp);
     boolean esperaPagamento(AtomicInteger pagamento);
 
     boolean submeteReserva(ArrayList<String> temp);

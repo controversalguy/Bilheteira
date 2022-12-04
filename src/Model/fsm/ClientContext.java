@@ -71,8 +71,8 @@ public class ClientContext {
     public boolean consultaReservasPagas(ArrayList<String> temp) {
         return state.consultaReservasPagas(temp);
     }
-    public boolean consultaReservasParaPagamento(ArrayList<String> temp) {
-        return state.consultaReservasParaPagamento(temp);
+    public boolean consultaReservasPendentes(ArrayList<String> temp) {
+        return state.consultaReservasPendentes(temp);
     }
     public void regressar() {
         state.regressar();
