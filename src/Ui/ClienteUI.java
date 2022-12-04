@@ -53,30 +53,38 @@ public class ClienteUI{
                 default -> finish = true;
 
             }
-            sleep(300);
+            sleep(500);
         }
 
         exit(0);
     }
 
     private void pagamentoUI() {
+        ArrayList<String> listaPagamento = new ArrayList<>();
         System.out.println("*** Pagamento State ***, Efetuar Pagamento [1], Consultar Reservas Pagas [2], Consultar Reservas Pendentes [3]");
         fsm.esperaPagamento(pagamento);
 
         do {
             if(pagamento.get() == Pagamento.EFETUA_PAGAMENTO.ordinal()) {
                 efetuaPagamento();
-                pagamento.getAndSet(Pagamento.ESPERA.ordinal());
             } else if(pagamento.get() == Pagamento.CONSULTA_RESERVAS_PAGAS.ordinal()) {
                 consultaReservasPagas();
-                pagamento.getAndSet(Pagamento.ESPERA.ordinal());
+                //pagamento.getAndSet(Pagamento.ESPERA.ordinal());
             } else if(pagamento.get() == Pagamento.CONSULTA_RESERVAS_PENDENTES.ordinal()) {
                 consultaReservasPendentes();
-                pagamento.getAndSet(Pagamento.ESPERA.ordinal());
+                //pagamento.getAndSet(Pagamento.ESPERA.ordinal());
             }
-        } while (pagamento.get() != Pagamento.LIMITE_TEMPO.ordinal());
+        } while (pagamento.get() != Pagamento.LIMITE_TEMPO.ordinal() && pagamento.get() != Pagamento.EFETUA_PAGAMENTO.ordinal());
 
-        System.out.println("ACABOUUUUUU");
+        if(pagamento.get() == Pagamento.LIMITE_TEMPO.ordinal()) {
+            System.out.println("Limite de tempo atingido!");
+
+            listaPagamento.add(String.valueOf(Pagamento.LIMITE_TEMPO));
+            fsm.limiteTempo(listaPagamento);
+        }
+
+        pagamento.getAndSet(Pagamento.ESPERA.ordinal());
+        fsm.regressar();
 
        // PDInput.chooseOption("*** Pagamento State ***", "Efetuar Pagamento", "Consultar Reservas Pagas", "Consultar Reservas Pendentes"))
 //            case 1 ->if(!espera)
@@ -86,7 +94,6 @@ public class ClienteUI{
     }
 
     private void efetuaPagamento() {
-        System.out.println("FAZ PAGAMENTO");
         ArrayList<String> listaPagamento = new ArrayList<>();
         listaPagamento.add(String.valueOf(info.EFETUA_PAGAMENTO));
 
@@ -118,7 +125,7 @@ public class ClienteUI{
 
         //TODO n deixar avancar se n existir confirmaUpdate
 
-        sleep(300);
+        sleep(500);
 
         if(confirmaUpdate.get() == 3) {
             confirmaUpdate.getAndSet(0);

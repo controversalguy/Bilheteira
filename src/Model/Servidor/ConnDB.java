@@ -624,19 +624,21 @@ public class ConnDB
     public String submeteReserva(ArrayList<String> msgSockettt) throws SQLException {
         StringBuilder submete = new StringBuilder();
         Statement st = dbConn.createStatement();
-        LocalDateTime now = LocalDateTime.now();
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
-        String data_hora = now.format(dateTimeFormatter);
+
         String username = msgSockettt.get(msgSockettt.size() - 1);
         ResultSet r = null;
+        int count = 0;
         for (int i = 2; i < msgSockettt.size() - 1; i++) {
-
+            LocalDateTime now = LocalDateTime.now();
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+            String data_hora = now.format(dateTimeFormatter);
             //comParts[0] -> fila || comParts[1] -> lugar
             String[] comParts = msgSockettt.get(i).toUpperCase().split("-");
 
             int id_espetaculo = Integer.parseInt(msgSockettt.get(1));
             String query = "SELECT id from lugar where fila ='" + comParts[0] + "' AND assento='" + comParts[1] + "' AND espetaculo_id=" + id_espetaculo; // devolve a linha com o lugar
             r = st.executeQuery(query);
+
             //lugares existem
             if (r.next()) {
                 int id_lugar = r.getInt(1);
@@ -661,14 +663,13 @@ public class ConnDB
 
 
                         //se utilizador não tiver reservas naquele espetaculo
-                        if (!resultSet.next()) {
+                        if (!resultSet.next() || i == 2) {
                             System.err.println("NAO HA RESERVAS");
 
                             ResultSet rs1 = st.executeQuery("SELECT COUNT(*) FROM reserva");
-                            int count = 0;
-                            if(r.next())
-                                count = r.getInt(1);
-                            r.close();
+                            if(rs1.next())
+                                count = rs1.getInt(1);
+                            rs1.close();
 
 //                            ResultSet rs1 = st.executeQuery("SELECT COUNT(*) FROM reserva");
 //                            if(!rs1.next())
@@ -684,8 +685,8 @@ public class ConnDB
 
                             //se utilizador tiver reservas naquele espetaculo
                         } else {
-                            int id = resultSet.getInt(1);
-                            st.executeUpdate("UPDATE reserva SET data_hora='" + data_hora + "'WHERE id_espetaculo='" + id_espetaculo + "' AND (SELECT id FROM utilizador WHERE username= '" + username + "')");
+                            int id = count;
+                           // st.executeUpdate("UPDATE reserva SET pago='" + 0 + "'WHERE id_espetaculo='" + id_espetaculo + "' AND (SELECT id FROM utilizador WHERE username= '" + username + "')");
                             String sqlQuery2 = "INSERT INTO reserva_lugar VALUES('" + id + "','" + id_lugar + "')";
                             st.executeUpdate(sqlQuery2);
                         }
@@ -720,6 +721,27 @@ public class ConnDB
 
 
         return "UserName inexistente!";
+    }
+
+    public String retiraReservaLimiteTempo(String username) throws SQLException {
+        System.out.println("retiraReservaLimiteTempo");
+        Statement st= dbConn.createStatement();
+        String verificaExistente = "SELECT * FROM utilizador WHERE username = '" + username + "'";
+        ResultSet rs = st.executeQuery(verificaExistente);
+        if(rs.next()){
+            System.out.println("retiraReservaLimiteTempo existe user");
+            int idUser = rs.getInt("id");
+            String verificaIdReserva = "SELECT * FROM reserva WHERE id_utilizador="+idUser;
+            ResultSet resultSet = st.executeQuery(verificaIdReserva);
+            if(resultSet.next()){
+                System.out.println("retiraReservaLimiteTempo existe Reserva");
+                st.executeUpdate("DELETE reserva WHERE pago='"+0+"' AND id_utilizador="+idUser);
+                return "Reserva eliminada com sucesso!";
+            }
+            return "Não tem reserva associada a esse username!";
+        }
+        return "UserName inexistente!";
+
     }
 
     /*public static void main(String[] args)

@@ -64,4 +64,11 @@ public class ClientContext {
     public boolean efetuaPagamento(ArrayList<String> temp) {
         return state.efetuaPagamento(temp);
     }
+
+    public boolean limiteTempo(ArrayList<String> temp) {
+        return state.limiteTempo(temp);
+    }
+    public void regressar() {
+        state.regressar();
+    }
 }

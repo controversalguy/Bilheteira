@@ -160,6 +160,10 @@ public class ComunicaTCP extends Thread {
                         case "EFETUA_PAGAMENTO"->{
                             String str = connDB.efetuaPagamento(msgSockettt.get(1));
                             msg.setMsg("\n" + str);
+                        }case "LIMITE_TEMPO"->{
+                            System.out.println("ENTREI LIMITE MM");
+                            String str = connDB.retiraReservaLimiteTempo(msgSockettt.get(1));
+                            msg.setMsg("\n" + str);
                         }
 
                     }

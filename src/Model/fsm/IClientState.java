@@ -9,10 +9,11 @@ public interface IClientState {
     boolean login(ArrayList<String> temp);
     boolean edita(ArrayList<String> temp);
     void avancar(int i);
-    void regressar();
     boolean inserirEspetaculo(ArrayList<String> temp);
 
     boolean visivel(ArrayList<String> temp);
+
+    void regressar();
 
     boolean consulta(ArrayList<String> temp);
     boolean consultaReservasPagas(ArrayList<String> temp);
@@ -22,4 +23,6 @@ public interface IClientState {
     boolean submeteReserva(ArrayList<String> temp);
 
     boolean efetuaPagamento(ArrayList<String> temp);
+
+    boolean limiteTempo(ArrayList<String> temp);
 }

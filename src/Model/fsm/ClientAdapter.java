@@ -1,6 +1,5 @@
 package Model.fsm;
 
-import Model.Servidor.Cliente;
 import Model.data.ClientData;
 
 import java.util.ArrayList;
@@ -73,7 +72,12 @@ abstract class ClientAdapter implements IClientState {
     }
 
     @Override
+    public boolean limiteTempo(ArrayList<String> temp) {
+        return false;
+    }
+    @Override
     public boolean esperaPagamento(AtomicInteger pagamento) {
         return false;
     }
+
 }

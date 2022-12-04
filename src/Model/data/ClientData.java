@@ -10,10 +10,7 @@ import java.sql.Time;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -128,9 +125,7 @@ public class ClientData {
         try {
             if(temp.get(0).equals("LOGIN_USER"))
                 cliente = temp.get(2);
-            else if(temp.get(0).contains("EDITA") || temp.get(0).contains("SUBMETE_RESERVA"))
-                temp.add(cliente);
-            else if(temp.get(0).equals("EFETUA_PAGAMENTO"))
+            else if(temp.get(0).contains("EDITA") || temp.get(0).contains("SUBMETE_RESERVA") ||temp.get(0).equals("EFETUA_PAGAMENTO") || temp.get(0).equals("LIMITE_TEMPO"))
                 temp.add(cliente);
 
             if(temp.get(0).equals("EDITA_USERNAME"))
@@ -149,9 +144,7 @@ public class ClientData {
         Thread tempo = new ThreadTempo(pagamento); //TODO PASSAR VARIAVEL PARA ACABAR A THREAD CASO TENHA PAGO
         tempo.start();
         allThreads.add(tempo);
-        Thread scan = new ThreadScan(pagamento);
-        scan.start();
-        allThreads.add(tempo);
+        //allThreads.add(tempo);
 
         return false;
     }

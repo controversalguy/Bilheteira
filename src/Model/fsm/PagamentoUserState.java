@@ -31,7 +31,13 @@ public class PagamentoUserState extends ClientAdapter {
     }
 
     @Override
+    public void regressar() {
+        estadoSeguinte(ClientState.LOGADO_USER);
+    }
+
+    @Override
     public ClientState getState() {
         return ClientState.PAGAMENTO;
     }
+
 }
