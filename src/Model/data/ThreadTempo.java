@@ -1,11 +1,7 @@
 package Model.data;
 
-import Model.Servidor.Informacoes;
-
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ThreadTempo extends Thread {
@@ -20,12 +16,12 @@ public class ThreadTempo extends Thread {
 
         LocalDateTime now = LocalDateTime.now();
 
-        while (pagamento.get() != 4) {
+        while (pagamento.get() != Pagamento.LIMITE_TEMPO.ordinal()) {
             LocalDateTime atualizado = LocalDateTime.now();
             long seconds = ChronoUnit.SECONDS.between(now, atualizado);
 
             if (seconds > 10) {
-                pagamento.getAndSet(4);
+                pagamento.getAndSet( Pagamento.LIMITE_TEMPO.ordinal());
                 break;
             }
         }

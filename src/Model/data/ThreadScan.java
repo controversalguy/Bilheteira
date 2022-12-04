@@ -13,13 +13,13 @@ public class ThreadScan extends Thread {
 
     @Override
     public void run() {
-        while (pagamento.get() != 4) {
+        while (pagamento.get() != Pagamento.LIMITE_TEMPO.ordinal()) {
             int opcao = sc.nextInt();
 
             switch (opcao) {
-                case 1 -> pagamento.getAndSet(1);
-                case 2 -> pagamento.getAndSet(2);
-                case 3 -> pagamento.getAndSet(3);
+                case 1 -> pagamento.getAndSet(Pagamento.EFETUA_PAGAMENTO.ordinal());
+                case 2 -> pagamento.getAndSet(Pagamento. CONSULTA_RESERVAS_PAGAS.ordinal());
+                case 3 -> pagamento.getAndSet(Pagamento.CONSULTA_RESERVAS_PENDENTES.ordinal());
             }
 
         }

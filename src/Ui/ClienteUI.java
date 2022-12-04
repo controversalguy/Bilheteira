@@ -1,5 +1,6 @@
 package Ui;
 
+import Model.data.Pagamento;
 import Model.data.info;
 import Model.fsm.ClientContext;
 import utils.PDInput;
@@ -63,17 +64,17 @@ public class ClienteUI{
         fsm.esperaPagamento(pagamento);
 
         do {
-            if(pagamento.get() == 1) {
+            if(pagamento.get() == Pagamento.EFETUA_PAGAMENTO.ordinal()) {
                 efetuaPagamento();
-                pagamento.getAndSet(0);
-            } else if(pagamento.get() == 2) {
+                pagamento.getAndSet(Pagamento.ESPERA.ordinal());
+            } else if(pagamento.get() == Pagamento.CONSULTA_RESERVAS_PAGAS.ordinal()) {
                 consultaReservasPagas();
-                pagamento.getAndSet(0);
-            } else if(pagamento.get() == 3) {
+                pagamento.getAndSet(Pagamento.ESPERA.ordinal());
+            } else if(pagamento.get() == Pagamento.CONSULTA_RESERVAS_PENDENTES.ordinal()) {
                 consultaReservasPendentes();
-                pagamento.getAndSet(0);
+                pagamento.getAndSet(Pagamento.ESPERA.ordinal());
             }
-        } while (pagamento.get() != 4);
+        } while (pagamento.get() != Pagamento.LIMITE_TEMPO.ordinal());
 
         System.out.println("ACABOUUUUUU");
 
