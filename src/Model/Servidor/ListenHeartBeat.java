@@ -128,87 +128,90 @@ public class ListenHeartBeat extends Thread{
         System.out.println("[INFO] ListenHeartBeat terminado com sucesso!");
     }
 
-    private void processaAtualizacao(ArrayList<String> msgSocket) throws SQLException {
+    private void processaAtualizacao(ArrayList<String> msgSocket) throws SQLException, IOException {
+        Msg msg = new Msg();
         switch (msgSocket.get(0)) {
             case "REGISTA_USER" -> {
                 switch (connDB.insertUser(msgSocket,false)) {
                     case ADMIN_NAO_PODE_REGISTAR -> {
-                        //msg.setMsg("\nImpossível registar como admin");
+                        msg.setMsg("\nImpossível registar como admin");
                     }
                     case CLIENTE_REGISTADO_SUCESSO -> {
-                       // msg.setMsg("\nCliente registado com sucesso!");
+                       msg.setMsg("\nCliente registado com sucesso!");
 
                         //commit
                     }
 
                     case CLIENTE_JA_REGISTADO -> {
-                       // msg.setMsg("\nCliente já registado!");
+                        msg.setMsg("\nCliente já registado!");
                     }
                 }
             }
             case "LOGIN_USER" -> {
                 String str = connDB.logaUser(msgSocket,false);
-               // msg.setMsg("\n" + str);
+                msg.setMsg("\n" + str);
             }
             case "EDITA_NAME" -> {
                 String str = connDB.updateUser(msgSocket, 0,false);
-                //msg.setMsg("\n" + str);
+                msg.setMsg("\n" + str);
             }
             case "EDITA_USERNAME" -> {
                 String str = connDB.updateUser(msgSocket, 1,false);
-               // msg.setMsg("\n" + str);
+                msg.setMsg("\n" + str);
             }
             case "EDITA_PASSWORD" -> {
                 String str = connDB.updateUser(msgSocket, 2,false);
-               // msg.setMsg("\n" + str);
+                msg.setMsg("\n" + str);
             }
             case "INSERE_ESPETACULOS" -> {
 
                 String str = connDB.insereEspetaculos(msgSocket,false);
-                //msg.setMsg("\n" + str);
+                msg.setMsg("\n" + str);
             }
             case "TORNA_VISIVEL" -> {
                 String str = connDB.tornaVisivel(msgSocket,false);
-                //msg.setMsg("\n" + str);
+                msg.setMsg("\n" + str);
             }
             case "FILTRO_ESPETACULO"->{
                 String str = connDB.filtraEspetaculo(Integer.parseInt(msgSocket.get(1)),msgSocket.get(2), msgSocket.get(3),false);
-                //msg.setMsg("\n" + str);
+                msg.setMsg("\n" + str);
             }
             case "SELECIONAR_ESPETACULO"->{
                 String str = connDB.selecionaEspetaculo(Integer.parseInt(msgSocket.get(1)),false);
-                //msg.setMsg("\n" + str);
+                msg.setMsg("\n" + str);
             }
             case "SUBMETE_RESERVA"->{
                 String str = connDB.submeteReserva(msgSocket,false);
-                //msg.setMsg("\n" + str);
+                msg.setMsg("\n" + str);
             }
             case "EFETUA_PAGAMENTO"->{
                 String str = connDB.efetuaPagamento(msgSocket,false);
-                //msg.setMsg("\n" + str);
+                msg.setMsg("\n" + str);
             }
             case "LIMITE_TEMPO"->{
                 String str = connDB.retiraReservaLimiteTempo(msgSocket,false);
-                //msg.setMsg("\n" + str);
+                msg.setMsg("\n" + str);
             }
             case "CONSULTA_RESERVAS_PAGAS"->{
                 String str = connDB.consultaReservasPagas(msgSocket.get(1));
-                //msg.setMsg("\n" + str);
+                msg.setMsg("\n" + str);
             }
             case "CONSULTA_RESERVAS_PENDENTES"->{
                 String str = connDB.consultaReservasPendentes(msgSocket.get(1));
-               // msg.setMsg("\n" + str);
+                msg.setMsg("\n" + str);
             }
             case "ELIMINA_ESPETACULO"->{
                 String str = connDB.eliminarEspetaculo(msgSocket,false);
-                //msg.setMsg("\n" + str);
+                msg.setMsg("\n" + str);
             }
             case "LOGOUT"->{
-                System.out.println("LOGOUTTTTTTT");
                 String str = connDB.logout(msgSocket,false);
-                //msg.setMsg("\n" + str);
+                msg.setMsg("\nListenHeartBeat: " + str);
             }
 
+        }
+        for (ObjectOutputStream os: listOos) {
+            os.writeUnshared(msg);
         }
     }
 

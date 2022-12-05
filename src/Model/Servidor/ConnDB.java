@@ -108,7 +108,7 @@ public class ConnDB
             statement.executeUpdate(sqlQueryVersao);
             statement.close();
 
-
+            versaoDB = new AtomicInteger(1);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -190,30 +190,30 @@ public class ConnDB
     public void inicializa() throws SQLException {
         Statement statement = dbConn.createStatement();
 
-        ResultSet rs = statement.executeQuery("SELECT COUNT(*) FROM versao_db");
-        rs.next();
-        int aux = rs.getInt(1);
-        rs.close();
+        ResultSet rs = statement.executeQuery("SELECT * FROM versao_db");
+        if (rs.next()) {
+            int aux = rs.getInt(1);
+            System.out.println("VERSAO GUARDADA: " + aux);
+            rs.close();
 
-        if (aux > 0) { //se ja tiver versao
             setVersaoDB(aux);
 
-        } else {
-            String sqlQuery = "UPDATE utilizador SET autenticado='" + 0 + "' WHERE autenticado=" + 1;
-            statement.executeUpdate(sqlQuery);
-            ResultSet r = statement.executeQuery("SELECT COUNT(*) FROM utilizador");
-            r.next();
-            int count = r.getInt(1);
-            r.close();
-            System.out.println("MyTable has " + count + " row(s).");
+            } else {
+                String sqlQuery = "UPDATE utilizador SET autenticado='" + 0 + "' WHERE autenticado=" + 1;
+                statement.executeUpdate(sqlQuery);
+                ResultSet r = statement.executeQuery("SELECT COUNT(*) FROM utilizador");
+                r.next();
+                int count = r.getInt(1);
+                r.close();
 
-            String user = "INSERT INTO utilizador VALUES ('" + count + "','" + "admin" + "','" + "admin" + "','" + "admin" + "','" + 1 + "','" + 0 + "')";
-            statement.executeUpdate(user);
+                String user = "INSERT INTO utilizador VALUES ('" + count + "','" + "admin" + "','" + "admin" + "','" + "admin" + "','" + 1 + "','" + 0 + "')";
+                statement.executeUpdate(user);
 
-            String versao = "INSERT INTO versao_db VALUES ('" + 1 +"')"; //TODO
-            statement.executeUpdate(versao);
+                String versao = "INSERT INTO versao_db VALUES ('" + 1 + "')"; //TODO
+                statement.executeUpdate(versao);
             }
-        statement.close();
+            statement.close();
+
     }
 
     public String logaUser(ArrayList<String> msgSockettt,boolean isComunicaTCP) throws SQLException
@@ -237,7 +237,8 @@ public class ConnDB
                 int id = resultSet.getInt("id");
                 String sqlQuery = "UPDATE utilizador SET autenticado='" + 1 + "',administrator='" + 1 + "' WHERE id=" + id;
 
-                Servidor.atualiza("Prepare",connDB.getVersao().get() + 1, msgSockettt);
+                if(isComunicaTCP)
+                    Servidor.atualiza("Prepare", connDB.getVersao().get() + 1, msgSockettt);
                 statement.executeUpdate(sqlQuery);
                 login = "Login efetuado como admin com sucesso!";
                 incrementaVersao();
@@ -249,7 +250,8 @@ public class ConnDB
                 String sqlQuery = "UPDATE utilizador SET autenticado='" + 1 + "' WHERE id=" + id;
 
                 login ="Login efetuado com sucesso!";
-                Servidor.atualiza("Prepare",connDB.getVersao().get() + 1, msgSockettt);
+                if(isComunicaTCP)
+                    Servidor.atualiza("Prepare", connDB.getVersao().get() + 1, msgSockettt);
                 statement.executeUpdate(sqlQuery);
                 incrementaVersao();
                 String versao = "UPDATE versao_db SET versao='"+getVersao().get() + "'";
@@ -286,7 +288,8 @@ public class ConnDB
             }
         }
 
-        Servidor.atualiza("Prepare",connDB.getVersao().get() + 1, msgSockettt);
+        if(isComunicaTCP)
+            Servidor.atualiza("Prepare", connDB.getVersao().get() + 1, msgSockettt);
         statement.executeUpdate(sqlQuery);
         incrementaVersao();
         String versao = "UPDATE versao_db SET versao='"+getVersao().get() + "'";
@@ -415,7 +418,8 @@ public class ConnDB
                 }
 
                 insere = "Espetáculo inserido com sucesso!";
-                Servidor.atualiza("Prepare", connDB.getVersao().get() + 1, msgSockettt);
+                if(isComunicaTCP)
+                    Servidor.atualiza("Prepare", connDB.getVersao().get() + 1, msgSockettt);
                 incrementaVersao();
                 String versao = "UPDATE versao_db SET versao='" + getVersao().get() + "'";
                 statement.executeUpdate(versao);
@@ -435,7 +439,8 @@ public class ConnDB
         ResultSet r = statement.executeQuery("SELECT * FROM espetaculo WHERE id =" + idEspetaculo);
         if (r.next()) {
             String sqlQuery = "UPDATE espetaculo SET visivel='" + 1 + "' WHERE id=" + idEspetaculo;
-            Servidor.atualiza("Prepare", connDB.getVersao().get() + 1, msgSockettt);
+            if(isComunicaTCP)
+                Servidor.atualiza("Prepare", connDB.getVersao().get() + 1, msgSockettt);
             statement.executeUpdate(sqlQuery);
             incrementaVersao();
             String versao = "UPDATE versao_db SET versao='" + getVersao().get() + "'";
@@ -626,7 +631,8 @@ public class ConnDB
                                 count = rs1.getInt(1);
                             rs1.close();
 
-                            Servidor.atualiza("Prepare", connDB.getVersao().get() + 1, msgSockettt);
+                            if(isComunicaTCP)
+                                Servidor.atualiza("Prepare", connDB.getVersao().get() + 1, msgSockettt);
                             incrementaVersao();
                             String versao = "UPDATE versao_db SET versao='" + getVersao().get() + "'";
                             st.executeUpdate(versao);
@@ -645,7 +651,8 @@ public class ConnDB
                             int id = count;
 
                             String sqlQuery2 = "INSERT INTO reserva_lugar VALUES('" + id + "','" + id_lugar + "')";
-                            Servidor.atualiza("Prepare", connDB.getVersao().get() + 1, msgSockettt);
+                            if(isComunicaTCP)
+                                Servidor.atualiza("Prepare", connDB.getVersao().get() + 1, msgSockettt);
                             st.executeUpdate(sqlQuery2);
                             incrementaVersao();
                             String versao = "UPDATE versao_db SET versao='" + getVersao().get() + "'";
@@ -676,7 +683,8 @@ public class ConnDB
             String verificaIdReserva = "SELECT * FROM reserva WHERE id_utilizador="+idUser;
             ResultSet resultSet = st.executeQuery(verificaIdReserva);
             if(resultSet.next()){
-                Servidor.atualiza("Prepare", connDB.getVersao().get() + 1, msgSockettt);
+                if(isComunicaTCP)
+                    Servidor.atualiza("Prepare", connDB.getVersao().get() + 1, msgSockettt);
                 incrementaVersao();
                 String versao = "UPDATE versao_db SET versao='" + getVersao().get() + "'";
                 st.executeUpdate(versao);
@@ -703,7 +711,8 @@ public class ConnDB
             ResultSet resultSet = st.executeQuery(verificaIdReserva);
             if(resultSet.next()){
                 int idReserva = resultSet.getInt("id");
-                Servidor.atualiza("Prepare", connDB.getVersao().get() + 1, msgSockettt);
+                if(isComunicaTCP)
+                    Servidor.atualiza("Prepare", connDB.getVersao().get() + 1, msgSockettt);
                 incrementaVersao();
                 String versao = "UPDATE versao_db SET versao='" + getVersao().get() + "'";
                 st.executeUpdate(versao);
@@ -868,7 +877,7 @@ public class ConnDB
     public String eliminarEspetaculo(ArrayList<String> msgSockettt,boolean isComunicaTCP) throws SQLException {
         int idEspetaculo = Integer.parseInt(msgSockettt.get(1));
         Statement st = dbConn.createStatement();
-        System.err.println(idEspetaculo);
+
         String verificaidEspetaculo = "SELECT id FROM espetaculo WHERE id=" + idEspetaculo;
         ResultSet resultSet = st.executeQuery(verificaidEspetaculo); // tem espetaculo pedido
 
@@ -878,7 +887,8 @@ public class ConnDB
             String verificaReserva = "SELECT * FROM reserva WHERE id_espetaculo=" + idEspetaculo;
             ResultSet rs1 = st.executeQuery(verificaReserva);
             if (!rs1.next()) {
-                Servidor.atualiza("Prepare", connDB.getVersao().get() + 1, msgSockettt);
+                if(isComunicaTCP)
+                    Servidor.atualiza("Prepare", connDB.getVersao().get() + 1, msgSockettt);
                 incrementaVersao();
                 String versao = "UPDATE versao_db SET versao='" + getVersao().get() + "'";
                 st.executeUpdate(versao);
@@ -889,7 +899,8 @@ public class ConnDB
                 ResultSet rs2 = st.executeQuery(verificaReservaPago);
                 if(rs2.next()) {
                     int idReserva = rs2.getInt("id");
-                    Servidor.atualiza("Prepare", connDB.getVersao().get() + 1, msgSockettt);
+                    if(isComunicaTCP)
+                        Servidor.atualiza("Prepare", connDB.getVersao().get() + 1, msgSockettt);
                     incrementaVersao();
                     String versao = "UPDATE versao_db SET versao='" + getVersao().get() + "'";
                     st.executeUpdate(versao);
