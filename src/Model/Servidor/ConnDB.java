@@ -450,7 +450,7 @@ public class ConnDB
     return "Espetáculo não existe!";
     }
 
-    public String filtraEspetaculo(int i, String filtro, String username,boolean isComunicaTCP)throws SQLException {
+    public String filtraEspetaculo(int i, String filtro, String username)throws SQLException {
 
         Statement statement = connDB.dbConn.createStatement();
         ResultSet r = null;
@@ -497,7 +497,7 @@ public class ConnDB
         return sb.toString();
     }
 
-    public String selecionaEspetaculo(int idEspetaculo,boolean isComunicaTCP) throws SQLException {
+    public String selecionaEspetaculo(int idEspetaculo) throws SQLException {
         LocalDateTime now = LocalDateTime.now();
         Statement statement = connDB.dbConn.createStatement();
         ResultSet r = statement.executeQuery("SELECT * FROM espetaculo WHERE id =" + idEspetaculo);
@@ -565,20 +565,6 @@ public class ConnDB
             }
 
             rL.close();
-
-
-            //String query = "SELECT * FROM lugar WHERE fila='" +fila+ "' AND assento='" + assento + "' AND espetaculo_id=" + idEspetaculo;
-            //ResultSet r1 = statement.executeQuery(query);
-           // int idLugar = r1.getInt("id");
-//            String query1 = "SELECT * FROM reserva_lugar WHERE id_lugar=" + idLugar;
-//            ResultSet r2 = statement.executeQuery(query1);
-//            if(r2.next()){
-//                preco = "x";
-//            }
-//            r1.close();
-//            r2.close();
-//            System.err.println("SB: " + sb);
-
 
             return sb.toString();
         }
@@ -920,7 +906,6 @@ public class ConnDB
     }
 
     public String logout(ArrayList<String> msgSockettt,boolean isComunicaTCP) throws SQLException {
-        System.out.println("LOGGOUT");
         String username = msgSockettt.get(1);
         Statement st = dbConn.createStatement();
         String user = "SELECT * FROM utilizador WHERE username='" + username + "'";

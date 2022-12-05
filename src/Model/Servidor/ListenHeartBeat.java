@@ -11,6 +11,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static Model.Servidor.MensagensRetorno.CLIENTE_REGISTADO_SUCESSO;
 import static Model.Servidor.Servidor.connDB;
 import static Model.Servidor.Servidor.portServer;
 
@@ -129,84 +130,59 @@ public class ListenHeartBeat extends Thread{
     }
 
     private void processaAtualizacao(ArrayList<String> msgSocket) throws SQLException, IOException {
+
+
+
         Msg msg = new Msg();
         switch (msgSocket.get(0)) {
             case "REGISTA_USER" -> {
-                switch (connDB.insertUser(msgSocket,false)) {
-                    case ADMIN_NAO_PODE_REGISTAR -> {
-                        msg.setMsg("\nImpossível registar como admin");
-                    }
-                    case CLIENTE_REGISTADO_SUCESSO -> {
-                       msg.setMsg("\nCliente registado com sucesso!");
-
-                        //commit
-                    }
-
-                    case CLIENTE_JA_REGISTADO -> {
-                        msg.setMsg("\nCliente já registado!");
-                    }
+                if (connDB.insertUser(msgSocket, false) == CLIENTE_REGISTADO_SUCESSO) {
+                    msg.setMsg("\nA base de dados foi atualizada! (Um usuário registou uma conta)");
                 }
             }
             case "LOGIN_USER" -> {
-                String str = connDB.logaUser(msgSocket,false);
-                msg.setMsg("\n" + str);
+                connDB.logaUser(msgSocket, false);
+                msg.setMsg("\nA base de dados foi atualizada! (Login de um usuário)");
             }
             case "EDITA_NAME" -> {
-                String str = connDB.updateUser(msgSocket, 0,false);
-                msg.setMsg("\n" + str);
+                connDB.updateUser(msgSocket, 0,false);
+                msg.setMsg("\nA base de dados foi atualizada! (Um usuário editou o seu nome)");
             }
             case "EDITA_USERNAME" -> {
-                String str = connDB.updateUser(msgSocket, 1,false);
-                msg.setMsg("\n" + str);
+                connDB.updateUser(msgSocket, 1,false);
+                msg.setMsg("\nA base de dados foi atualizada! (Um usuário editou o seu username)");
             }
             case "EDITA_PASSWORD" -> {
-                String str = connDB.updateUser(msgSocket, 2,false);
-                msg.setMsg("\n" + str);
+                connDB.updateUser(msgSocket, 2,false);
+                msg.setMsg("\nA base de dados foi atualizada! (Um usuário editou a sua password)");
             }
             case "INSERE_ESPETACULOS" -> {
-
-                String str = connDB.insereEspetaculos(msgSocket,false);
-                msg.setMsg("\n" + str);
+                connDB.insereEspetaculos(msgSocket,false);
+                msg.setMsg("\nA base de dados foi atualizada! (Admin inseriu um espetáculo)");
             }
             case "TORNA_VISIVEL" -> {
-                String str = connDB.tornaVisivel(msgSocket,false);
-                msg.setMsg("\n" + str);
-            }
-            case "FILTRO_ESPETACULO"->{
-                String str = connDB.filtraEspetaculo(Integer.parseInt(msgSocket.get(1)),msgSocket.get(2), msgSocket.get(3),false);
-                msg.setMsg("\n" + str);
-            }
-            case "SELECIONAR_ESPETACULO"->{
-                String str = connDB.selecionaEspetaculo(Integer.parseInt(msgSocket.get(1)),false);
-                msg.setMsg("\n" + str);
+                connDB.tornaVisivel(msgSocket,false);
+                msg.setMsg("\nA base de dados foi atualizada! (Admin tornou um espetáculo visivel)");
             }
             case "SUBMETE_RESERVA"->{
-                String str = connDB.submeteReserva(msgSocket,false);
-                msg.setMsg("\n" + str);
+                connDB.submeteReserva(msgSocket,false);
+                msg.setMsg("\nA base de dados foi atualizada! (Um usuário submeteu uma reserva)");
             }
             case "EFETUA_PAGAMENTO"->{
-                String str = connDB.efetuaPagamento(msgSocket,false);
-                msg.setMsg("\n" + str);
+                connDB.efetuaPagamento(msgSocket,false);
+                msg.setMsg("\nA base de dados foi atualizada! (Um usuário efetuou um pagamento)");
             }
             case "LIMITE_TEMPO"->{
-                String str = connDB.retiraReservaLimiteTempo(msgSocket,false);
-                msg.setMsg("\n" + str);
-            }
-            case "CONSULTA_RESERVAS_PAGAS"->{
-                String str = connDB.consultaReservasPagas(msgSocket.get(1));
-                msg.setMsg("\n" + str);
-            }
-            case "CONSULTA_RESERVAS_PENDENTES"->{
-                String str = connDB.consultaReservasPendentes(msgSocket.get(1));
-                msg.setMsg("\n" + str);
+                connDB.retiraReservaLimiteTempo(msgSocket,false);
+                msg.setMsg("\nA base de dados foi atualizada! (Reserva de um usuário eliminada devido ao limite de tempo)");
             }
             case "ELIMINA_ESPETACULO"->{
-                String str = connDB.eliminarEspetaculo(msgSocket,false);
-                msg.setMsg("\n" + str);
+                connDB.eliminarEspetaculo(msgSocket,false);
+                msg.setMsg("\nA base de dados foi atualizada! (Admin eliminou um espetáculo)");
             }
             case "LOGOUT"->{
-                String str = connDB.logout(msgSocket,false);
-                msg.setMsg("\nListenHeartBeat: " + str);
+                connDB.logout(msgSocket,false);
+                msg.setMsg("\nA base de dados foi atualizada! (Um usuário encerrou a sessão)");
             }
 
         }
