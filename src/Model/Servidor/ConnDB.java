@@ -142,7 +142,7 @@ public class ConnDB
         statement.close();
     }
 
-    public MensagensRetorno insertUser(ArrayList<String> msgSockett) throws SQLException
+    public MensagensRetorno insertUser(ArrayList<String> msgSockett,boolean isComunicaTCP) throws SQLException
     {
         String name = msgSockett.get(1);
         String username = msgSockett.get(2);
@@ -165,7 +165,9 @@ public class ConnDB
 
                 if(count > -1){
                     String sqlQuery = "INSERT INTO utilizador VALUES ('" + count + "','" + username + "','" + name + "','" + password + "','" + 0 + "','" + 0 + "')";
-                    Servidor.atualiza("Prepare",connDB.getVersao().get() + 1, msgSockett);
+                    if(isComunicaTCP){
+                        Servidor.atualiza("Prepare",connDB.getVersao().get() + 1, msgSockett);
+                    }
                     statement.executeUpdate(sqlQuery);
                     incrementaVersao();
                     String versao = "UPDATE versao_db SET versao='"+getVersao().get() + "'";
@@ -214,7 +216,7 @@ public class ConnDB
         statement.close();
     }
 
-    public String logaUser(ArrayList<String> msgSockettt) throws SQLException
+    public String logaUser(ArrayList<String> msgSockettt,boolean isComunicaTCP) throws SQLException
     {
         String username = msgSockettt.get(1);
         String password = msgSockettt.get(2);
@@ -260,7 +262,7 @@ public class ConnDB
         return login;
     }
 
-    public String updateUser(ArrayList<String> msgSockettt,int tipo) throws SQLException
+    public String updateUser(ArrayList<String> msgSockettt,int tipo,boolean isComunicaTCP) throws SQLException
     {
         String atualizaCampo = msgSockettt.get(1);
         String id = msgSockettt.get(2);
@@ -308,7 +310,7 @@ public class ConnDB
         return dbName;
     }
 
-    public String insereEspetaculos(ArrayList<String> msgSockettt) {
+    public String insereEspetaculos(ArrayList<String> msgSockettt,boolean isComunicaTCP) {
         String insere = null;
         String fileName = msgSockettt.get(1);
         try (FileInputStream fstream = new FileInputStream(fileName)) {
@@ -427,7 +429,7 @@ public class ConnDB
         return insere;
     }
 
-    public String tornaVisivel(ArrayList<String> msgSockettt) throws SQLException {
+    public String tornaVisivel(ArrayList<String> msgSockettt,boolean isComunicaTCP) throws SQLException {
         int idEspetaculo = Integer.parseInt(msgSockettt.get(1));
         Statement statement = connDB.dbConn.createStatement();
         ResultSet r = statement.executeQuery("SELECT * FROM espetaculo WHERE id =" + idEspetaculo);
@@ -443,7 +445,7 @@ public class ConnDB
     return "Espetáculo não existe!";
     }
 
-    public String filtraEspetaculo(int i, String filtro, String username)throws SQLException {
+    public String filtraEspetaculo(int i, String filtro, String username,boolean isComunicaTCP)throws SQLException {
 
         Statement statement = connDB.dbConn.createStatement();
         ResultSet r = null;
@@ -490,7 +492,7 @@ public class ConnDB
         return sb.toString();
     }
 
-    public String selecionaEspetaculo(int idEspetaculo) throws SQLException {
+    public String selecionaEspetaculo(int idEspetaculo,boolean isComunicaTCP) throws SQLException {
         LocalDateTime now = LocalDateTime.now();
         Statement statement = connDB.dbConn.createStatement();
         ResultSet r = statement.executeQuery("SELECT * FROM espetaculo WHERE id =" + idEspetaculo);
@@ -578,7 +580,7 @@ public class ConnDB
         return "Espetáculo Inexistente!";
     }
 
-    public String submeteReserva(ArrayList<String> msgSockettt) throws SQLException {
+    public String submeteReserva(ArrayList<String> msgSockettt,boolean isComunicaTCP) throws SQLException {
         StringBuilder submete = new StringBuilder();
         Statement st = dbConn.createStatement();
 
@@ -664,7 +666,7 @@ public class ConnDB
         return String.valueOf(submete);
     }
 
-    public String efetuaPagamento(ArrayList<String> msgSockettt) throws SQLException {
+    public String efetuaPagamento(ArrayList<String> msgSockettt,boolean isComunicaTCP) throws SQLException {
         String username = msgSockettt.get(1);
         Statement st= dbConn.createStatement();
         String verificaExistente = "SELECT * FROM utilizador WHERE username = '" + username + "'";
@@ -690,7 +692,7 @@ public class ConnDB
         return "UserName inexistente!";
     }
 
-    public String retiraReservaLimiteTempo(ArrayList<String> msgSockettt) throws SQLException {
+    public String retiraReservaLimiteTempo(ArrayList<String> msgSockettt,boolean isComunicaTCP) throws SQLException {
         String username = msgSockettt.get(1);
         Statement st= dbConn.createStatement();
         String verificaExistente = "SELECT * FROM utilizador WHERE username = '" + username + "'";
@@ -863,7 +865,7 @@ public class ConnDB
         return sb.toString();
     }
 
-    public String eliminarEspetaculo(ArrayList<String> msgSockettt) throws SQLException {
+    public String eliminarEspetaculo(ArrayList<String> msgSockettt,boolean isComunicaTCP) throws SQLException {
         int idEspetaculo = Integer.parseInt(msgSockettt.get(1));
         Statement st = dbConn.createStatement();
         System.err.println(idEspetaculo);
@@ -906,18 +908,22 @@ public class ConnDB
         return "Não é possível eliminar espetáculo inexistente!";
     }
 
-    public String logout(ArrayList<String> msgSockettt) throws SQLException {
+    public String logout(ArrayList<String> msgSockettt,boolean isComunicaTCP) throws SQLException {
+        System.out.println("LOGGOUT");
         String username = msgSockettt.get(1);
         Statement st = dbConn.createStatement();
         String user = "SELECT * FROM utilizador WHERE username='" + username + "'";
         ResultSet rs = st.executeQuery(user);
         if(rs.next()) {
-            Servidor.atualiza("Prepare", connDB.getVersao().get() + 1, msgSockettt);
-            incrementaVersao();
-            String versao = "UPDATE versao_db SET versao='" + getVersao().get() + "'";
-            st.executeUpdate(versao);
+            if(isComunicaTCP){
+                Servidor.atualiza("Prepare",connDB.getVersao().get() + 1, msgSockettt);
+            }
             String logout = "UPDATE utilizador SET autenticado ='" + 0 + "' WHERE username='" + username + "'";
             st.executeUpdate(logout);
+            incrementaVersao();
+            System.out.println("GETVERSAO: " +getVersao().get());
+            String versao = "UPDATE versao_db SET versao='" + getVersao().get() + "'";
+            st.executeUpdate(versao);
         }
 
         return "Cliente terminou sessão!";

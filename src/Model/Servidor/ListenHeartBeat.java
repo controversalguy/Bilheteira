@@ -63,23 +63,21 @@ public class ListenHeartBeat extends Thread{
                         }
 
                     }else { // se já existir
-                        //System.out.println("EXISTE BABY");
+
                         listaServidores.set(listaServidores.lastIndexOf(info), info);
-                        System.out.println("Info existente: "+ info);
 
                         Comparator<Informacoes> compare = new InformacoesComparator();
                         listaServidores.sort(compare);
                     }
 
 
-                    //System.out.println("ListenHeartBeat: " + listaServidores);
                 }
 
                 if (info.getMsgAtualiza() != null) {
 
-                    ArrayList<String> msgSocket = new ArrayList<>();
+                    ArrayList<String> msgSocket;
 
-                    System.out.println("LISTEN BABY " + info.getMsgAtualiza());
+                    System.err.println("LISTEN BABY " + info.getMsgAtualiza());
                     if (info.getMsgAtualiza().equalsIgnoreCase("PREPARE") && info.getPorto() != portServer) {
                         System.out.println("ListenHeartBeatAtualiza" + info);
 
@@ -95,6 +93,7 @@ public class ListenHeartBeat extends Thread{
                                 System.out.println("Esperei 3 segundos");
                                 break;
                             }
+                            System.err.println("RECEBIIIIIIII");
                             ms.receive(dp);
                             bais = new ByteArrayInputStream(dp.getData());
                             try {
@@ -132,7 +131,7 @@ public class ListenHeartBeat extends Thread{
     private void processaAtualizacao(ArrayList<String> msgSocket) throws SQLException {
         switch (msgSocket.get(0)) {
             case "REGISTA_USER" -> {
-                switch (connDB.insertUser(msgSocket)) {
+                switch (connDB.insertUser(msgSocket,false)) {
                     case ADMIN_NAO_PODE_REGISTAR -> {
                         //msg.setMsg("\nImpossível registar como admin");
                     }
@@ -148,48 +147,48 @@ public class ListenHeartBeat extends Thread{
                 }
             }
             case "LOGIN_USER" -> {
-                String str = connDB.logaUser(msgSocket);
+                String str = connDB.logaUser(msgSocket,false);
                // msg.setMsg("\n" + str);
             }
             case "EDITA_NAME" -> {
-                String str = connDB.updateUser(msgSocket, 0);
+                String str = connDB.updateUser(msgSocket, 0,false);
                 //msg.setMsg("\n" + str);
             }
             case "EDITA_USERNAME" -> {
-                String str = connDB.updateUser(msgSocket, 1);
+                String str = connDB.updateUser(msgSocket, 1,false);
                // msg.setMsg("\n" + str);
             }
             case "EDITA_PASSWORD" -> {
-                String str = connDB.updateUser(msgSocket, 2);
+                String str = connDB.updateUser(msgSocket, 2,false);
                // msg.setMsg("\n" + str);
             }
             case "INSERE_ESPETACULOS" -> {
 
-                String str = connDB.insereEspetaculos(msgSocket);
+                String str = connDB.insereEspetaculos(msgSocket,false);
                 //msg.setMsg("\n" + str);
             }
             case "TORNA_VISIVEL" -> {
-                String str = connDB.tornaVisivel(msgSocket);
+                String str = connDB.tornaVisivel(msgSocket,false);
                 //msg.setMsg("\n" + str);
             }
             case "FILTRO_ESPETACULO"->{
-                String str = connDB.filtraEspetaculo(Integer.parseInt(msgSocket.get(1)),msgSocket.get(2), msgSocket.get(3));
+                String str = connDB.filtraEspetaculo(Integer.parseInt(msgSocket.get(1)),msgSocket.get(2), msgSocket.get(3),false);
                 //msg.setMsg("\n" + str);
             }
             case "SELECIONAR_ESPETACULO"->{
-                String str = connDB.selecionaEspetaculo(Integer.parseInt(msgSocket.get(1)));
+                String str = connDB.selecionaEspetaculo(Integer.parseInt(msgSocket.get(1)),false);
                 //msg.setMsg("\n" + str);
             }
             case "SUBMETE_RESERVA"->{
-                String str = connDB.submeteReserva(msgSocket);
+                String str = connDB.submeteReserva(msgSocket,false);
                 //msg.setMsg("\n" + str);
             }
             case "EFETUA_PAGAMENTO"->{
-                String str = connDB.efetuaPagamento(msgSocket);
+                String str = connDB.efetuaPagamento(msgSocket,false);
                 //msg.setMsg("\n" + str);
             }
             case "LIMITE_TEMPO"->{
-                String str = connDB.retiraReservaLimiteTempo(msgSocket);
+                String str = connDB.retiraReservaLimiteTempo(msgSocket,false);
                 //msg.setMsg("\n" + str);
             }
             case "CONSULTA_RESERVAS_PAGAS"->{
@@ -201,11 +200,12 @@ public class ListenHeartBeat extends Thread{
                // msg.setMsg("\n" + str);
             }
             case "ELIMINA_ESPETACULO"->{
-                String str = connDB.eliminarEspetaculo(msgSocket);
+                String str = connDB.eliminarEspetaculo(msgSocket,false);
                 //msg.setMsg("\n" + str);
             }
             case "LOGOUT"->{
-                String str = connDB.logout(msgSocket);
+                System.out.println("LOGOUTTTTTTT");
+                String str = connDB.logout(msgSocket,false);
                 //msg.setMsg("\n" + str);
             }
 

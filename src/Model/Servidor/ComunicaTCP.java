@@ -105,7 +105,7 @@ public class ComunicaTCP extends Thread {
 
                     switch (msgSockettt.get(0)) {
                         case "REGISTA_USER" -> {
-                            switch (connDB.insertUser(msgSockettt)) {
+                            switch (connDB.insertUser(msgSockettt,true)) {
                                 case ADMIN_NAO_PODE_REGISTAR -> {
                                     msg.setMsg("\nImpossível registar como admin");
                                 }
@@ -121,48 +121,48 @@ public class ComunicaTCP extends Thread {
                             }
                         }
                         case "LOGIN_USER" -> {
-                            String str = connDB.logaUser(msgSockettt);
+                            String str = connDB.logaUser(msgSockettt,true);
                             msg.setMsg("\n" + str);
                         }
                         case "EDITA_NAME" -> {
-                            String str = connDB.updateUser(msgSockettt,0);
+                            String str = connDB.updateUser(msgSockettt,0,true);
                             msg.setMsg("\n" + str);
                         }
                         case "EDITA_USERNAME" -> {
-                            String str = connDB.updateUser(msgSockettt, 1);
+                            String str = connDB.updateUser(msgSockettt, 1,true);
                             msg.setMsg("\n" + str);
                         }
                         case "EDITA_PASSWORD" -> {
-                            String str = connDB.updateUser(msgSockettt, 2);
+                            String str = connDB.updateUser(msgSockettt, 2,true);
                             msg.setMsg("\n" + str);
                         }
                         case "INSERE_ESPETACULOS" -> {
 
-                            String str = connDB.insereEspetaculos(msgSockettt);
+                            String str = connDB.insereEspetaculos(msgSockettt,true);
                             msg.setMsg("\n" + str);
                         }
                         case "TORNA_VISIVEL" -> {
-                            String str = connDB.tornaVisivel(msgSockettt);
+                            String str = connDB.tornaVisivel(msgSockettt,true);
                             msg.setMsg("\n" + str);
                         }
                         case "FILTRO_ESPETACULO"->{
-                            String str = connDB.filtraEspetaculo(Integer.parseInt(msgSockettt.get(1)),msgSockettt.get(2), msgSockettt.get(3));
+                            String str = connDB.filtraEspetaculo(Integer.parseInt(msgSockettt.get(1)),msgSockettt.get(2), msgSockettt.get(3),true);
                             msg.setMsg("\n" + str);
                         }
                         case "SELECIONAR_ESPETACULO"->{
-                            String str = connDB.selecionaEspetaculo(Integer.parseInt(msgSockettt.get(1)));
+                            String str = connDB.selecionaEspetaculo(Integer.parseInt(msgSockettt.get(1)),true);
                             msg.setMsg("\n" + str);
                         }
                         case "SUBMETE_RESERVA"->{
-                            String str = connDB.submeteReserva(msgSockettt);
+                            String str = connDB.submeteReserva(msgSockettt,true);
                             msg.setMsg("\n" + str);
                         }
                         case "EFETUA_PAGAMENTO"->{
-                            String str = connDB.efetuaPagamento(msgSockettt);
+                            String str = connDB.efetuaPagamento(msgSockettt,true);
                             msg.setMsg("\n" + str);
                         }
                         case "LIMITE_TEMPO"->{
-                            String str = connDB.retiraReservaLimiteTempo(msgSockettt);
+                            String str = connDB.retiraReservaLimiteTempo(msgSockettt,true);
                             msg.setMsg("\n" + str);
                         }
                         case "CONSULTA_RESERVAS_PAGAS"->{
@@ -174,11 +174,11 @@ public class ComunicaTCP extends Thread {
                             msg.setMsg("\n" + str);
                         }
                         case "ELIMINA_ESPETACULO"->{
-                            String str = connDB.eliminarEspetaculo(msgSockettt);
+                            String str = connDB.eliminarEspetaculo(msgSockettt,true);
                             msg.setMsg("\n" + str);
                         }
                         case "LOGOUT"->{
-                            String str = connDB.logout(msgSockettt);
+                            String str = connDB.logout(msgSockettt,true);
                             msg.setMsg("\n" + str);
                         }
 
