@@ -43,7 +43,7 @@ public class AtualizaUDP extends Thread{
         //while (it.hasNext() && threadCorre.get()) { // TODO VERIIFCAR DB VERSAO
 
         System.out.println(listaServidores);
-            for(int i = 0; i < listaServidores.size(); i++) {
+            for(int i = 0; i < listaServidores.size() - 1; i++) {
 
             System.out.println("LISTA dentro: " + listaServidores);
            // it.next();

@@ -13,10 +13,10 @@ import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static Model.Servidor.Servidor.connDB;
+import static Model.Servidor.Servidor.ms;
 
 public class ConnDB
-{ // formato da data muito importante para nao dar erro
-    // YYYY-MM-dd HH:mm:ss.sss
+{
     private String DATABASE_URL;
     private Connection dbConn;
     private String dbName;
@@ -27,11 +27,6 @@ public class ConnDB
         DATABASE_URL =  "jdbc:sqlite:" + dBName;
         dbConn = DriverManager.getConnection(DATABASE_URL);
         versaoDB = new AtomicInteger(1);
-//        Statement statement = dbConn.createStatement();
-//        String sqlQuery2 = "INSERT INTO utilizador VALUES (0,'xicao','Francisco','IS3C..00',0,0)";
-//        statement.executeUpdate(sqlQuery2);
-//        statement.close();
-        //clear();
     }
     public boolean verificaDb() throws SQLException {
         System.out.println("[INFO] A verificar db existente...");
@@ -102,8 +97,7 @@ public class ConnDB
                     """;
             String sqlQueryVersao = """
                     CREATE TABLE IF NOT EXISTS versao_db
-                    (versao INTEGER NOT NULL,
-                    query TEXT NOT NULL)
+                    (versao INTEGER NOT NULL)
                     """;
 
             statement.executeUpdate(sqlQueryEspetaculo);
@@ -155,7 +149,6 @@ public class ConnDB
         String password = msgSockett.get(3);
 
         Statement statement = dbConn.createStatement();
-        String verificaExistente = "SELECT * FROM utilizador";
         if (name != null && username != null && password != null) {
             if (username.equals("admin") && password.equals("admin")){
                 return MensagensRetorno.ADMIN_NAO_PODE_REGISTAR;
@@ -164,27 +157,22 @@ public class ConnDB
             ResultSet resultSet = statement.executeQuery(verifica);
             if (!resultSet.next()) {
 
-                Servidor.atualiza("Prepare",connDB.getVersao().get() + 1, msgSockett);
-
                 ResultSet r = statement.executeQuery("SELECT COUNT(*) FROM utilizador");
                 int count = -1;
                 if(r.next())
                     count = r.getInt(1);
                 r.close();
 
-                System.out.println("TAS AQUI A FAZER O QUE");
-
-                System.out.println("MyTable has " + count + " row(s).");
                 if(count > -1){
                     String sqlQuery = "INSERT INTO utilizador VALUES ('" + count + "','" + username + "','" + name + "','" + password + "','" + 0 + "','" + 0 + "')";
-                    incrementaVersao();
-                    //String sqlUpdateVersion = "INSERT INTO versao_db (query)VALUES('"+sqlQuery+"')" ;
-                    String versao = "INSERT INTO versao_db VALUES ('" + getVersao().get() + "','" + "MUDAR" +"')"; //TODO
-
+                    Servidor.atualiza("Prepare",connDB.getVersao().get() + 1, msgSockett);
                     statement.executeUpdate(sqlQuery);
+                    incrementaVersao();
+                    String versao = "UPDATE versao_db SET versao='"+getVersao().get() + "'";
                     statement.executeUpdate(versao);
                     statement.close();
                     return MensagensRetorno.CLIENTE_REGISTADO_SUCESSO;
+
                 }
                 else{
 
@@ -199,8 +187,6 @@ public class ConnDB
 
     public void inicializa() throws SQLException {
         Statement statement = dbConn.createStatement();
-        String sqlQuery = "UPDATE utilizador SET autenticado='" + 0 + "' WHERE autenticado=" + 1;
-        statement.executeUpdate(sqlQuery);
 
         ResultSet rs = statement.executeQuery("SELECT COUNT(*) FROM versao_db");
         rs.next();
@@ -208,17 +194,11 @@ public class ConnDB
         rs.close();
 
         if (aux > 0) { //se ja tiver versao
-            //String query = rs.getString("query");
             setVersaoDB(aux);
-            System.out.println("VERSAOBD"+ getVersao());
 
         } else {
-            // String verificaExistente = "SELECT * FROM utilizador";
-
-            //verificaExistente += " WHERE username = '" + "admin" + "' AND password = '" + "admin" + "'";
-            //ResultSet resultSet = statement.executeQuery(verificaExistente);
-            //if (!resultSet.next()) {
-
+            String sqlQuery = "UPDATE utilizador SET autenticado='" + 0 + "' WHERE autenticado=" + 1;
+            statement.executeUpdate(sqlQuery);
             ResultSet r = statement.executeQuery("SELECT COUNT(*) FROM utilizador");
             r.next();
             int count = r.getInt(1);
@@ -228,17 +208,16 @@ public class ConnDB
             String user = "INSERT INTO utilizador VALUES ('" + count + "','" + "admin" + "','" + "admin" + "','" + "admin" + "','" + 1 + "','" + 0 + "')";
             statement.executeUpdate(user);
 
-            //String teste = "INSERT INTO reserva_lugar VALUES ('" + 1 + "','" + 1  + "')";
-            //System.out.println(teste);
-
-            String versao = "INSERT INTO versao_db VALUES ('" + 1 + "','" + "MUDAR" +"')"; //TODO
+            String versao = "INSERT INTO versao_db VALUES ('" + 1 +"')"; //TODO
             statement.executeUpdate(versao);
             }
         statement.close();
     }
 
-    public String logaUser(String username, String password) throws SQLException
+    public String logaUser(ArrayList<String> msgSockettt) throws SQLException
     {
+        String username = msgSockettt.get(1);
+        String password = msgSockettt.get(2);
         String login = null;
         Statement statement = dbConn.createStatement();
         String verificaExistente = "SELECT * FROM utilizador";
@@ -255,21 +234,23 @@ public class ConnDB
             } else if (username.equals("admin") && password.equals("admin")){
                 int id = resultSet.getInt("id");
                 String sqlQuery = "UPDATE utilizador SET autenticado='" + 1 + "',administrator='" + 1 + "' WHERE id=" + id;
+
+                Servidor.atualiza("Prepare",connDB.getVersao().get() + 1, msgSockettt);
                 statement.executeUpdate(sqlQuery);
                 login = "Login efetuado como admin com sucesso!";
-
                 incrementaVersao();
-                String versao = "INSERT INTO versao_db VALUES ('" + getVersao().get() + "','" + "MUDAR" +"')"; //TODO
+                String versao = "UPDATE versao_db SET versao='"+getVersao().get() + "'";
                 statement.executeUpdate(versao);
             }
             else {
                 int id = resultSet.getInt("id");
                 String sqlQuery = "UPDATE utilizador SET autenticado='" + 1 + "' WHERE id=" + id;
-                statement.executeUpdate(sqlQuery);
-                login ="Login efetuado com sucesso!";
 
+                login ="Login efetuado com sucesso!";
+                Servidor.atualiza("Prepare",connDB.getVersao().get() + 1, msgSockettt);
+                statement.executeUpdate(sqlQuery);
                 incrementaVersao();
-                String versao = "INSERT INTO versao_db VALUES ('" + getVersao().get() + "','" + "MUDAR" +"')"; //TODO
+                String versao = "UPDATE versao_db SET versao='"+getVersao().get() + "'";
                 statement.executeUpdate(versao);
             }
             resultSet.close();
@@ -279,56 +260,38 @@ public class ConnDB
         return login;
     }
 
-    public String updateUser(String atualizaCampo, String id, int tipo) throws SQLException
+    public String updateUser(ArrayList<String> msgSockettt,int tipo) throws SQLException
     {
-        System.out.println("SATUALIZA CAMPO:" + atualizaCampo);
-        System.out.println("SATUALIZA ID:" + id);
-        System.out.println("SATUALIZA CTIPO:" + tipo);
+        String atualizaCampo = msgSockettt.get(1);
+        String id = msgSockettt.get(2);
         String update = null;
         Statement statement = dbConn.createStatement();
         String sqlQuery = null;
         
         switch (tipo) {
             case 0 -> {
-               sqlQuery = "UPDATE utilizador SET nome='" + atualizaCampo + "' WHERE username like '%" + id + "%'";
+               sqlQuery = "UPDATE utilizador SET nome='" + atualizaCampo + "' WHERE username='" + id + "'";
                update = "Nome mudado com sucesso!";
+
             }
             case 1 -> {
-                sqlQuery = "UPDATE utilizador SET username='" + atualizaCampo + "' WHERE username like '%" + id + "%'";
+                sqlQuery = "UPDATE utilizador SET username='" + atualizaCampo + "' WHERE username='" + id + "'";
                 update = "Username mudado com sucesso!";
             }
             case 2 -> {
-                sqlQuery = "UPDATE utilizador SET password='" + atualizaCampo + "' WHERE username like '%" + id + "%'";
+                sqlQuery = "UPDATE utilizador SET password='" + atualizaCampo + "' WHERE username='" + id + "'";
                 update = "Password mudada com sucesso!";
             }
         }
-        
+
+        Servidor.atualiza("Prepare",connDB.getVersao().get() + 1, msgSockettt);
         statement.executeUpdate(sqlQuery);
+        incrementaVersao();
+        String versao = "UPDATE versao_db SET versao='"+getVersao().get() + "'";
+        statement.executeUpdate(versao);
+
         statement.close();
         return update;
-    }
-
-    public void deleteUser(int id) throws SQLException
-    {
-        Statement statement = dbConn.createStatement();
-
-        String sqlQuery = "DELETE FROM users WHERE id=" + id;
-        statement.executeUpdate(sqlQuery);
-        statement.close();
-    }
-
-    public void clear() throws SQLException
-    {
-        Statement statement = dbConn.createStatement();
-        String sqlQuery = "DELETE FROM espetaculo";
-        statement.executeUpdate(sqlQuery);
-        statement.close();
-
-        //Getting the connection
-        /*System.out.println("Connection established......");
-        ResultSet rs = dbConn.getMetaData().getTables(null, null, null, null);        while (rs.next()) {
-            System.out.println(rs.getString("TABLE_NAME"));
-        }*/
     }
 
     public AtomicInteger getVersao() {
@@ -341,17 +304,13 @@ public class ConnDB
     public void setVersaoDB(int versaoDB) {
         ConnDB.versaoDB.getAndSet(versaoDB);
     }
-    public void decrementaVersao() {
-        versaoDB.getAndDecrement();
-    }
-
     public String getDbName() {
         return dbName;
     }
 
-    public String insereEspetaculos(String fileName) {
+    public String insereEspetaculos(ArrayList<String> msgSockettt) {
         String insere = null;
-
+        String fileName = msgSockettt.get(1);
         try (FileInputStream fstream = new FileInputStream(fileName)) {
 
             BufferedReader br = new BufferedReader(new InputStreamReader(fstream));
@@ -410,16 +369,13 @@ public class ConnDB
                                     }
                                 }
                             }
-                          //  System.out.println("fila" + fila);
                         }
                     }
-
                 }
-
                 line = br.readLine();
             }
 
-            ArrayList insereEspetaculosLista = new ArrayList<>();
+            ArrayList<String> insereEspetaculosLista = new ArrayList<>();
             for (int i = 0; i < listaEspetaculos.size(); i++) {
                 String result = listaEspetaculos.get(i).replaceAll("\"", "");
                 insereEspetaculosLista.add(result);
@@ -456,11 +412,13 @@ public class ConnDB
                     }
                 }
 
-            insere = "Espetáculo inserido com sucesso!";
-
+                insere = "Espetáculo inserido com sucesso!";
+                Servidor.atualiza("Prepare", connDB.getVersao().get() + 1, msgSockettt);
+                incrementaVersao();
+                String versao = "UPDATE versao_db SET versao='" + getVersao().get() + "'";
+                statement.executeUpdate(versao);
             }
             statement.close();
-            System.out.println(fila);
         } catch (IOException ioe) {
             insere = "Este ficheiro não existe!";
         } catch (Exception e) {
@@ -469,13 +427,17 @@ public class ConnDB
         return insere;
     }
 
-    public String tornaVisivel(String id) throws SQLException {
-        int idEspetaculo = Integer.parseInt(id);
+    public String tornaVisivel(ArrayList<String> msgSockettt) throws SQLException {
+        int idEspetaculo = Integer.parseInt(msgSockettt.get(1));
         Statement statement = connDB.dbConn.createStatement();
         ResultSet r = statement.executeQuery("SELECT * FROM espetaculo WHERE id =" + idEspetaculo);
         if (r.next()) {
             String sqlQuery = "UPDATE espetaculo SET visivel='" + 1 + "' WHERE id=" + idEspetaculo;
+            Servidor.atualiza("Prepare", connDB.getVersao().get() + 1, msgSockettt);
             statement.executeUpdate(sqlQuery);
+            incrementaVersao();
+            String versao = "UPDATE versao_db SET versao='" + getVersao().get() + "'";
+            statement.executeUpdate(versao);
             return "Espetáculo visível!";
         }
     return "Espetáculo não existe!";
@@ -641,10 +603,7 @@ public class ConnDB
                 //int count = -1;
 
                 //se lugar ja tiver reserva asscociada
-                //if(rs.next()){
-                    //count = rs.getInt(1);
-                //}
-                //rs.close();
+
 
                 //se lugar não tiver reserva asscociada
                 if (!rs.next()) {
@@ -665,25 +624,32 @@ public class ConnDB
                                 count = rs1.getInt(1);
                             rs1.close();
 
-//                            ResultSet rs1 = st.executeQuery("SELECT COUNT(*) FROM reserva");
-//                            if(!rs1.next())
-//                                continue;
-//                            int contador = rs1.getInt(1);
+                            Servidor.atualiza("Prepare", connDB.getVersao().get() + 1, msgSockettt);
+                            incrementaVersao();
+                            String versao = "UPDATE versao_db SET versao='" + getVersao().get() + "'";
+                            st.executeUpdate(versao);
 
                             String sqlQuery = "INSERT INTO reserva VALUES('"+count+"','" + data_hora + "','" + 0
                                     + "',(SELECT id FROM utilizador WHERE username= '" + username + "'),'" + id_espetaculo + "')";
+
                             st.executeUpdate(sqlQuery);
 
                             String sqlQuery2 = "INSERT INTO reserva_lugar VALUES( '"+count+"','" + id_lugar + "')";
+
                             st.executeUpdate(sqlQuery2);
 
                             //se utilizador tiver reservas naquele espetaculo
                         } else {
                             int id = count;
-                           // st.executeUpdate("UPDATE reserva SET pago='" + 0 + "'WHERE id_espetaculo='" + id_espetaculo + "' AND (SELECT id FROM utilizador WHERE username= '" + username + "')");
+
                             String sqlQuery2 = "INSERT INTO reserva_lugar VALUES('" + id + "','" + id_lugar + "')";
+                            Servidor.atualiza("Prepare", connDB.getVersao().get() + 1, msgSockettt);
                             st.executeUpdate(sqlQuery2);
+                            incrementaVersao();
+                            String versao = "UPDATE versao_db SET versao='" + getVersao().get() + "'";
+                            st.executeUpdate(versao);
                         }
+
                         submete.append("\nLugar reservado com sucesso: [" + comParts[0] + "-" + comParts[1] + "]");
                     }
                 } else {
@@ -698,7 +664,8 @@ public class ConnDB
         return String.valueOf(submete);
     }
 
-    public String efetuaPagamento(String username) throws SQLException {
+    public String efetuaPagamento(ArrayList<String> msgSockettt) throws SQLException {
+        String username = msgSockettt.get(1);
         Statement st= dbConn.createStatement();
         String verificaExistente = "SELECT * FROM utilizador WHERE username = '" + username + "'";
         ResultSet rs = st.executeQuery(verificaExistente);
@@ -707,7 +674,10 @@ public class ConnDB
             String verificaIdReserva = "SELECT * FROM reserva WHERE id_utilizador="+idUser;
             ResultSet resultSet = st.executeQuery(verificaIdReserva);
             if(resultSet.next()){
-                System.err.println("PAGUEI");
+                Servidor.atualiza("Prepare", connDB.getVersao().get() + 1, msgSockettt);
+                incrementaVersao();
+                String versao = "UPDATE versao_db SET versao='" + getVersao().get() + "'";
+                st.executeUpdate(versao);
                 st.executeUpdate("UPDATE reserva SET pago='"+1+"' WHERE pago='"+0+"' AND id_utilizador="+idUser);
                 rs.close();
                 resultSet.close();
@@ -720,19 +690,21 @@ public class ConnDB
         return "UserName inexistente!";
     }
 
-    public String retiraReservaLimiteTempo(String username) throws SQLException {
-        System.out.println("retiraReservaLimiteTempo");
+    public String retiraReservaLimiteTempo(ArrayList<String> msgSockettt) throws SQLException {
+        String username = msgSockettt.get(1);
         Statement st= dbConn.createStatement();
         String verificaExistente = "SELECT * FROM utilizador WHERE username = '" + username + "'";
         ResultSet rs = st.executeQuery(verificaExistente);
         if(rs.next()){
-            System.out.println("retiraReservaLimiteTempo existe user");
             int idUser = rs.getInt("id");
             String verificaIdReserva = "SELECT * FROM reserva WHERE id_utilizador='"+idUser+"' AND pago=" + 0;
             ResultSet resultSet = st.executeQuery(verificaIdReserva);
             if(resultSet.next()){
                 int idReserva = resultSet.getInt("id");
-                System.out.println("retiraReservaLimiteTempo existe Reserva"+ idReserva);
+                Servidor.atualiza("Prepare", connDB.getVersao().get() + 1, msgSockettt);
+                incrementaVersao();
+                String versao = "UPDATE versao_db SET versao='" + getVersao().get() + "'";
+                st.executeUpdate(versao);
                 st.executeUpdate("DELETE FROM reserva_lugar WHERE id_reserva="+idReserva);
                 st.executeUpdate("DELETE FROM reserva WHERE pago='"+0+"' AND id="+idReserva);
                 return "Reserva eliminada com sucesso!";
@@ -813,6 +785,8 @@ public class ConnDB
             rs1.close();
         }
         rs.close();
+        if(sb.isEmpty())
+            return "Não existem reservas pagas!";
         return sb.toString();
     }
 
@@ -889,7 +863,8 @@ public class ConnDB
         return sb.toString();
     }
 
-    public String eliminarEspetaculo(int idEspetaculo) throws SQLException {
+    public String eliminarEspetaculo(ArrayList<String> msgSockettt) throws SQLException {
+        int idEspetaculo = Integer.parseInt(msgSockettt.get(1));
         Statement st = dbConn.createStatement();
         System.err.println(idEspetaculo);
         String verificaidEspetaculo = "SELECT id FROM espetaculo WHERE id=" + idEspetaculo;
@@ -901,29 +876,46 @@ public class ConnDB
             String verificaReserva = "SELECT * FROM reserva WHERE id_espetaculo=" + idEspetaculo;
             ResultSet rs1 = st.executeQuery(verificaReserva);
             if (!rs1.next()) {
+                Servidor.atualiza("Prepare", connDB.getVersao().get() + 1, msgSockettt);
+                incrementaVersao();
+                String versao = "UPDATE versao_db SET versao='" + getVersao().get() + "'";
+                st.executeUpdate(versao);
+                st.executeUpdate("DELETE FROM lugar WHERE espetaculo_id=" + idEspetaculo);
                 st.executeUpdate("DELETE FROM espetaculo WHERE id=" + idEspetaculo);
             } else {
                 String verificaReservaPago = "SELECT * FROM reserva WHERE pago='" + 0 + "' AND id_espetaculo=" + idEspetaculo;
                 ResultSet rs2 = st.executeQuery(verificaReservaPago);
                 if(rs2.next()) {
                     int idReserva = rs2.getInt("id");
+                    Servidor.atualiza("Prepare", connDB.getVersao().get() + 1, msgSockettt);
+                    incrementaVersao();
+                    String versao = "UPDATE versao_db SET versao='" + getVersao().get() + "'";
+                    st.executeUpdate(versao);
                     st.executeUpdate("DELETE FROM reserva_lugar WHERE id_reserva=" + idReserva);
                     //int idReserva = rs1.getInt("id");
                     st.executeUpdate("DELETE FROM reserva WHERE id=" + idReserva);
+                    st.executeUpdate("DELETE FROM lugar WHERE espetaculo_id=" + idEspetaculo);
                     st.executeUpdate("DELETE FROM espetaculo WHERE id=" + idEspetaculo);
-                }
-            }
 
+                } else
+                    return "Não é possível eliminar o espetáculo!";
+            }
             return "Espetáculo eliminado com sucesso!";
+
         }
         return "Não é possível eliminar espetáculo inexistente!";
     }
 
-    public String logout(String username) throws SQLException {
+    public String logout(ArrayList<String> msgSockettt) throws SQLException {
+        String username = msgSockettt.get(1);
         Statement st = dbConn.createStatement();
         String user = "SELECT * FROM utilizador WHERE username='" + username + "'";
         ResultSet rs = st.executeQuery(user);
         if(rs.next()) {
+            Servidor.atualiza("Prepare", connDB.getVersao().get() + 1, msgSockettt);
+            incrementaVersao();
+            String versao = "UPDATE versao_db SET versao='" + getVersao().get() + "'";
+            st.executeUpdate(versao);
             String logout = "UPDATE utilizador SET autenticado ='" + 0 + "' WHERE username='" + username + "'";
             st.executeUpdate(logout);
         }
@@ -931,39 +923,5 @@ public class ConnDB
         return "Cliente terminou sessão!";
     }
 
-    /*public static void main(String[] args)
-    {
-        try
-        {
-            ConnDB connDB = new ConnDB();
-            Scanner scanner = new Scanner(System.in);
-            boolean exit = false;
 
-            while (!exit)
-            {
-                System.out.print("Command: ");
-                String command = scanner.nextLine();
-                String[] comParts = command.split(",");
-
-                if (command.startsWith("select"))
-                    connDB.listUsers(null);
-                else if (command.startsWith("find"))
-                    connDB.listUsers(comParts[1]);
-                else if (command.startsWith("insert"))
-                    connDB.insertUser(comParts[1], comParts[2]);
-                else if (command.startsWith("update"))
-                    connDB.updateUser(Integer.parseInt(comParts[1]), comParts[2], comParts[3]);
-                else if (command.startsWith("delete"))
-                    connDB.deleteUser(Integer.parseInt(comParts[1]));
-                else
-                    exit = true;
-            }
-
-            connDB.close();
-        }
-        catch (SQLException e)
-        {
-            e.printStackTrace();
-        }
-    }*/
 }

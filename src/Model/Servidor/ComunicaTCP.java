@@ -121,28 +121,28 @@ public class ComunicaTCP extends Thread {
                             }
                         }
                         case "LOGIN_USER" -> {
-                            String str = connDB.logaUser(msgSockettt.get(1), msgSockettt.get(2));
+                            String str = connDB.logaUser(msgSockettt);
                             msg.setMsg("\n" + str);
                         }
                         case "EDITA_NAME" -> {
-                            String str = connDB.updateUser(msgSockettt.get(1), msgSockettt.get(2), 0);
+                            String str = connDB.updateUser(msgSockettt,0);
                             msg.setMsg("\n" + str);
                         }
                         case "EDITA_USERNAME" -> {
-                            String str = connDB.updateUser(msgSockettt.get(1), msgSockettt.get(2), 1);
+                            String str = connDB.updateUser(msgSockettt, 1);
                             msg.setMsg("\n" + str);
                         }
                         case "EDITA_PASSWORD" -> {
-                            String str = connDB.updateUser(msgSockettt.get(1), msgSockettt.get(2), 2);
+                            String str = connDB.updateUser(msgSockettt, 2);
                             msg.setMsg("\n" + str);
                         }
                         case "INSERE_ESPETACULOS" -> {
 
-                            String str = connDB.insereEspetaculos(msgSockettt.get(1));
+                            String str = connDB.insereEspetaculos(msgSockettt);
                             msg.setMsg("\n" + str);
                         }
                         case "TORNA_VISIVEL" -> {
-                            String str = connDB.tornaVisivel(msgSockettt.get(1));
+                            String str = connDB.tornaVisivel(msgSockettt);
                             msg.setMsg("\n" + str);
                         }
                         case "FILTRO_ESPETACULO"->{
@@ -158,11 +158,11 @@ public class ComunicaTCP extends Thread {
                             msg.setMsg("\n" + str);
                         }
                         case "EFETUA_PAGAMENTO"->{
-                            String str = connDB.efetuaPagamento(msgSockettt.get(1));
+                            String str = connDB.efetuaPagamento(msgSockettt);
                             msg.setMsg("\n" + str);
                         }
                         case "LIMITE_TEMPO"->{
-                            String str = connDB.retiraReservaLimiteTempo(msgSockettt.get(1));
+                            String str = connDB.retiraReservaLimiteTempo(msgSockettt);
                             msg.setMsg("\n" + str);
                         }
                         case "CONSULTA_RESERVAS_PAGAS"->{
@@ -174,11 +174,11 @@ public class ComunicaTCP extends Thread {
                             msg.setMsg("\n" + str);
                         }
                         case "ELIMINA_ESPETACULO"->{
-                            String str = connDB.eliminarEspetaculo(Integer.parseInt(msgSockettt.get(1)));
+                            String str = connDB.eliminarEspetaculo(msgSockettt);
                             msg.setMsg("\n" + str);
                         }
                         case "LOGOUT"->{
-                            String str = connDB.logout(msgSockettt.get(1));
+                            String str = connDB.logout(msgSockettt);
                             msg.setMsg("\n" + str);
                         }
 

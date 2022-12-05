@@ -169,9 +169,7 @@ public class Servidor {
                 ObjectOutputStream oosTCP = new ObjectOutputStream(servidorTemp.getOutputStream());
 
                 ObjectInputStream oisTCP = new ObjectInputStream(servidorTemp.getInputStream());
-                System.out.println("CREIEI O FICHEIRO ");
 
-                System.out.println("CREIEI O FICHEIRO ");
                 Msg msgTCP = new Msg();
                 msgTCP.setMsg("CloneBD");
                 oosTCP.writeUnshared(msgTCP);
