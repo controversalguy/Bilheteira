@@ -33,9 +33,12 @@ public class ClientReceiveTCP extends Thread {
             while (true) {
 
                 Object msg = oisTCP.readObject();
+
                 if (msg instanceof Msg) {
+
                     msgTCP = (Msg) msg;
                     if(msgTCP.getMsg()!=null){
+                        System.out.println(msgTCP.getMsg());
                         if(msgTCP.getMsg().equals("\nLogin efetuado como admin com sucesso!")){
                             confirmaUpdate.getAndSet(2);
                         }

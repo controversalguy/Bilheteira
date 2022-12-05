@@ -31,7 +31,6 @@ public class ListenHeartBeat extends Thread{
     public void run() {
         while(threadCorre.get()) {
             DatagramPacket dp = new DatagramPacket(new byte[4000], 4000);
-            System.out.println("A ESPERA DE RECEBER");
             try {
                 ms.receive(dp);
             } catch (IOException e) {
@@ -78,9 +77,7 @@ public class ListenHeartBeat extends Thread{
 
                     ArrayList<String> msgSocket;
 
-                    System.err.println("LISTEN BABY " + info.getMsgAtualiza());
                     if (info.getMsgAtualiza().equalsIgnoreCase("PREPARE") && info.getPorto() != portServer) {
-                        System.out.println("ListenHeartBeatAtualiza" + info);
 
                         msgSocket = info.getMsgSockett();
 
@@ -89,12 +86,12 @@ public class ListenHeartBeat extends Thread{
                         while (true) {
                             LocalDateTime atual = LocalDateTime.now();
                             long seconds = ChronoUnit.SECONDS.between(entraWhile,atual);
-                            System.out.println("seconds: "+ seconds);
+
                             if(seconds > 2){
-                                System.out.println("Esperei 3 segundos");
+                                System.out.println("Timeout de multicast!");
                                 break;
                             }
-                            System.err.println("RECEBIIIIIIII");
+
                             ms.receive(dp);
                             bais = new ByteArrayInputStream(dp.getData());
                             try {
@@ -104,9 +101,7 @@ public class ListenHeartBeat extends Thread{
                                 throw new RuntimeException(e);
                             }
                             if (info.getMsgAtualiza() != null) {
-                                System.out.println("MSG ATUALIZA LISTEN: " + info.getMsgAtualiza());
                                 if (info.getMsgAtualiza().equalsIgnoreCase("Commit")) {
-                                    System.out.println("Recebi Commit QUERO ATUALIZAR");
                                     if(msgSocket!=null){
                                         processaAtualizacao(msgSocket);
                                     }
@@ -114,12 +109,9 @@ public class ListenHeartBeat extends Thread{
                                 } else if (info.getMsgAtualiza().equalsIgnoreCase("Abort")) {
                                     System.out.println("Recebi Abort");
                                     break;
-                                }else {
-                                    System.out.println("IGNORADO");
                                 }
                             }
                         }
-                        System.out.println("RECEBA MM HEIN LISTEN");
                     }
                 }
             } catch (IOException | ClassNotFoundException | SQLException e) {
@@ -199,8 +191,6 @@ public class ListenHeartBeat extends Thread{
         Msg msg = new Msg();
         msg.setVersaoBdAtualizada(versaoBdAtualizada);
 
-        System.out.println("EU enviaUDP");
-
         oos.writeUnshared(msg);
         byte[] messageBytes = baos.toByteArray();
 
@@ -222,7 +212,7 @@ public class ListenHeartBeat extends Thread{
                 msg.setIp(info.getIp());
                 msg.setLigacoesTCP(info.getLigacoes());
                 msg.setIndex(listaServidores.indexOf(info));
-                System.out.println("MSGATUALIZA: " + msg);
+
                 if (!iterator.hasNext()) {
                     msg.setLastPacket(true);
                 }
