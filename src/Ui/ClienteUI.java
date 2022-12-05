@@ -83,7 +83,7 @@ public class ClienteUI{
             listaPagamento.add(String.valueOf(Pagamento.LIMITE_TEMPO));
             fsm.limiteTempo(listaPagamento);
         }
-        System.out.println("EFETUEI PAGAMENTO MM");
+
         pagamento.getAndSet(Pagamento.ESPERA.ordinal());
         fsm.regressar();
 
@@ -142,8 +142,6 @@ public class ClienteUI{
         Collections.addAll(temp, String.valueOf(info.SELECIONAR_ESPETACULO), String.valueOf(numero));
         fsm.selecionarEspetaculo(temp);
 
-        //TODO n deixar avancar se n existir confirmaUpdate
-
         sleep(500);
 
         if(confirmaUpdate.get() == 3) {
@@ -176,7 +174,6 @@ public class ClienteUI{
             continuar = PDInput.readInt("Deseja inserir mais lugares? [0 - Sim | Outro - Não]");
         } while (continuar == 0);
 
-        System.out.println("Filas: " +  lugaresFila);
 
         fsm.submeteReserva(lugaresFila);
 

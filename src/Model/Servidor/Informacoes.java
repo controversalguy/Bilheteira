@@ -18,7 +18,7 @@ public class Informacoes implements Serializable {
     private String msgAtualiza;
     private int portoUDPAtualiza;
     private int versaoBdAtualiza;
-    private int index;
+
 
     ArrayList<String> msgSockett;
     public Informacoes(Integer porto, String ip, int ligacoes,String currentTime) {
@@ -51,14 +51,6 @@ public class Informacoes implements Serializable {
         this.msgSockett = msgSockett;
     }
 
-    public int getIndex() {
-        return index;
-    }
-
-    public void setIndex(int index) {
-        this.index = index;
-    }
-
     public int getVersaoBdAtualiza() {return versaoBdAtualiza;}
     public void setVersaoBdAtualiza(int versaoBdAtualiza) {this.versaoBdAtualiza = versaoBdAtualiza;}
     public int getPortoUDPAtualiza() {
@@ -81,16 +73,8 @@ public class Informacoes implements Serializable {
         return porto;
     }
 
-    public void setPorto(Integer porto) {
-        this.porto = porto;
-    }
-
     public String getIp() {
         return ip;
-    }
-
-    public void setIp(String ip) {
-        this.ip = ip;
     }
     public boolean isDisponivel() {
         return disponivel;
@@ -99,38 +83,22 @@ public class Informacoes implements Serializable {
     public void setDisponivel(boolean disponivel) {
         this.disponivel = disponivel;
     }
-
     public int getLigacoes() {
         return ligacoes;
     }
-
-    public void setLigacoes(int ligacoes) {
-        this.ligacoes = ligacoes;
-    }
-
     public int getVersaoBd() {
         return versaoBd;
     }
-
     public void setVersaoBd(int versaoBd) {
         this.versaoBd = versaoBd;
     }
-
     public String getCurrentTime() {
         return currentTime;
     }
-
-    public void setCurrentTime(String currentTime) {
-        this.currentTime = currentTime;
-    }
-
     public void setDbName(String dbName) {
         this.dbName = dbName;
     }
 
-    public String getDbName() {
-        return dbName;
-    }
     @Override
     public String toString() {
         return "Porto:" + porto +" Ip:"+ ip +" LigacoesTCP:"+ ligacoes + " Hora:"+ currentTime + " versaoDB:" + versaoBd +

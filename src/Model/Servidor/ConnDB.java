@@ -114,34 +114,6 @@ public class ConnDB
         }
     }
 
-    public void close() throws SQLException
-    {
-        if (dbConn != null)
-            dbConn.close();
-    }
-
-    public void listUsers(String whereName) throws SQLException
-    {
-        Statement statement = dbConn.createStatement();
-
-        String sqlQuery = "SELECT id, name, birthdate FROM users";
-        if (whereName != null)
-            sqlQuery += " WHERE name like '%" + whereName + "%'";
-
-        ResultSet resultSet = statement.executeQuery(sqlQuery);
-
-        while(resultSet.next())
-        {
-            int id = resultSet.getInt("id");
-            String name = resultSet.getString("name");
-            Date birthdate = resultSet.getDate("birthdate");
-            System.out.println("[" + id + "] " + name + " (" + birthdate + ")");
-        }
-
-        resultSet.close();
-        statement.close();
-    }
-
     public MensagensRetorno insertUser(ArrayList<String> msgSockett,boolean isComunicaTCP) throws SQLException
     {
         String name = msgSockett.get(1);
@@ -193,7 +165,7 @@ public class ConnDB
         ResultSet rs = statement.executeQuery("SELECT * FROM versao_db");
         if (rs.next()) {
             int aux = rs.getInt(1);
-            System.out.println("VERSAO GUARDADA: " + aux);
+
             rs.close();
 
             setVersaoDB(aux);
@@ -209,7 +181,7 @@ public class ConnDB
                 String user = "INSERT INTO utilizador VALUES ('" + count + "','" + "admin" + "','" + "admin" + "','" + "admin" + "','" + 1 + "','" + 0 + "')";
                 statement.executeUpdate(user);
 
-                String versao = "INSERT INTO versao_db VALUES ('" + 1 + "')"; //TODO
+                String versao = "INSERT INTO versao_db VALUES ('" + 1 + "')";
                 statement.executeUpdate(versao);
             }
             statement.close();
@@ -352,12 +324,10 @@ public class ConnDB
 
 
                         if (attributes[0].length() == 3) {
-                            // System.out.println("attributes" + Arrays.toString(attributes));
                             for (int i = 0; i < attributes.length; i++) { // corresponde a uma fila
 
                                 String[] attributesAux = attributes[i].replace("\"", "").trim().split(":");
 
-                                //System.out.println("attributesAux" + Arrays.toString(attributesAux));
                                 if (i == 0) {
                                     attributes[0] = attributesAux[0];
                                 } else if (i == 1) {
@@ -386,7 +356,6 @@ public class ConnDB
                 insereEspetaculosLista.add(result);
             }
 
-           // System.out.println("insereespetaculo"+ insereEspetaculosLista);
 
             Statement statement = connDB.dbConn.createStatement();
 
@@ -466,9 +435,7 @@ public class ConnDB
             case 7 -> r = statement.executeQuery("SELECT * FROM espetaculo WHERE classificacao_etaria like '%" + filtro+ "%'");
             case 8 -> r = statement.executeQuery("SELECT * FROM espetaculo");
         }
-        
-        //ResultSet r = statement.executeQuery("SELECT * FROM espetaculo WHERE descricao like '%" + filtro+ "%'");
-        System.out.println("filtro:"+filtro);
+
         StringBuilder sb = new StringBuilder();
         StringBuilder sbs = new StringBuilder();
 
@@ -479,7 +446,7 @@ public class ConnDB
 
             int numero = r.getInt("id");
             String descricao = r.getString("descricao");
-            System.out.println("descricao"+descricao);
+
             String tipo = r.getString("tipo");
             String data_hora = r.getString("data_hora");
             int duracao = r.getInt("duracao");
@@ -757,9 +724,9 @@ public class ConnDB
                     ResultSet rs3 = state.executeQuery(verificaReservaLugares);
                     //reserva tem lugares
                     while (rs3.next()) {
-                        System.out.println("ENTREIII");
+
                         int idLugar = rs3.getInt("id_lugar");
-                        System.out.println("IDLUGAR" + idLugar);
+
 
                         String verificaLugares = "SELECT * FROM lugar WHERE id=" + idLugar;
                         Statement statem = dbConn.createStatement();
@@ -832,9 +799,9 @@ public class ConnDB
                     ResultSet rs3 = state.executeQuery(verificaReservaLugares);
                     //reserva tem lugares
                     while (rs3.next()) {
-                        System.out.println("ENTREIII");
+
                         int idLugar = rs3.getInt("id_lugar");
-                        System.out.println("IDLUGAR" + idLugar);
+
 
                         String verificaLugares = "SELECT * FROM lugar WHERE id=" + idLugar;
                         Statement statem = dbConn.createStatement();
@@ -917,7 +884,7 @@ public class ConnDB
             String logout = "UPDATE utilizador SET autenticado ='" + 0 + "' WHERE username='" + username + "'";
             st.executeUpdate(logout);
             incrementaVersao();
-            System.out.println("GETVERSAO: " +getVersao().get());
+
             String versao = "UPDATE versao_db SET versao='" + getVersao().get() + "'";
             st.executeUpdate(versao);
         }

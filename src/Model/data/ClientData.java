@@ -61,7 +61,7 @@ public class ClientData {
                     break;
             }
 
-            System.out.println("ListaServidores: " + listaServidores);
+
             ds.close();
             return true;
         } catch (SocketException e) {
@@ -83,13 +83,13 @@ public class ClientData {
     public boolean connectaTCPServidor(AtomicInteger confirmaUpdate) {
         Informacoes info = null;
         try {
-        System.out.println("ListaServersClienteAOABRIR: " + listaServidores);
+
         Iterator<Informacoes> it = listaServidores.iterator();
         //Informacoes info = null;
 
         while (it.hasNext()) {
             info = it.next();
-            System.out.println("Porto do next: " + info.getPorto());
+            System.out.println("Porto servidor seguinte: " + info.getPorto());
 
             sClient = new Socket(info.getIp(), info.getPorto());
             System.out.println("Connectei-me ao Servidor...[" + sClient.getPort() + "]");
@@ -129,7 +129,7 @@ public class ClientData {
             if(temp.get(0).equals("EDITA_USERNAME"))
                 cliente = temp.get(1);
 
-            System.out.println(temp);
+
             oos.writeUnshared(temp);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -142,7 +142,6 @@ public class ClientData {
         Thread tempo = new ThreadTempo(pagamento); //TODO PASSAR VARIAVEL PARA ACABAR A THREAD CASO TENHA PAGO
         tempo.start();
         allThreads.add(tempo);
-        //allThreads.add(tempo);
 
         return false;
     }

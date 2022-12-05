@@ -39,8 +39,7 @@ public class ListenUDP extends Thread {
                 Iterator<Informacoes> iterator = listaServidores.iterator();
                 while (iterator.hasNext()){
                     Informacoes info = iterator.next();
-                    System.out.println("Info: "+info);
-                    // System.out.println("Porto: " +info);
+
                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
                     ObjectOutputStream oos = new ObjectOutputStream(baos);
 
@@ -50,10 +49,10 @@ public class ListenUDP extends Thread {
                         msgTCP.setLastPacket(true);
                     }
 
-                    //System.out.println("Port: "+info.getPorto()+ " Ip: "+info.getIp()+ "LigacoesTCP: " + info.getLigacoes());
+
                     msgTCP.setLigacoesTCP(info.getLigacoes());
                     msg.setIndex(listaServidores.indexOf(info));
-                    // Msg msgTCP = new Msg("Ola Sou Servidor",ss.getLocalPort());
+
 
                     oos.writeUnshared(msgTCP);
                     byte[] noCache = baos.toByteArray();

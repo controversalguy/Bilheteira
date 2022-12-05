@@ -49,9 +49,7 @@ public class ComunicaTCP extends Thread {
             if (msgSockett.getMsg() != null) {
                 if (msgSockett.getMsg().equals("CloneBD")) {
                     System.out.println("[INFO] A clonar DataBase...");
-                    //disponivel.getAndSet(false);
-                    //Servidor.atualiza("CloneMyDB", -2, null);
-                    System.out.println("dbName" + dbName);
+
                     FileInputStream fis = new FileInputStream(dbName);
                     byte[] bufferClient = new byte[4000];
                     int nBytes;
@@ -91,7 +89,7 @@ public class ComunicaTCP extends Thread {
                 }
             }
 
-            System.out.println("COMUNICATCP:" + msgSockett.getMsg());
+
 
             while (threadCorre.get()) {
                 msgSocket = oisSocket.readObject();
@@ -216,7 +214,6 @@ public class ComunicaTCP extends Thread {
                     msg.setIp(info.getIp());
                     msg.setLigacoesTCP(info.getLigacoes());
                     msg.setIndex(listaServidores.indexOf(info));
-                    System.out.println("MSGATUALIZA: " + msg);
                     if (!iterator.hasNext()) {
                         msg.setLastPacket(true);
                     }

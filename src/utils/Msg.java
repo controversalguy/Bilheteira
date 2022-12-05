@@ -16,7 +16,6 @@ public class Msg implements Serializable {
     private int ligacoesTCP;
     private byte[] msgBuffer;
     private int msgSize;
-    private  ArrayList<Socket> listaServidores;
     private int index;
     public Msg(){ }
 
@@ -24,10 +23,6 @@ public class Msg implements Serializable {
         this.ip = ipServer;
         this.portoServer = portoServer;
     }
-    public ArrayList<Socket> getListaClientes() {
-        return listaServidores;
-    }
-
     public int getIndex() {
         return index;
     }
@@ -42,10 +37,6 @@ public class Msg implements Serializable {
 
     public void setVersaoBdAtualizada(int versaoBdAtualizada) {
         this.versaoBdAtualizada = versaoBdAtualizada;
-    }
-
-    public void setListaClientes(ArrayList<Socket> listaClientes) {
-        this.listaServidores = listaClientes;
     }
     public byte[] getMsgBuffer() {
         return msgBuffer;

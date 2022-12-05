@@ -37,7 +37,7 @@ public class HeartBeat extends Thread  {
 
     @Override
     public void run() {
-        System.out.println("Welcome to the chat!["+portTCP+"]");
+        System.out.println("Bem-vindo ao Servidor!["+portTCP+"]");
         while (threadCorre.get()) {
             try {
 
@@ -61,9 +61,9 @@ public class HeartBeat extends Thread  {
                         ipgroup, portServers
                 );
                 ms.send(dp);
-                System.out.println("MANDEIIIIII");
 
-                sleep(3000); //mudar para 10 TODO
+
+                sleep(10000);
             } catch (IOException | InterruptedException e) {
                 throw new RuntimeException(e);
             }

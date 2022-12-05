@@ -15,15 +15,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static java.lang.System.exit;
 import static java.lang.Thread.sleep;
 
-enum tiposErro {
-    // TODO FAZER DEPOIS
-    // TODO FAZER Será valorizado o facto de o código das aplicações desenvolvidas ter sido estruturado
-    // TODO servidor que recebe prepare fica a espera
-    //de uma forma modular, com uma separação clara entre lógica de funcionamento,
-    //lógica de comunicação e interface do utilizador, podendo esta ser em modo texto ou
-    //gráfico conforme já mencionado
-}
-
 public class Servidor {
     static ArrayList<Thread> allThreads;
     static ArrayList<Informacoes> listaServidores;
@@ -83,10 +74,6 @@ public class Servidor {
 
             connDB = faseDeArranque(listaServidores);
 
-//            AtualizaServidorDB as = new AtualizaServidorDB(listaServidores, connDB, disponivel, listaOos, threadCorre);
-//            as.start();
-//            allThreads.add(as);
-
             HeartBeat hb = new HeartBeat(portServer, ipgroup, portServers, ms, ipServer, ligacoesTCP,
                     connDB.getVersao(), connDB.getDbName(), disponivel, threadCorre);
             hb.start();
@@ -101,12 +88,11 @@ public class Servidor {
             rs.start();
             allThreads.add(rs);
 
-            while (true) { // TODO TIRAR
+            while (true) {
                 Socket sCli = ss.accept();
                 ComunicaTCP ts = new ComunicaTCP(sCli, ligacoesTCP, dBName, disponivel, listaOos, threadCorre,listaServidores);
                 ts.start();
                 allThreads.add(ts);
-                //atualiza( "prepare",connDB.getVersao().get());
             }
 
         } catch (UnknownHostException e) {
@@ -130,7 +116,7 @@ public class Servidor {
     private static ConnDB faseDeArranque(ArrayList<Informacoes> listaServidores) {
         ConnDB connDB;
         try {
-            sleep(4000); //TODO passar para 30 segundos
+            sleep(30000);
             connDB = new ConnDB(dBName);
             if (connDB.verificaDb()) {
                 verificaVersao(connDB);
@@ -139,7 +125,6 @@ public class Servidor {
                 if(listaServidores.isEmpty()){ // se não tem mais servidores ativos
                     connDB.criaTabelas();
                 }else{ // se tiver servidores ativos
-                    System.out.println("SERVIDOR FASE DE ARRANQUE: " + connDB.getVersao());
                     if(!verificaVersao(connDB))
                         connDB.criaTabelas();
                 }
@@ -182,7 +167,7 @@ public class Servidor {
 
                     try {
                         msg = (Msg) oisTCP.readObject();
-                        System.out.println("msg: " + msg);
+
                     } catch (ClassNotFoundException e) {
                         throw new RuntimeException(e);
                     }
@@ -191,7 +176,8 @@ public class Servidor {
 
                 } while (!msg.isLastPacket());
                 connDB.setVersaoDB(valMaior);
-                System.out.println("Versao" + connDB.getVersao());
+
+
             } catch (IOException e) {
                 System.out.println("Não consegui aceder ao Socket do Servidor: " + servidorTemp.getPort());
             } finally {
@@ -210,20 +196,18 @@ public class Servidor {
 
             Informacoes info = new Informacoes(portServer, ipServer, ligacoesTCP.get(), currentTime, connDB.getVersao().get(), disponivel.get());
             if(msg!=null){
-                System.out.println("RECEBIATUALIZASERVIDOR: " + msg);
+
                 switch (msg.toUpperCase()){
                     case "PREPARE"-> {
                         info.setMsgAtualiza("Prepare");
-                        System.out.println("DENTRO DO PREPARE");
+
                         DatagramSocket ds = new DatagramSocket(0);
                         info.setPortoUDPAtualiza(ds.getLocalPort());
                         info.setVersaoBdAtualiza(valMaior);
                         info.setMsgSockett(msgSockett);
                         AtualizaUDP aUDP = new AtualizaUDP(ds, connDB,listaServidores,threadCorre,tentativas, valMaior);
                         aUDP.start();
-                        System.out.println("EDU BOIOLA ATUALIZAUDP");
 
-                        System.out.println("Info antes de Enviar Atualiza Servidor: \n" + info);
                         ByteArrayOutputStream baos = new ByteArrayOutputStream();
                         ObjectOutputStream oos = new ObjectOutputStream(baos);
                         oos.writeUnshared(info);
@@ -234,12 +218,11 @@ public class Servidor {
                                 myMessageBytes, myMessageBytes.length,
                                 ipgroup, portServers
                         );
-                        System.out.println("ENVIANDO");
+
                         ms.send(dp);
-                        System.out.println("ENVIEI");
+
                         aUDP.join();
 
-                        System.out.println("FODEU MM RAPAZ");
                         return;
                     }
                     case "COMMIT"->{
@@ -254,7 +237,7 @@ public class Servidor {
                 }
             }
             // usamos Atomic Integer pois é independente de sincronização
-            System.out.println("Info antes de Enviar Atualiza Servidor: \n" + info);
+            System.out.println("Notificando Servidores sobre atualização...\n" );
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ObjectOutputStream oos = new ObjectOutputStream(baos);
             oos.writeUnshared(info);
@@ -267,9 +250,7 @@ public class Servidor {
             );
             ms.send(dp);
 
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (InterruptedException e) {
+        } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
     }

@@ -34,20 +34,10 @@ public class AtualizaUDP extends Thread{
     @Override
     public void run() {
         DatagramPacket dp = new DatagramPacket(new byte[255], 255);
-        System.out.println("ENTREI AtualizaUDP");
 
-        //Iterator<Informacoes> it = listaServidores.iterator();
-        //System.out.println("ItAntes: " + it.hasNext());
+        for (int i = 0; i < listaServidores.size() - 1; i++) {
 
-        System.out.println("LISTA ANTES: " + listaServidores);
-        //while (it.hasNext() && threadCorre.get()) { // TODO VERIIFCAR DB VERSAO
 
-        System.out.println(listaServidores);
-            for(int i = 0; i < listaServidores.size() - 1; i++) {
-
-            System.out.println("LISTA dentro: " + listaServidores);
-           // it.next();
-            //System.out.println("It: " + it.hasNext());
             try {
                 ds.setSoTimeout(1000);
                 ds.receive(dp);
@@ -55,28 +45,25 @@ public class AtualizaUDP extends Thread{
                 ObjectInputStream ois = new ObjectInputStream(bais);
 
                 Msg msg = (Msg) ois.readObject();
-                System.out.println("It: " + msg.getVersaoBdAtualizada());
+
                 System.out.println("Versao [" + msg.getVersaoBdAtualizada() + "]");
 
             } catch (SocketTimeoutException e) {
-                System.out.println("SocketTimeoutException");
+
                 if (tentativas.get() < 1) {
                     Servidor.atualiza("Prepare", valMaior, null);
                     tentativas.getAndIncrement();
-                    System.out.println("[INFO] AtualizaUDP terminado com sucesso! < 1)");
                     return;
                 } else {
-                    System.out.println("!QUE TAS AQUI A FAZER");
+
                     Servidor.atualiza("Abort", valMaior, null);
                     return;
                 }
                 // Se for a segunda tentativa manda Abort
-            } catch (ClassNotFoundException e) {
-                throw new RuntimeException(e);
-            } catch (IOException e) {
+            } catch (ClassNotFoundException | IOException e) {
                 throw new RuntimeException(e);
             }
-            //System.out.println("!GANDA TONE ATUALIZAUDP");
+
         }
 
         Servidor.atualiza("Commit", valMaior, null);

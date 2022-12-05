@@ -23,8 +23,7 @@ public class ThreadScan extends Thread {
                         Thread.sleep(300);
                         continue;
                     } catch (InterruptedException e) {
-                        //TODO: handle exception
-                        //System.out.println("We got interrupted");
+
                         return;
                     }
                 }
@@ -33,12 +32,12 @@ public class ThreadScan extends Thread {
                     case 1 -> pagamento.getAndSet(Pagamento.EFETUA_PAGAMENTO.ordinal());
                     case 2 -> pagamento.getAndSet(Pagamento.CONSULTA_RESERVAS_PENDENTES.ordinal());
                 }
-                System.out.println("Pagamento+ " + pagamento.get());
+
             }
         } catch (IOException e) {
             System.out.println("IOException: " + e);
         }
 
-      System.out.println("mm a bacano sai");
+      System.out.println("Sai do Scan com sucesso!");
     }
 }

@@ -21,7 +21,6 @@ public class Cliente {
         portServer = Integer.parseInt(args[1]);
 
         ClientContext fsm = new ClientContext(strIpServer, portServer);
-        //ClientData data = new ClientData(listaServidores);
         ClienteUI ui = new ClienteUI(fsm);
         ui.start();
 

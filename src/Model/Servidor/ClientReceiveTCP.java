@@ -12,7 +12,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ClientReceiveTCP extends Thread {
-    ArrayList<Informacoes> listaServidores; //todo ATUALIZAR CONECTA
+    ArrayList<Informacoes> listaServidores;
     Socket sClient;
     ClientData data;
     AtomicInteger confirmaUpdate;
@@ -36,7 +36,6 @@ public class ClientReceiveTCP extends Thread {
                 if (msg instanceof Msg) {
                     msgTCP = (Msg) msg;
                     if(msgTCP.getMsg()!=null){
-                        System.out.println(msgTCP.getMsg());
                         if(msgTCP.getMsg().equals("\nLogin efetuado como admin com sucesso!")){
                             confirmaUpdate.getAndSet(2);
                         }
@@ -59,7 +58,6 @@ public class ClientReceiveTCP extends Thread {
                         else //se ja tiver mas for disponivel
                             listaServidores.set(listaServidores.lastIndexOf(info1), info1);
 
-                        System.out.println("ListaServersCliente: " + listaServidores);
 
                     }
 
@@ -69,7 +67,6 @@ public class ClientReceiveTCP extends Thread {
         } catch (UnknownHostException | ClassNotFoundException e) {
             e.printStackTrace();
         } catch (SocketException e) {
-            System.out.println("ListaServersClienteAOFECHAR: " + listaServidores);
             if(!data.connectaTCPServidor(confirmaUpdate)) {
                 throw new RuntimeException("ClientReceiveTCP Encerrou...");
             }
